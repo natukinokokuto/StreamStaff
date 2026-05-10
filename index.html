@@ -23,7 +23,7 @@
     .brand h1{margin:0;font-size:clamp(26px,5vw,44px);letter-spacing:-.05em}
     .brand p{margin:4px 0 0;color:var(--muted);font-size:14px}
     .badge{min-width:58px;height:58px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent2),var(--accent));box-shadow:0 14px 40px #21d4fd33;font-size:28px}
-    .nav{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0 18px;position:sticky;top:0;z-index:20;background:#08090dcc;backdrop-filter:blur(10px);padding:8px 0}
+    .nav{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:12px 0 18px;position:sticky;top:0;z-index:20;background:#08090dcc;backdrop-filter:blur(10px);padding:8px 0}
     .nav button,.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:16px;padding:13px 10px;cursor:pointer;font-weight:800;min-height:48px}
     .nav button.active,.btn.primary{background:linear-gradient(135deg,#e8f8ff,#fff);color:#05070a;border-color:#fff}
     .btn.danger{background:#3a1014;border-color:#7f2028}
@@ -141,7 +141,7 @@
 
     @media(max-width:760px){
       .app{padding:12px}
-      .nav{grid-template-columns:repeat(5,1fr);gap:5px}
+      .nav{grid-template-columns:repeat(6,1fr);gap:5px}
       .nav button{font-size:12px;padding:10px 3px;border-radius:12px}
       .grid,.chinchiro-wrap{grid-template-columns:1fr}
       .grid3{grid-template-columns:1fr 1fr 1fr}
@@ -168,6 +168,7 @@
       <button data-screen="chinchiro">チンチロ</button>
       <button data-screen="bonus">ログボ</button>
       <button data-screen="memo">常連</button>
+      <button data-screen="settings">設定</button>
     </nav>
 
     <section id="home" class="screen active">
@@ -277,6 +278,45 @@
     <section id="memo" class="screen">
       <div class="grid" id="memoGrid"></div>
     </section>
+
+    <section id="settings" class="screen">
+      <div class="grid">
+        <div class="card"><div class="inner">
+          <h2>音量設定</h2>
+          <p class="muted">チンチロのBGMとSEをここで調整。保存される。</p>
+          <label>BGM音量：<span id="bgmVolText">50</span>%</label>
+          <input type="range" id="bgmVolume" min="0" max="100" value="45">
+          <label>SE音量：<span id="seVolText">80</span>%</label>
+          <input type="range" id="seVolume" min="0" max="100" value="80">
+          <div class="row" style="margin-top:12px">
+            <button class="btn primary" id="testBgm">BGMテスト</button>
+            <button class="btn" id="stopBgm">BGM停止</button>
+            <button class="btn" id="testSe">SEテスト</button>
+          </div>
+          <p class="muted" style="margin-top:10px">※ブラウザ仕様で、BGMはチンチロ画面を開く/ボタンを押すなどの操作後に再生される。</p>
+        </div></div>
+
+        <div class="card"><div class="inner">
+          <h2>チンチロ管理</h2>
+          <p class="muted">出目履歴をリセットできる。</p>
+          <button class="btn danger" id="resetChLog">チンチロ履歴リセット</button>
+        </div></div>
+      </div>
+
+      <div class="card" style="margin-top:14px"><div class="inner">
+        <h2>ゲームのお題編集</h2>
+        <p class="muted">ゲーム内で出るお題や単語を自分で追加・削除できる。</p>
+        <div class="row">
+          <select id="editCategory"></select>
+          <input id="newItemText" placeholder="追加したいお題・単語">
+          <button class="btn primary" id="addGameItem">追加</button>
+        </div>
+        <div id="gameItemList" class="history" style="margin-top:12px;max-height:420px"></div>
+      </div></div>
+    </section>
+
+    <audio id="bgmChin" src="assets/bgm_wapop.mp3" loop></audio>
+
   </div>
 
 <script>
@@ -312,9 +352,25 @@ const defaultState={
     {days:31,name:"皆勤賞：リアルグッズ or 通話券1時間"}
   ],
   gameHistory:[],
-  chLog:[]
+  chLog:[],
+  settings:{bgmVolume:45,seVolume:80},
+  customGames:{
+    animalAnimals:["猫","犬","ゾウ","牛","キツネ","ハト","ゴリラ","サル","馬","深夜のコンビニ店員"],
+    animalTopics:["簡単にできる料理","昔流行ったもの","身につけるもの","虫の名前","冬に使うもの","配信で起きがちなこと"],
+    ogiri:["身につけるものっぽく一番くだらないことを言って","深夜のコンビニ店員が急に言いそうな一言","猫が配信者だった時の初見挨拶","絶対に盛り上がらないイベント名"],
+    line:["分からない……何も思い出せない……。何で炊けた米が部屋中に塗りたくられてるんだ……！？","それはもう、ほぼ事件じゃん。","ちょっと待って、話の枝が折れた。","いま誰がこの空気の責任取るの？"],
+    when:["昨日","今日","朝","明日","おととい","去年","昼に","夕方に","夜に","誕生日に"],
+    who:["お母さんが","酔っ払いが","猫が","常連が","初見さんが","師匠が"],
+    where:["コンビニで","配信画面の裏で","公園で","居酒屋で","ダーツバーで","風呂場で"],
+    what:["急に歌い出した","米を炊きすぎた","名言っぽいことを言った","謎のルールを作った","コメント欄を凍らせた"],
+    bob:["アクセル","エンジン","オイル","オートマチック","ガソリン","ガソリンスタンド","カバー","ガレージ","アプローチ","ジュース","ランプ"],
+    relo:["マーボー豆腐","チャンジャ","鮭とば","たこわさ","だし巻きたまご","枝豆","焼きナス","冷やしトマト","もつ鍋","軟骨のから揚げ"]
+  }
 };
 let state=load();
+state.settings = state.settings || structuredClone(defaultState.settings);
+state.customGames = state.customGames || structuredClone(defaultState.customGames);
+for (const k in defaultState.customGames) state.customGames[k] = state.customGames[k] || structuredClone(defaultState.customGames[k]);
 let selectedListener=0;
 let selectedGame="animal";
 
@@ -339,6 +395,8 @@ function showScreen(id){
   document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.screen===id));
   if(id==="bonus") renderBonus();
   if(id==="memo") renderMemo();
+  if(id==="settings") renderSettings();
+  if(id==="chinchiro") startChinBgm();
 }
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>showScreen(b.dataset.screen)));
 
@@ -407,7 +465,7 @@ function renderMemo(){
 let rolling=false;
 const diceEls=[d1,d2,d3];
 diceEls.forEach(d=>setDice(d,1));
-function play(id){const a=document.getElementById(id); if(!a) return; try{a.currentTime=0; a.play().catch(()=>{})}catch(e){}}
+function play(id){const a=document.getElementById(id); if(!a) return; try{a.volume=(state.settings?.seVolume ?? 80)/100; a.currentTime=0; a.play().catch(()=>{})}catch(e){}}
 function rand(){return Math.floor(Math.random()*6)+1}
 function judge(arr){
   const s=[...arr].sort((a,b)=>a-b).join("");
@@ -456,10 +514,81 @@ rollChin.onclick=()=>{
 }
 function renderChLog(){chLog.innerHTML=state.chLog.map(x=>`<div>${escapeHtml(x)}</div>`).join("")||`<div>まだ出目なし</div>`}
 
+
+function applyVolumes(){
+  const bgm=document.getElementById("bgmChin");
+  if(bgm) bgm.volume=(state.settings.bgmVolume||0)/100;
+  ["seGlass","seKoduzumi","seHorn","seChime","seSword"].forEach(id=>{
+    const a=document.getElementById(id);
+    if(a) a.volume=(state.settings.seVolume||0)/100;
+  });
+}
+function startChinBgm(){
+  applyVolumes();
+  const bgm=document.getElementById("bgmChin");
+  if(!bgm) return;
+  try{ bgm.play().catch(()=>{}); }catch(e){}
+}
+function stopChinBgm(){
+  const bgm=document.getElementById("bgmChin");
+  if(!bgm) return;
+  bgm.pause();
+}
+const editLabels={
+  animalAnimals:"動物ゲーム：動物",
+  animalTopics:"動物ゲーム：お題",
+  ogiri:"大喜利：お題",
+  line:"セリフ：セリフ",
+  when:"いつ誰どこ何：いつ",
+  who:"いつ誰どこ何：誰が",
+  where:"いつ誰どこ何：どこで",
+  what:"いつ誰どこ何：何をした",
+  bob:"ボブジテン：単語",
+  relo:"レロレロ酒場：単語"
+};
+function renderSettings(){
+  bgmVolume.value=state.settings.bgmVolume;
+  seVolume.value=state.settings.seVolume;
+  bgmVolText.textContent=state.settings.bgmVolume;
+  seVolText.textContent=state.settings.seVolume;
+  editCategory.innerHTML=Object.entries(editLabels).map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
+  renderGameItemList();
+  applyVolumes();
+}
+function renderGameItemList(){
+  const key=editCategory.value || "animalAnimals";
+  const list=state.customGames[key] || [];
+  gameItemList.innerHTML=list.map((item,i)=>`
+    <div class="row" style="justify-content:space-between;background:#0b0d13;border:1px solid var(--line);border-radius:12px;padding:9px">
+      <span>${escapeHtml(item)}</span>
+      <button class="btn danger" data-delitem="${i}" style="min-height:36px;padding:6px 10px">削除</button>
+    </div>
+  `).join("") || `<div>まだ項目なし</div>`;
+  gameItemList.querySelectorAll("[data-delitem]").forEach(btn=>btn.onclick=()=>{
+    state.customGames[key].splice(Number(btn.dataset.delitem),1);
+    save(); renderGameItemList(); renderGames();
+  });
+}
+bgmVolume.oninput=()=>{state.settings.bgmVolume=Number(bgmVolume.value);bgmVolText.textContent=state.settings.bgmVolume;save();applyVolumes();}
+seVolume.oninput=()=>{state.settings.seVolume=Number(seVolume.value);seVolText.textContent=state.settings.seVolume;save();applyVolumes();}
+testBgm.onclick=()=>startChinBgm();
+stopBgm.onclick=()=>stopChinBgm();
+testSe.onclick=()=>play("seKoduzumi");
+resetChLog.onclick=()=>{if(confirm("チンチロ履歴をリセットする？")){state.chLog=[];save();renderChLog();alert("リセットした！")}}
+editCategory.onchange=()=>renderGameItemList();
+addGameItem.onclick=()=>{
+  const key=editCategory.value;
+  const v=newItemText.value.trim();
+  if(!v)return;
+  state.customGames[key].push(v);
+  newItemText.value="";
+  save(); renderGameItemList(); renderGames();
+}
+
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
 function escapeAttr(s){return escapeHtml(s).replace(/"/g,"&quot;")}
 
-renderHome();renderGames();renderBonus();renderMemo();renderChLog();
+renderHome();renderGames();renderBonus();renderMemo();renderChLog();renderSettings();applyVolumes();
 </script>
 </body>
 </html>
