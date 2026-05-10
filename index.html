@@ -282,6 +282,50 @@ function fitBrushText(text){
   letter-spacing:.25em;
   margin-bottom:12px;
 }
+
+.home-widget-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:12px;
+  margin-top:12px;
+}
+.home-widget{
+  background:#0b0d13;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px;
+}
+.widget-controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+}
+.widget-toggle{
+  border:1px solid var(--line);
+  background:#111827;
+  color:#d1d5db;
+  border-radius:999px;
+  padding:8px 12px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:800;
+}
+.widget-toggle.on{
+  background:linear-gradient(135deg,#7c3aed,#22d3ee);
+  color:#fff;
+}
+.kampe-box{
+  display:grid;
+  gap:8px;
+}
+.kampe-item{
+  background:#121826;
+  border:1px solid #273043;
+  border-radius:12px;
+  padding:10px;
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -311,35 +355,25 @@ function fitBrushText(text){
       <button data-screen="settings">設定</button>
     </nav>
 
-    <section id="home" class="screen active">
-      <div class="grid">
-        <div class="card"><div class="inner">
-          <h2>今日の配信の樹</h2>
-          <p class="muted">幹はメイン話題、枝は脱線先、葉はリスナーが食いついたポイント。ボタンで半自動生成。</p>
-          <div class="tree-box">
-            <div class="tree-item"><b>幹</b><span id="treeTrunk">今日のメインテーマを決める</span></div>
-            <div class="tree-item"><b>枝</b><div id="treeBranch">話が止まった時の逃げ道</div></div>
-            <div class="tree-item"><b>葉</b><span id="treeLeaf">コメントが増えたポイント</span></div>
-          </div>
-          <div class="row" style="margin-top:12px">
-            <button class="btn primary" id="autoTree">自動で組む</button>
-            <button class="btn" id="nextBranch">枝を出し直す</button>
-            <button class="btn" id="branchToLeaf">今の枝を葉にする</button>
-          </div>
-        </div></div>
-        <div class="card"><div class="inner">
-          <h2>配信メモ</h2>
-          <textarea id="quickMemo" placeholder="今日のメモ、伏線、あとで拾う話題"></textarea>
-          <div class="row" style="margin-top:10px">
-            <button class="btn primary" id="saveQuickMemo">ログ保存</button>
-            <button class="btn" onclick="showScreen('games')">話題ガチャへ</button>
-            <button class="btn" onclick="showScreen('chinchiro')">チンチロへ</button>
-          </div>
-          <h3 style="margin-top:16px">保存ログ</h3>
-          <div id="homeLogs" class="history"></div>
-        </div></div>
+    
+<section id="home" class="screen active">
+  <div class="card">
+    <div class="inner">
+      <h1 class="ss-logo"><span class="ss">SS</span> StreamStaff</h1>
+      <div class="ss-sub">STREAM SUPPORT SYSTEM</div>
+
+      <div class="widget-controls">
+        <button class="widget-toggle" data-widget="topics">幹枝葉</button>
+        <button class="widget-toggle" data-widget="memo">カンペ</button>
+        <button class="widget-toggle" data-widget="timer">タイマー</button>
+        <button class="widget-toggle" data-widget="shortcuts">ショートカット</button>
       </div>
-    </section>
+
+      <div class="home-widget-grid" id="homeWidgetGrid"></div>
+    </div>
+  </div>
+</section>
+
 
     <section id="games" class="screen">
       <div class="grid">
@@ -672,6 +706,12 @@ const defaultState={
   },
   calendarEvents:[],
   logboMonth:"",
+  homeWidgets:{
+    topics:true,
+    memo:true,
+    timer:true,
+    shortcuts:true
+  },
   tools:{
     counters:[
       {id:"c_sample_1",name:"ツッコミ回数",value:0},
@@ -713,6 +753,12 @@ for (const k in defaultState.customGames) state.customGames[k] = state.customGam
 state.listeners = state.listeners || [];
 state.calendarEvents = state.calendarEvents || [];
 state.logboMonth = state.logboMonth || ym(new Date());
+state.homeWidgets = Object.assign({
+  topics:true,
+  memo:true,
+  timer:true,
+  shortcuts:true
+}, state.homeWidgets || {});
 state.listeners.forEach(l=>{
   if(typeof l.penalty!=="number") l.penalty=0;
   if(typeof l.registeredDate!=="string") l.registeredDate="";
@@ -835,6 +881,75 @@ document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",(
 if(window.openChinchiroFromGames) openChinchiroFromGames.onclick=()=>showScreen("chinchiro");
 if(window.openCalendarFromTools) openCalendarFromTools.onclick=()=>showScreen("calendar");
 
+
+
+function renderHomeWidgets(){
+  if(!window.homeWidgetGrid) return;
+
+  document.querySelectorAll(".widget-toggle").forEach(btn=>{
+    const key=btn.dataset.widget;
+    btn.classList.toggle("on", !!state.homeWidgets[key]);
+    btn.onclick=()=>{
+      state.homeWidgets[key]=!state.homeWidgets[key];
+      save();
+      renderHomeWidgets();
+    };
+  });
+
+  let out="";
+
+  if(state.homeWidgets.topics){
+    out += `
+    <div class="home-widget">
+      <h3>🌳 幹枝葉</h3>
+      <p class="muted">配信話題の軸</p>
+      <ul class="clean">
+        <li>学生時代 → 修学旅行 → 夜更かし</li>
+        <li>地元 → ローカルCM → 懐かしい店</li>
+        <li>ゲーム → PS2 → メモリーカード</li>
+      </ul>
+    </div>`;
+  }
+
+  if(state.homeWidgets.memo){
+    out += `
+    <div class="home-widget">
+      <h3>📝 カンニングペーパー</h3>
+      <div class="kampe-box">
+        <div class="kampe-item"><b>開始挨拶</b><br>こん◯◯〜！</div>
+        <div class="kampe-item"><b>困った時</b><br>地元 / 学校 / 食べ物</div>
+        <div class="kampe-item"><b>初見対応</b><br>初見さんいらっしゃい！</div>
+      </div>
+    </div>`;
+  }
+
+  if(state.homeWidgets.timer){
+    out += `
+    <div class="home-widget">
+      <h3>⏰ クイックタイマー</h3>
+      <div class="row">
+        <button class="btn">3分</button>
+        <button class="btn">5分</button>
+        <button class="btn">10分</button>
+      </div>
+      <p class="muted" style="margin-top:10px">配信用ショートタイマー</p>
+    </div>`;
+  }
+
+  if(state.homeWidgets.shortcuts){
+    out += `
+    <div class="home-widget">
+      <h3>🎮 ショートカット</h3>
+      <div class="row">
+        <button class="btn primary" onclick="showScreen('games')">ゲーム</button>
+        <button class="btn primary" onclick="showScreen('tools')">道具</button>
+        <button class="btn primary" onclick="showScreen('bonus')">ログボ</button>
+      </div>
+    </div>`;
+  }
+
+  homeWidgetGrid.innerHTML=out;
+}
 
 function renderHome(){
   treeTrunk.textContent=state.tree.trunk;
@@ -1191,7 +1306,7 @@ function applyVolumes(){
   });
 }
 function startChinBgm(){
-  applyVolumes();
+  renderHomeWidgets();applyVolumes();
   const bgm=document.getElementById("bgmChin");
   if(!bgm) return;
   try{ bgm.play().catch(()=>{}); }catch(e){}
@@ -1222,7 +1337,7 @@ function renderSettings(){
   alarmVolText.textContent=state.settings.alarmVolume;
   editCategory.innerHTML=Object.entries(editLabels).map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
   renderGameItemList();
-  applyVolumes();
+  renderHomeWidgets();applyVolumes();
 }
 function renderGameItemList(){
   const key=editCategory.value || "animalAnimals";
@@ -1238,9 +1353,9 @@ function renderGameItemList(){
     save(); renderGameItemList(); renderGames();
   });
 }
-bgmVolume.oninput=()=>{state.settings.bgmVolume=Number(bgmVolume.value);bgmVolText.textContent=state.settings.bgmVolume;save();applyVolumes();}
-seVolume.oninput=()=>{state.settings.seVolume=Number(seVolume.value);seVolText.textContent=state.settings.seVolume;save();applyVolumes();}
-alarmVolume.oninput=()=>{state.settings.alarmVolume=Number(alarmVolume.value);alarmVolText.textContent=state.settings.alarmVolume;save();applyVolumes();}
+bgmVolume.oninput=()=>{state.settings.bgmVolume=Number(bgmVolume.value);bgmVolText.textContent=state.settings.bgmVolume;save();renderHomeWidgets();applyVolumes();}
+seVolume.oninput=()=>{state.settings.seVolume=Number(seVolume.value);seVolText.textContent=state.settings.seVolume;save();renderHomeWidgets();applyVolumes();}
+alarmVolume.oninput=()=>{state.settings.alarmVolume=Number(alarmVolume.value);alarmVolText.textContent=state.settings.alarmVolume;save();renderHomeWidgets();applyVolumes();}
 testBgm.onclick=()=>startChinBgm();
 stopBgm.onclick=()=>stopChinBgm();
 testSe.onclick=()=>play("seKoduzumi");
@@ -1711,7 +1826,7 @@ function refreshAll(){
   renderSettings();
   renderCalendar();
   renderTools();
-  applyVolumes();
+  renderHomeWidgets();applyVolumes();
 }
 if(window.exportDataCode) exportDataCode.onclick=()=>{
   dataCodeBox.value=encodeSaveData(state);
@@ -1736,6 +1851,12 @@ if(window.importDataCode) importDataCode.onclick=()=>{
     if(typeof state.settings.alarmVolume!=="number") state.settings.alarmVolume=80;
     state.calendarEvents = state.calendarEvents || [];
     state.logboMonth = state.logboMonth || ym(new Date());
+state.homeWidgets = Object.assign({
+  topics:true,
+  memo:true,
+  timer:true,
+  shortcuts:true
+}, state.homeWidgets || {});
     state.listeners = state.listeners || [];
     state.listeners.forEach(l=>{
       l.logboByMonth = l.logboByMonth || {};
@@ -1765,7 +1886,7 @@ if(window.importDataCode) importDataCode.onclick=()=>{
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
 function escapeAttr(s){return escapeHtml(s).replace(/"/g,"&quot;")}
 
-renderHome();renderGames();renderBonus();renderMemo();renderCalendar();renderChLog();renderChinMode();renderSettings();renderTools();applyVolumes();ensureTimerTick();
+renderHome();renderHomeWidgets();renderGames();renderBonus();renderMemo();renderCalendar();renderChLog();renderChinMode();renderSettings();renderTools();renderHomeWidgets();applyVolumes();ensureTimerTick();
 </script>
 </body>
 </html>
