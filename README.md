@@ -1,28 +1,26 @@
-# 配信管制室 v0.1
+# 配信管制室 v0.1.1
 
-スマホ管理前提の、自分専用配信サポートアプリ試作版です。
+スマホ管理向けの配信用ミニ管理アプリです。
 
-## 入っている機能
-
-- 配信の樹：幹・枝・葉メモ
-- ゲーム：動物 / 大喜利 / セリフ / いつ誰どこ何 / ボブジテン / レロレロ酒場 / チンチロ
-- ログボ：リスナー別31日チェック
-- 常連メモ
-- 配信ログ保存
-- localStorage 自動保存
-
-## 起動方法
+## ローカルで起動
 
 ```bash
 npm install
 npm run dev
 ```
 
-ブラウザで表示されたURLを開いてください。
+表示されたURLをスマホで開く場合は、PCとスマホを同じWi-Fiにして、`Network` 側のURLを開いてください。
 
-スマホで見る場合は、同じWi-Fi内でPCのローカルIPにアクセスすると確認できます。
+## GitHub Pages 用
 
-## GitHub Pagesで公開する場合
+```bash
+npm run build
+```
 
-まず `npm run build` で `dist` を作成してください。
-Viteアプリなので、GitHub Pages / Netlify / Vercel などに載せられます。
+`dist` フォルダをGitHub Pagesに公開してください。
+
+## 白画面対策
+
+- `vite.config.js` に `base: './'` を入れてあります。
+- GitHub Pages のサブディレクトリ公開でも読み込みやすい構成です。
+- 直接 `index.html` をダブルクリックではなく、`npm run dev` か GitHub Pages で開いてください。
