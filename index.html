@@ -63,6 +63,10 @@
     .registered-item b{display:block;margin-bottom:4px}
     .penalty-box{background:#140b0d;border:1px solid #4b1d25;border-radius:14px;padding:10px;margin:10px 0}
     .penalty-count{font-size:30px;font-weight:950;color:#ff7b7b}
+    .penalty-details{display:none;margin-top:10px;background:#090b10;border:1px solid #4b1d25;border-radius:12px;padding:10px}
+    .penalty-details.open{display:block}
+    .penalty-log{display:grid;gap:6px}
+    .penalty-log div{background:#160b0e;border:1px solid #3d151b;border-radius:10px;padding:8px;font-size:13px}
     .mini-btn{min-height:36px!important;padding:6px 12px!important;border-radius:12px!important}
     .tool-list{display:grid;gap:10px}
     .tool-item{background:#0b0d13;border:1px solid var(--line);border-radius:16px;padding:12px}
@@ -768,7 +772,11 @@ function renderBonus(){
           <button class="btn danger mini-btn" data-penalty-minus="${selectedListener}">−</button>
           <button class="btn danger mini-btn" data-penalty-plus="${selectedListener}">＋</button>
           <button class="btn mini-btn" data-penalty-reset="${selectedListener}">リセット</button>
+          <button class="btn mini-btn" data-penalty-detail="${selectedListener}">内容を開く</button>
         </div>
+      </div>
+      <div class="penalty-details" data-penalty-detail-box="${selectedListener}">
+        ${penaltyDetailList(l.name)}
       </div>
     </div>
     <div class="calendar">${Array.from({length:31},(_,i)=>`<button class="day ${l.days.includes(i+1)?"on":""}" data-day="${i+1}">${i+1}</button>`).join("")}</div>
@@ -829,6 +837,13 @@ function bindPenaltyButtons(root=document){
   root.querySelectorAll("[data-penalty-plus]").forEach(btn=>btn.onclick=()=>changePenalty(Number(btn.dataset.penaltyPlus),1));
   root.querySelectorAll("[data-penalty-minus]").forEach(btn=>btn.onclick=()=>changePenalty(Number(btn.dataset.penaltyMinus),-1));
   root.querySelectorAll("[data-penalty-reset]").forEach(btn=>btn.onclick=()=>resetPenalty(Number(btn.dataset.penaltyReset)));
+  root.querySelectorAll("[data-penalty-detail]").forEach(btn=>btn.onclick=()=>{
+    const idx=btn.dataset.penaltyDetail;
+    const box=root.querySelector(`[data-penalty-detail-box="${idx}"]`);
+    if(!box)return;
+    box.classList.toggle("open");
+    btn.textContent=box.classList.contains("open") ? "内容を閉じる" : "内容を開く";
+  });
 }
 
 function achievedList(l){
@@ -853,7 +868,11 @@ function renderMemo(){
             <button class="btn danger mini-btn" data-penalty-minus="${i}">−</button>
             <button class="btn danger mini-btn" data-penalty-plus="${i}">＋</button>
             <button class="btn mini-btn" data-penalty-reset="${i}">リセット</button>
+            <button class="btn mini-btn" data-penalty-detail="${i}">内容を開く</button>
           </div>
+        </div>
+        <div class="penalty-details" data-penalty-detail-box="${i}">
+          ${penaltyDetailList(l.name)}
         </div>
       </div>
       <h3>達成依頼 / 達成品</h3>
@@ -1212,6 +1231,19 @@ function applyCalendarPenalty(listenerName, delta){
   if(typeof l.penalty!=="number") l.penalty=0;
   l.penalty=Math.max(0,l.penalty+delta);
 }
+function penaltyDetailList(listenerName){
+  const evs=(state.calendarEvents||[])
+    .filter(ev=>ev.listener===listenerName && ev.type==="ペナルティー")
+    .sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  if(!evs.length) return `<div class="penalty-log"><div class="muted">カレンダー登録のペナルティー内容なし</div></div>`;
+  return `<div class="penalty-log">${evs.map(ev=>`
+    <div>
+      <b>${escapeHtml(ev.date)}</b><br>
+      ${escapeHtml(ev.item || "ペナルティー")}
+    </div>
+  `).join("")}</div>`;
+}
+
 
 function renderCalendar(){
   if(!window.calendarMonth) return;
