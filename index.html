@@ -1,158 +1,202 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>配信管制室</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>チンチロ演出デモ</title>
+<style>
+body{
+  margin:0;
+  background:#0a0a0a;
+  color:white;
+  font-family:sans-serif;
+  overflow:hidden;
+}
+.wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  gap:20px;
+}
+.dice-area{
+  display:flex;
+  gap:20px;
+}
+.dice{
+  width:90px;
+  height:90px;
+  background:#fff;
+  color:#111;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:50px;
+  font-weight:bold;
+  box-shadow:0 0 25px rgba(255,255,255,.2);
+}
+.roll{
+  animation:spin .12s linear infinite;
+}
+@keyframes spin{
+  0%{transform:rotate(0deg) scale(1);}
+  50%{transform:rotate(180deg) scale(1.1);}
+  100%{transform:rotate(360deg) scale(1);}
+}
+button{
+  background:#b91c1c;
+  border:none;
+  color:white;
+  padding:18px 40px;
+  font-size:24px;
+  border-radius:16px;
+  cursor:pointer;
+}
+.result{
+  position:absolute;
+  top:20%;
+  right:-100%;
+  font-size:70px;
+  font-weight:bold;
+  opacity:0;
+  text-shadow:0 0 20px rgba(255,255,255,.7);
+}
+.show{
+  animation:slash 1s forwards;
+}
+@keyframes slash{
+  0%{
+    right:-100%;
+    opacity:0;
+    transform:skewX(-25deg);
+  }
+  40%{
+    opacity:1;
+  }
+  100%{
+    right:10%;
+    opacity:1;
+    transform:skewX(0deg);
+  }
+}
+.rules{
+  position:absolute;
+  right:20px;
+  bottom:20px;
+  background:#111;
+  border:1px solid #444;
+  padding:15px;
+  border-radius:14px;
+  width:220px;
+}
+.rules h3{
+  margin-top:0;
+}
+.gold{
+  color:gold;
+}
+.blue{
+  color:#7dd3fc;
+}
+</style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="logo">🎙️</div>
-        <div>
-          <h1>配信管制室</h1>
-          <p>PC / スマホ対応</p>
-        </div>
-      </div>
-
-      <nav class="menu">
-        <button class="menu-btn active" data-page="home">🏠 ホーム</button>
-        <button class="menu-btn" data-page="games">🎲 ゲーム</button>
-        <button class="menu-btn" data-page="logbo">🎁 ログボ</button>
-        <button class="menu-btn" data-page="listeners">👥 常連メモ</button>
-        <button class="menu-btn" data-page="logs">📒 配信ログ</button>
-        <button class="menu-btn" data-page="settings">⚙️ 設定</button>
-      </nav>
-    </aside>
-
-    <main class="main">
-      <section id="home" class="page active">
-        <div class="hero">
-          <h2>配信の樹</h2>
-          <p>幹・枝・葉を見ながら、話が止まったらゲームへ。</p>
-        </div>
-
-        <div class="grid three">
-          <div class="card stat"><span>今日の幹</span><strong id="homeTrunk">未設定</strong></div>
-          <div class="card stat"><span>保存ログ</span><strong id="logCount">0</strong></div>
-          <div class="card stat"><span>登録常連</span><strong id="listenerCount">0</strong></div>
-        </div>
-
-        <div class="card tree-console">
-          <div class="tree-head">
-            <div>
-              <h3>半自動トーク管理</h3>
-              <p class="small">最初に幹を作る → 枝を出す → 食いついたら葉に保存。</p>
-            </div>
-            <button class="secondary" id="autoTreeBtn">今日の流れを作る</button>
-          </div>
-          <div class="tree-flow">
-            <div class="tree-box trunk"><span>幹</span><strong id="trunkView">未設定</strong></div>
-            <div class="tree-box branch"><span>枝</span><strong id="branchView">未設定</strong></div>
-            <div class="tree-box leaf"><span>葉</span><strong id="leafView">未設定</strong></div>
-          </div>
-          <div class="quick-buttons">
-            <button id="nextBranchBtn">枝をもう1本</button>
-            <button id="saveLeafBtn">今の枝を葉にする</button>
-            <button id="resetTreeBtn">流れリセット</button>
-          </div>
-          <label>幹を手動修正</label>
-          <input id="trunk" placeholder="例：最近買ってよかったもの" />
-          <label>枝メモを手動修正</label>
-          <input id="branch" placeholder="例：服、飯、仕事、英語、ダーツ" />
-          <label>葉メモを手動修正</label>
-          <input id="leaf" placeholder="例：コメントが増えた話題" />
-          <button class="primary" id="saveTree">手動内容を保存</button>
-        </div>
-      </section>
-
-      <section id="games" class="page">
-        <div class="hero">
-          <h2>話の肴ゲーム</h2>
-          <p>配信中に押すだけ。コメントが止まった時の緊急ボタン。</p>
-        </div>
-
-        <div class="game-layout">
-          <div class="card">
-            <div class="game-buttons">
-              <button data-game="animal">動物ゲーム</button>
-              <button data-game="ogiri">大喜利</button>
-              <button data-game="line">セリフ</button>
-              <button data-game="itsu">いつ誰どこ何</button>
-              <button data-game="bob">ボブジテン</button>
-              <button data-game="relo">レロレロ酒場</button>
-              <button data-game="chin">チンチロ</button>
-            </div>
-          </div>
-
-          <div class="card result-card">
-            <p class="small">現在のお題</p>
-            <div id="gameResult" class="result">左からゲームを選んでね</div>
-            <button class="primary big" id="rollBtn">回す</button>
-            <button class="secondary" id="saveGameLog">この結果をログに保存</button>
-          </div>
-        </div>
-      </section>
-
-      <section id="logbo" class="page">
-        <div class="hero">
-          <h2>ログボ管理</h2>
-          <p>31日分のチェック。達成品は自分で編集できる。</p>
-        </div>
-        <div class="grid two">
-          <div class="card">
-            <div class="row">
-              <select id="listenerSelect"></select>
-              <button id="addListenerBtn" class="secondary">常連追加</button>
-            </div>
-            <h3 id="selectedListenerName">-</h3>
-            <p id="rewardText" class="reward">-</p>
-            <div id="achievedList" class="achieved-list"></div>
-            <div id="dayGrid" class="day-grid"></div>
-          </div>
-          <div class="card">
-            <h3>達成品編集</h3>
-            <p class="small">条件日数と報酬名を自由に変更。常連メモにも自動で箇条書き表示。</p>
-            <div id="rewardEditor" class="reward-editor"></div>
-            <button id="addRewardBtn" class="secondary">達成品を追加</button>
-          </div>
-        </div>
-      </section>
-
-      <section id="listeners" class="page">
-        <div class="hero">
-          <h2>常連メモ</h2>
-          <p>好きな話題、いじっていいライン、前回の話を残す。</p>
-        </div>
-        <div id="listenerCards" class="listener-cards"></div>
-      </section>
-
-      <section id="logs" class="page">
-        <div class="hero">
-          <h2>配信ログ</h2>
-          <p>盛り上がった話題・次回の伏線を保存。</p>
-        </div>
-        <div class="card">
-          <textarea id="manualLog" placeholder="手動でログを書く"></textarea>
-          <button id="saveManualLog" class="primary">ログ保存</button>
-        </div>
-        <div id="logList" class="log-list"></div>
-      </section>
-
-      <section id="settings" class="page">
-        <div class="hero">
-          <h2>設定</h2>
-          <p>まずは起動安定優先。データはこのブラウザ内に保存。</p>
-        </div>
-        <div class="card">
-          <button id="resetData" class="danger">データ初期化</button>
-        </div>
-      </section>
-    </main>
+<div class="wrap">
+  <div class="dice-area">
+    <div class="dice" id="d1">1</div>
+    <div class="dice" id="d2">1</div>
+    <div class="dice" id="d3">1</div>
   </div>
 
-  <script src="app.js"></script>
+  <button onclick="rollDice()">回す</button>
+
+  <div class="result" id="result">── ピンゾロ ──</div>
+
+  <div class="rules">
+    <h3>チンチロ役表</h3>
+    <div>ピンゾロ → 最強</div>
+    <div>シゴロ → 強</div>
+    <div>通常目 → 普通</div>
+    <div>ヒフミ → 最弱</div>
+  </div>
+</div>
+
+<audio id="glass" src="氷の入ったグラス.mp3"></audio>
+<audio id="drum" src="小鼓（こつづみ）.mp3"></audio>
+<audio id="horn" src="ほら貝を吹き鳴らす.mp3"></audio>
+<audio id="fail" src="チーン1.mp3"></audio>
+
+<script>
+const diceEls = [
+ document.getElementById("d1"),
+ document.getElementById("d2"),
+ document.getElementById("d3")
+];
+
+function setResult(text, cls=""){
+  const el=document.getElementById("result");
+  el.className="result "+cls+" show";
+  el.innerText=text;
+}
+
+function rollDice(){
+  document.getElementById("glass").play();
+
+  document.getElementById("result").className="result";
+
+  diceEls.forEach(d=>d.classList.add("roll"));
+
+  let interval=setInterval(()=>{
+    diceEls.forEach(d=>{
+      d.innerText=Math.floor(Math.random()*6)+1;
+    });
+  },100);
+
+  setTimeout(()=>{
+    clearInterval(interval);
+
+    let final=[rand(),rand(),rand()];
+
+    if(Math.random()<0.15){
+      final=[1,1,1];
+    }
+
+    if(Math.random()<0.1){
+      final=[1,2,3];
+    }
+
+    diceEls.forEach((d,i)=>{
+      d.classList.remove("roll");
+      d.innerText=final[i];
+    });
+
+    document.getElementById("drum").play();
+
+    const sorted=[...final].sort().join("");
+
+    setTimeout(()=>{
+      if(sorted==="111"){
+        document.body.style.background="#3b0000";
+        document.getElementById("horn").play();
+        setResult("── ピンゾロ ──","gold");
+      }else if(sorted==="123"){
+        document.body.style.background="#001b2e";
+        document.getElementById("fail").play();
+        setResult("── ヒフミ ──","blue");
+      }else{
+        document.body.style.background="#0a0a0a";
+        setResult("── 通常目 ──");
+      }
+    },350);
+
+  },1400);
+}
+
+function rand(){
+ return Math.floor(Math.random()*6)+1;
+}
+</script>
 </body>
 </html>
