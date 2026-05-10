@@ -650,6 +650,10 @@ function fitBrushText(text){
             <input id="detailNickname" placeholder="例：○○ニキ / ○○ネキ / ○○先生">
             <label>誕生日</label>
             <input id="detailBirthday" type="date">
+            <label style="display:flex;align-items:center;gap:8px;margin-top:10px">
+              <input id="detailAgeHidden" type="checkbox" style="width:auto">
+              年齢不詳で表示する
+            </label>
             <label>血液型</label>
             <select id="detailBlood">
               <option value="">未設定</option>
@@ -1009,6 +1013,7 @@ state.listeners.forEach(l=>{
   if(typeof l.penalty!=="number") l.penalty=0;
   if(typeof l.registeredDate!=="string") l.registeredDate="";
   if(typeof l.birthday!=="string") l.birthday="";
+  if(typeof l.ageHidden!=="boolean") l.ageHidden=false;
   if(typeof l.bloodType!=="string") l.bloodType="";
   if(typeof l.firstVisitDate!=="string") l.firstVisitDate="";
   if(typeof l.nickname!=="string") l.nickname="";
@@ -1370,6 +1375,10 @@ function calcAge(birthday){
   if(!hadBirthday) age--;
   return age>=0 ? `${age}歳` : "-";
 }
+function displayAge(l){
+  if(!l || !l.birthday) return "-";
+  return l.ageHidden ? "年齢不詳" : calcAge(l.birthday);
+}
 
 function generateTopicSeeds(l){
   const f=l.favorites || {};
@@ -1438,9 +1447,10 @@ function renderListenerDetail(){
   detailInputName.value=l.name || "";
   detailNickname.value=l.nickname || "";
   detailBirthday.value=l.birthday || "";
+  detailAgeHidden.checked=!!l.ageHidden;
   detailBlood.value=l.bloodType || "";
   detailFirstVisit.value=l.firstVisitDate || l.registeredDate || "";
-  detailAge.textContent=calcAge(l.birthday);
+  detailAge.textContent=displayAge(l);
   detailSinceFirst.textContent=dateDiffText(l.firstVisitDate || l.registeredDate);
   detailBloodView.textContent=l.bloodType || "-";
   const f=l.favorites || {};
@@ -1484,6 +1494,7 @@ if(window.saveListenerDetail) saveListenerDetail.onclick=()=>{
   l.name=newName;
   l.nickname=detailNickname.value.trim();
   l.birthday=detailBirthday.value;
+  l.ageHidden=!!detailAgeHidden.checked;
   l.bloodType=detailBlood.value;
   l.firstVisitDate=detailFirstVisit.value;
   l.favorites={
@@ -1540,8 +1551,8 @@ function renderMemo(){
           <button class="btn danger" data-delete-memo-listener="${i}" style="min-height:36px;padding:6px 10px">削除</button>
         </div>
       </div>
-      <p class="muted">ログボ ${currentLogboCount(l)}日 / ${state.logboMonth}</p>
-      <p class="muted">年齢 ${calcAge(l.birthday)} / 初来枠から ${dateDiffText(l.firstVisitDate || l.registeredDate)}</p>
+      <p class="muted">${l.nickname ? "@" + escapeHtml(l.nickname) + " / " : ""}ログボ ${currentLogboCount(l)}日 / ${state.logboMonth}</p>
+      <p class="muted">年齢 ${displayAge(l)} / 初来枠から ${dateDiffText(l.firstVisitDate || l.registeredDate)}</p>
       ${renderSeedList(l,i)}
       <div class="penalty-box">
         <div class="row" style="justify-content:space-between">
@@ -2402,6 +2413,7 @@ state.tools = state.tools || structuredClone(defaultState.tools);
     state.listeners = state.listeners || [];
     state.listeners.forEach(l=>{ if(typeof l.penalty!=="number") l.penalty=0; if(typeof l.registeredDate!=="string") l.registeredDate="";
   if(typeof l.birthday!=="string") l.birthday="";
+  if(typeof l.ageHidden!=="boolean") l.ageHidden=false;
   if(typeof l.bloodType!=="string") l.bloodType="";
   if(typeof l.firstVisitDate!=="string") l.firstVisitDate="";
   if(typeof l.nickname!=="string") l.nickname="";
