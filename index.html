@@ -547,7 +547,65 @@ function fitBrushText(text){
           <div id="homeLogs" class="history"></div>
         </div></div>
       </div>
-    </section>
+    
+<div class="card" style="margin-top:14px"><div class="inner">
+  <div class="row" style="justify-content:space-between">
+    <div>
+      <h2 style="margin:0">🔥 Firebase連携</h2>
+      <p class="muted">リアルタイム投票・QR投票・参加型イベント用</p>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px">
+      <input id="firebaseEnabled" type="checkbox" style="width:auto">
+      有効化
+    </label>
+  </div>
+
+  <div class="grid" style="margin-top:12px">
+    <div>
+      <label>apiKey</label>
+      <input id="firebaseApiKey" placeholder="AIza...">
+    </div>
+
+    <div>
+      <label>authDomain</label>
+      <input id="firebaseAuthDomain" placeholder="xxxx.firebaseapp.com">
+    </div>
+
+    <div>
+      <label>projectId</label>
+      <input id="firebaseProjectId" placeholder="project-id">
+    </div>
+
+    <div>
+      <label>storageBucket</label>
+      <input id="firebaseStorageBucket" placeholder="xxxx.appspot.com">
+    </div>
+
+    <div>
+      <label>messagingSenderId</label>
+      <input id="firebaseMessagingSenderId" placeholder="123456789">
+    </div>
+
+    <div>
+      <label>appId</label>
+      <input id="firebaseAppId" placeholder="1:xxx:web:xxx">
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:14px">
+    <button class="btn primary" id="saveFirebaseConfig">Firebase設定保存</button>
+    <button class="btn" id="firebaseTestBtn">接続テスト</button>
+  </div>
+
+  <div class="history" style="margin-top:12px">
+    <div>① Firebaseでプロジェクト作成</div>
+    <div>② Webアプリ追加</div>
+    <div>③ 表示された firebaseConfig をコピペ</div>
+    <div>④ 保存でリアルタイム機能解放</div>
+  </div>
+</div></div>
+
+</section>
 
     <section id="games" class="screen">
       <div class="grid">
@@ -1892,6 +1950,37 @@ const editLabels={
   bob:"ボブジテン：単語",
   relo:"レロレロ酒場：単語"
 };
+
+function renderFirebaseSettings(){
+  if(!window.firebaseApiKey) return;
+  const f=state.settings.firebase || {};
+  firebaseEnabled.checked=!!f.enabled;
+  firebaseApiKey.value=f.apiKey || "";
+  firebaseAuthDomain.value=f.authDomain || "";
+  firebaseProjectId.value=f.projectId || "";
+  firebaseStorageBucket.value=f.storageBucket || "";
+  firebaseMessagingSenderId.value=f.messagingSenderId || "";
+  firebaseAppId.value=f.appId || "";
+}
+if(window.saveFirebaseConfig) saveFirebaseConfig.onclick=()=>{
+  state.settings.firebase={
+    enabled:!!firebaseEnabled.checked,
+    apiKey:firebaseApiKey.value.trim(),
+    authDomain:firebaseAuthDomain.value.trim(),
+    projectId:firebaseProjectId.value.trim(),
+    storageBucket:firebaseStorageBucket.value.trim(),
+    messagingSenderId:firebaseMessagingSenderId.value.trim(),
+    appId:firebaseAppId.value.trim()
+  };
+  save();
+  alert("Firebase設定を保存した！");
+};
+if(window.firebaseTestBtn) firebaseTestBtn.onclick=()=>{
+  const f=state.settings.firebase || {};
+  const ok=f.apiKey && f.projectId && f.appId;
+  alert(ok ? "Firebase接続情報OKっぽい！" : "設定が足りないかも！");
+};
+
 function renderSettings(){
   bgmVolume.value=state.settings.bgmVolume;
   seVolume.value=state.settings.seVolume;
@@ -2624,6 +2713,7 @@ function refreshAll(){
   renderChLog();
   renderChinMode();
   renderSettings();
+  renderFirebaseSettings();
   renderCalendar();
   renderTools();
   renderPolls();
