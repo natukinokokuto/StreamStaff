@@ -1,4 +1,4 @@
-const KEY = 'stream_manager_pc_mobile_v1';
+const KEY = 'stream_manager_pc_mobile_v2_touch';
 const seed = {
   trunk: '今日のメインテーマを書く', branch: '脱線用の話題を書く', leaf: '食いついたポイントを書く',
   listeners: [
@@ -12,6 +12,7 @@ let data = load();
 let currentGame = 'animal';
 let lastResult = '左からゲームを選んでね';
 
+const $ = (id) => document.getElementById(id);
 const games = {
   animal: () => `🐾 ${pick(['猫','犬','ゾウ','牛','キツネ','ゴリラ','深夜のコンビニ店員'])} × 「${pick(['簡単にできる料理','昔流行ったもの','身につけるもの','虫の名前','冬に使うもの','配信で起きがちなこと'])}」といえば？`,
   ogiri: () => `🧠 大喜利：${pick(['絶対に盛り上がらないイベント名','猫が配信者だった時の初見挨拶','深夜のコンビニ店員が急に言いそうな一言','身につけるものっぽく一番くだらないことを言って'])}`,
@@ -22,37 +23,69 @@ const games = {
   chin: () => { const d = [roll(), roll(), roll()]; return `🎲 チンチロ：${d.join('・')} / 合計 ${d.reduce((a,b)=>a+b,0)}`; }
 };
 
-function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || seed; } catch { return seed; } }
+function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || structuredClone(seed); } catch { return structuredClone(seed); } }
 function save(){ localStorage.setItem(KEY, JSON.stringify(data)); render(); }
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
 function roll(){ return Math.ceil(Math.random()*6); }
 function reward(n){ if(n>=31)return '皆勤賞：リアルグッズ or 通話券1時間'; if(n>=14)return '14日達成：個通30分'; if(n>=7)return '週達成：リング / ヘッダー / ロック / しめじ'; return 'まだ育成中'; }
 function addLog(text){ data.logs.unshift({ date: new Date().toLocaleString('ja-JP'), text }); data.logs = data.logs.slice(0,50); save(); }
+function safeTap(el, fn){ el.addEventListener('click', fn); }
 
-document.querySelectorAll('.menu-btn').forEach(btn => btn.addEventListener('click', () => {
-  document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active'); document.getElementById(btn.dataset.page).classList.add('active');
-}));
-document.querySelectorAll('.game-buttons button').forEach(btn => btn.addEventListener('click', () => { currentGame = btn.dataset.game; document.querySelectorAll('.game-buttons button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); rollGame(); }));
-document.getElementById('rollBtn').addEventListener('click', rollGame);
-document.getElementById('saveGameLog').addEventListener('click', () => addLog(lastResult));
-document.getElementById('saveTree').addEventListener('click', () => { data.trunk = trunk.value; data.branch = branch.value; data.leaf = leaf.value; save(); });
-document.getElementById('addListenerBtn').addEventListener('click', () => { const name = prompt('常連名'); if(!name)return; data.listeners.push({name, days:[], memo:''}); save(); });
-document.getElementById('saveManualLog').addEventListener('click', () => { const t = manualLog.value.trim(); if(!t)return; addLog(t); manualLog.value=''; });
-document.getElementById('resetData').addEventListener('click', () => { if(confirm('データ初期化する？')) { localStorage.removeItem(KEY); data = structuredClone(seed); save(); } });
-function rollGame(){ lastResult = games[currentGame](); gameResult.textContent = lastResult; }
-function render(){
-  trunk.value = data.trunk; branch.value = data.branch; leaf.value = data.leaf;
-  homeTrunk.textContent = data.trunk || '未設定'; logCount.textContent = data.logs.length; listenerCount.textContent = data.listeners.length;
-  listenerSelect.innerHTML = data.listeners.map((l,i)=>`<option value="${i}">${l.name}</option>`).join('');
-  const idx = Number(listenerSelect.value || 0); const l = data.listeners[idx] || data.listeners[0];
-  if(l){ selectedListenerName.textContent = l.name; rewardText.textContent = `${l.days.length}/31日：${reward(l.days.length)}`; dayGrid.innerHTML = Array.from({length:31},(_,i)=>i+1).map(day=>`<button class="day ${l.days.includes(day)?'on':''}" data-day="${day}">${day}</button>`).join(''); document.querySelectorAll('.day').forEach(b=>b.onclick=()=>{ const d=Number(b.dataset.day); l.days = l.days.includes(d) ? l.days.filter(x=>x!==d) : [...l.days,d].sort((a,b)=>a-b); save(); }); }
-  listenerCards.innerHTML = data.listeners.map((l,i)=>`<div class="card"><div class="listener-name">${l.name}</div><p class="reward">${l.days.length}/31日：${reward(l.days.length)}</p><textarea data-memo="${i}">${l.memo||''}</textarea></div>`).join('');
-  document.querySelectorAll('[data-memo]').forEach(t=>t.onchange=()=>{ data.listeners[Number(t.dataset.memo)].memo = t.value; save(); });
-  logList.innerHTML = data.logs.map(l=>`<div class="card log-item"><div class="log-date">${l.date}</div>${escapeHtml(l.text)}</div>`).join('');
+function switchPage(pageId){
+  document.querySelectorAll('.menu-btn').forEach(b => b.classList.toggle('active', b.dataset.page === pageId));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === pageId));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-listenerSelect.addEventListener('change', render);
-function escapeHtml(str){ return String(str).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
-render();
-document.querySelector('[data-game="animal"]').classList.add('active');
+
+function rollGame(){ lastResult = games[currentGame](); $('gameResult').textContent = lastResult; }
+function escapeHtml(str){ return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+
+function render(){
+  $('trunk').value = data.trunk; $('branch').value = data.branch; $('leaf').value = data.leaf;
+  $('homeTrunk').textContent = data.trunk || '未設定'; $('logCount').textContent = data.logs.length; $('listenerCount').textContent = data.listeners.length;
+  const currentIndex = Number($('listenerSelect').value || 0);
+  $('listenerSelect').innerHTML = data.listeners.map((l,i)=>`<option value="${i}" ${i===currentIndex?'selected':''}>${escapeHtml(l.name)}</option>`).join('');
+  const idx = Math.min(currentIndex, data.listeners.length - 1);
+  const l = data.listeners[idx];
+  if(l){
+    $('selectedListenerName').textContent = l.name;
+    $('rewardText').textContent = `${l.days.length}/31日：${reward(l.days.length)}`;
+    $('dayGrid').innerHTML = Array.from({length:31},(_,i)=>i+1).map(day=>`<button type="button" class="day ${l.days.includes(day)?'on':''}" data-day="${day}">${day}</button>`).join('');
+  }
+  $('listenerCards').innerHTML = data.listeners.map((l,i)=>`<div class="card"><div class="listener-name">${escapeHtml(l.name)}</div><p class="reward">${l.days.length}/31日：${reward(l.days.length)}</p><textarea data-memo="${i}">${escapeHtml(l.memo||'')}</textarea></div>`).join('');
+  $('logList').innerHTML = data.logs.map(l=>`<div class="card log-item"><div class="log-date">${escapeHtml(l.date)}</div>${escapeHtml(l.text)}</div>`).join('');
+}
+
+function bind(){
+  document.querySelectorAll('.menu-btn').forEach(btn => safeTap(btn, () => switchPage(btn.dataset.page)));
+  document.querySelectorAll('.game-buttons button').forEach(btn => safeTap(btn, () => {
+    currentGame = btn.dataset.game;
+    document.querySelectorAll('.game-buttons button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    rollGame();
+  }));
+  safeTap($('rollBtn'), rollGame);
+  safeTap($('saveGameLog'), () => addLog(lastResult));
+  safeTap($('saveTree'), () => { data.trunk = $('trunk').value; data.branch = $('branch').value; data.leaf = $('leaf').value; save(); });
+  safeTap($('addListenerBtn'), () => { const name = prompt('常連名'); if(!name)return; data.listeners.push({name, days:[], memo:''}); save(); $('listenerSelect').value = String(data.listeners.length - 1); render(); });
+  safeTap($('saveManualLog'), () => { const t = $('manualLog').value.trim(); if(!t)return; addLog(t); $('manualLog').value=''; });
+  safeTap($('resetData'), () => { if(confirm('データ初期化する？')) { localStorage.removeItem(KEY); data = structuredClone(seed); save(); } });
+  $('listenerSelect').addEventListener('change', render);
+  $('dayGrid').addEventListener('click', (e) => {
+    const btn = e.target.closest('.day'); if(!btn) return;
+    const idx = Number($('listenerSelect').value || 0); const l = data.listeners[idx]; if(!l) return;
+    const d = Number(btn.dataset.day);
+    l.days = l.days.includes(d) ? l.days.filter(x=>x!==d) : [...l.days,d].sort((a,b)=>a-b);
+    save();
+  });
+  $('listenerCards').addEventListener('change', (e) => {
+    const t = e.target.closest('[data-memo]'); if(!t) return;
+    data.listeners[Number(t.dataset.memo)].memo = t.value; save();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  bind();
+  render();
+  document.querySelector('[data-game="animal"]').classList.add('active');
+});
