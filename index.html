@@ -1878,6 +1878,160 @@ function fitBrushText(text){
     grid-template-columns:1fr;
   }
 }
+/* v68 fixed visible bet board */
+.roulette-full-layout{
+  display:grid !important;
+  grid-template-columns:minmax(0,1.2fr) minmax(330px,.8fr) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+#rouletteBetBoardCard{
+  display:block;
+  grid-column:1 / 2;
+  background:linear-gradient(180deg,#141822,#0f1118);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 20px 60px #0008;
+}
+.roulette-bet-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+.roulette-bet-head h3{
+  margin:0 0 4px;
+  letter-spacing:.08em;
+  color:#fde68a;
+}
+.roulette-better-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  margin:12px 0;
+}
+.bet-board{
+  display:grid;
+  grid-template-columns:64px repeat(6,1fr);
+  gap:6px;
+  background:#08120d;
+  border:1px solid #185c37;
+  border-radius:18px;
+  padding:10px;
+  box-shadow:inset 0 0 30px rgba(0,0,0,.55);
+}
+.number-grid{
+  grid-column:2 / 8;
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:6px;
+}
+.bet-cell{
+  position:relative;
+  border:1px solid rgba(255,255,255,.22);
+  background:#10251a;
+  color:white;
+  border-radius:10px;
+  min-height:50px;
+  padding:6px;
+  font-weight:1000;
+  cursor:pointer;
+  overflow:hidden;
+  margin:0;
+}
+.bet-cell.zero{
+  grid-row:1 / span 3;
+  background:#047857;
+  min-height:162px;
+  font-size:28px;
+}
+.bet-cell.red{background:#991b1b}
+.bet-cell.black{background:#020617}
+.bet-cell.green{background:#047857}
+.bet-cell.outside{min-height:48px;background:#12351f}
+.bet-cell .chip-stack{
+  position:absolute;
+  left:4px;
+  right:4px;
+  bottom:4px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:3px;
+  justify-content:center;
+}
+.bet-chip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:28px;
+  max-width:72px;
+  height:24px;
+  padding:0 6px;
+  border-radius:999px;
+  background:radial-gradient(circle at 30% 25%,#fff,#facc15 42%,#92400e);
+  color:#111827;
+  border:2px solid #fff7ad;
+  font-size:10px;
+  font-weight:1000;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  box-shadow:0 2px 6px rgba(0,0,0,.55);
+}
+.roulette-bet-log{
+  margin-top:10px;
+  display:grid;
+  gap:6px;
+  max-height:160px;
+  overflow:auto;
+}
+.roulette-bet-row{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+  background:#0b0d13;
+  border:1px solid #29324a;
+  border-radius:12px;
+  padding:8px;
+}
+.roulette-bet-row b{color:#fde68a}
+.bet-win{
+  animation:betWinV68 .7s ease-in-out 3;
+  border-color:#facc15!important;
+  box-shadow:0 0 22px #facc15aa!important;
+}
+@keyframes betWinV68{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.8)}
+}
+@media(max-width:900px){
+  .roulette-full-layout{
+    grid-template-columns:1fr !important;
+  }
+  #rouletteBetBoardCard{
+    grid-column:auto;
+  }
+  .bet-board{
+    grid-template-columns:46px repeat(6,1fr);
+    gap:4px;
+    padding:7px;
+  }
+  .number-grid{
+    grid-template-columns:repeat(6,1fr);
+  }
+  .bet-cell{
+    min-height:44px;
+    font-size:12px;
+  }
+  .bet-cell.zero{
+    min-height:146px;
+  }
+  .roulette-better-row{
+    grid-template-columns:1fr;
+  }
+}
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -2026,7 +2180,37 @@ function fitBrushText(text){
         <div class="roulette-result-panel" id="rouletteResult">READY</div>
       </div>
 
-      <aside class="roulette-control-card">
+      
+<div class="roulette-bet-board-card" id="rouletteBetBoardCard">
+  <div class="roulette-bet-head">
+    <div>
+      <h3>BET BOARD</h3>
+      <p class="muted">登録者を選んで、下のオッズ盤にチップを置く。</p>
+    </div>
+    <button class="btn danger mini-btn" id="clearRouletteBets" type="button">ベット全消し</button>
+  </div>
+
+  <div class="roulette-better-row">
+    <select id="rouletteBetterSelect"></select>
+    <button class="btn" id="addRouletteGuestBetter" type="button">ゲスト名追加</button>
+  </div>
+
+  <div class="bet-board">
+    <button class="bet-cell zero" data-bet="number:0" type="button">0</button>
+    <div class="number-grid" id="rouletteNumberBetGrid"></div>
+
+    <button class="bet-cell outside" data-bet="range:1-18" type="button">1-18</button>
+    <button class="bet-cell outside" data-bet="type:even" type="button">EVEN</button>
+    <button class="bet-cell outside red" data-bet="color:red" type="button">RED</button>
+    <button class="bet-cell outside black" data-bet="color:black" type="button">BLACK</button>
+    <button class="bet-cell outside" data-bet="type:odd" type="button">ODD</button>
+    <button class="bet-cell outside" data-bet="range:19-36" type="button">19-36</button>
+  </div>
+
+  <div class="roulette-bet-log" id="rouletteBetList"></div>
+</div>
+
+          <aside class="roulette-control-card">
         <h3>盤面モード</h3>
         <div class="roulette-mode-buttons">
           <button class="btn primary" id="rouletteCustomMode" type="button">カスタム</button>
@@ -5015,7 +5199,7 @@ const firebaseConfig = { ... }
     }
     if(center) center.textContent = isCasino ? "37" : "SS";
     if(itemsTitle) itemsTitle.textContent = isCasino ? "カジノ数字" : "カスタム項目";
-    if(betCard) betCard.style.display = isCasino ? "block" : "none";
+    if(betCard) betCard.style.display = "block";
 
     if(customBtn && casinoBtn){
       customBtn.classList.toggle("primary", !isCasino);
@@ -5390,6 +5574,43 @@ const firebaseConfig = { ... }
     renderZoom("READY", state.roulette.mode === "casino" ? "BET PLEASE" : "赤 → 黒 → 緑", false);
     window.renderRoulette();
   }
+})();
+</script>
+<script>
+/* v68 bet board visibility fallback */
+(function(){
+  const redNumsV68 = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+
+  function ensureBetBoardV68(){
+    const grid = document.getElementById("rouletteNumberBetGrid");
+    if(grid && !grid.dataset.ready){
+      grid.innerHTML = Array.from({length:36}, function(_,i){
+        const n = i + 1;
+        const cls = redNumsV68.has(n) ? "red" : "black";
+        return '<button class="bet-cell ' + cls + '" data-bet="number:' + n + '" type="button">' + n + '</button>';
+      }).join("");
+      grid.dataset.ready = "1";
+    }
+
+    const select = document.getElementById("rouletteBetterSelect");
+    if(select && !select.options.length){
+      const names = (window.state && Array.isArray(state.listeners))
+        ? state.listeners.map(function(l){return l.name;}).filter(Boolean)
+        : [];
+      select.innerHTML = names.length
+        ? names.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join("")
+        : '<option value="">ゲスト名追加してね</option>';
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", ensureBetBoardV68);
+  document.addEventListener("click", function(e){
+    if(e.target && e.target.id === "openRouletteFromGames"){
+      setTimeout(ensureBetBoardV68, 50);
+    }
+  }, true);
+
+  if(document.readyState !== "loading") ensureBetBoardV68();
 })();
 </script>
 </body>
