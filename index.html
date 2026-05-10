@@ -1409,6 +1409,214 @@ function fitBrushText(text){
     transform:rotate(0deg) translateY(calc(-1 * min(270px, 40vw))) translateZ(78px) rotateX(-54deg);
   }
 }
+/* v64 click arrow roulette modes */
+.roulette-arrow-stage{
+  perspective:1200px;
+}
+.roulette-arrow-table{
+  position:relative;
+  width:min(610px,88vw);
+  height:min(610px,88vw);
+  display:grid;
+  place-items:center;
+  transform:rotateX(54deg);
+  transform-style:preserve-3d;
+  border-radius:50%;
+  background:
+    radial-gradient(circle,#291006 0 36%,#8a4b10 37% 44%,#1d0b08 45% 55%,transparent 56%),
+    radial-gradient(circle,#1a0f28,#060407 70%);
+  box-shadow:0 82px 95px rgba(0,0,0,.88), inset 0 0 50px rgba(255,255,255,.08);
+}
+.roulette-arrow-table::after{
+  content:"";
+  position:absolute;
+  inset:7%;
+  border-radius:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 38%,rgba(0,0,0,.58));
+  z-index:12;
+  pointer-events:none;
+}
+.roulette-arrow-wheel{
+  width:min(480px,70vw);
+  height:min(480px,70vw);
+  position:relative;
+  border-radius:50%;
+  overflow:hidden;
+  border:15px solid #facc15;
+  transform-style:preserve-3d;
+  box-shadow:
+    0 0 58px rgba(250,204,21,.42),
+    inset 0 0 42px rgba(0,0,0,.9);
+  transition:transform 5.8s cubic-bezier(.08,.72,.08,1);
+}
+.roulette-segments{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:conic-gradient(#7c3aed 0 60deg,#22d3ee 60deg 120deg,#f59e0b 120deg 180deg,#ef4444 180deg 240deg,#10b981 240deg 300deg,#ec4899 300deg 360deg);
+}
+.roulette-label-layer{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  z-index:8;
+}
+.roulette-label{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:86px;
+  min-height:26px;
+  margin:-13px 0 0 -43px;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  color:#fff;
+  font-weight:1000;
+  font-size:clamp(10px,1.8vw,14px);
+  line-height:1.1;
+  text-shadow:0 2px 4px #000,0 0 8px #000;
+  transform:rotate(var(--a)) translateY(calc(-1 * min(198px, 29vw))) rotate(calc(-1 * var(--a)));
+  word-break:break-all;
+  pointer-events:none;
+}
+.roulette-label.casino-label{
+  width:34px;
+  margin-left:-17px;
+  font-size:11px;
+  transform:rotate(var(--a)) translateY(calc(-1 * min(210px, 31vw))) rotate(calc(-1 * var(--a)));
+}
+.roulette-center-hub{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:min(138px,23vw);
+  height:min(138px,23vw);
+  transform:translate(-50%,-50%) translateZ(70px);
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 35% 25%,#fff 0 12%,#f5e8c7 28%,#b8860b 62%,#4b2307 100%);
+  border:5px solid #fff2b8;
+  z-index:20;
+  display:grid;
+  place-items:center;
+  box-shadow:0 0 24px #facc15,0 18px 28px rgba(0,0,0,.75),inset 0 0 16px rgba(255,255,255,.55);
+}
+.roulette-center-hub span{
+  font-size:clamp(28px,5vw,48px);
+  font-weight:1000;
+  color:#160a08;
+}
+.roulette-click-arrow{
+  position:absolute;
+  top:42px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:40;
+  color:#fff7ad;
+  font-size:clamp(54px,9vw,86px);
+  line-height:1;
+  filter:drop-shadow(0 6px 6px #000) drop-shadow(0 0 16px #facc15);
+}
+.roulette-click-arrow.tick{
+  animation:arrowTickV64 .16s ease;
+}
+@keyframes arrowTickV64{
+  0%{transform:translateX(-50%) translateY(0) scale(1)}
+  50%{transform:translateX(-50%) translateY(10px) scale(1.15)}
+  100%{transform:translateX(-50%) translateY(0) scale(1)}
+}
+.roulette-mode-label{
+  position:absolute;
+  top:18px;
+  left:20px;
+  z-index:45;
+  border:1px solid #facc1566;
+  background:#0b0d13cc;
+  color:#fde68a;
+  border-radius:999px;
+  padding:7px 12px;
+  font-weight:1000;
+  letter-spacing:.08em;
+}
+.roulette-mode-buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.roulette-mode-note{
+  color:var(--muted);
+  background:#0b0d13;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px;
+  margin-top:8px;
+}
+.roulette-tension-cut{
+  position:absolute;
+  inset:0;
+  display:none;
+  place-items:center;
+  z-index:70;
+  background:
+    radial-gradient(circle at center,rgba(250,204,21,.18),transparent 30%),
+    rgba(0,0,0,.48);
+  backdrop-filter:blur(2px);
+  pointer-events:none;
+  text-align:center;
+}
+.roulette-tension-cut.show{
+  display:grid;
+  animation:tensionCutV64 1.25s ease forwards;
+}
+.tension-title{
+  font-size:clamp(52px,12vw,140px);
+  font-weight:1000;
+  color:#fff;
+  text-shadow:0 0 28px #fff,0 0 58px #facc15,0 8px 0 #000;
+  animation:tensionTitleV64 1.25s cubic-bezier(.1,1.2,.2,1) forwards;
+}
+.tension-sub{
+  margin-top:-8vh;
+  font-size:clamp(18px,4vw,42px);
+  font-weight:1000;
+  color:#ffe08a;
+  text-shadow:0 0 20px #facc15,0 3px 0 #000;
+}
+@keyframes tensionCutV64{
+  0%{opacity:0}
+  10%{opacity:1}
+  82%{opacity:1}
+  100%{opacity:0}
+}
+@keyframes tensionTitleV64{
+  0%{transform:translateX(80vw) skewX(-12deg) scale(.82)}
+  34%{transform:translateX(0) skewX(-8deg) scale(1.08)}
+  70%{transform:translateX(0) skewX(0) scale(1)}
+  100%{transform:translateX(-70vw) skewX(10deg) scale(.82)}
+}
+.roulette-full-item.locked{
+  opacity:.72;
+}
+.roulette-full-item .roulette-tag{
+  color:#fde68a;
+  font-size:12px;
+  font-weight:900;
+}
+.roulette-casino-stage.hit .roulette-click-arrow{
+  animation:arrowWinV64 .55s ease-in-out infinite;
+}
+@keyframes arrowWinV64{
+  0%,100%{transform:translateX(-50%) scale(1)}
+  50%{transform:translateX(-50%) scale(1.2)}
+}
+@media(max-width:520px){
+  .roulette-arrow-table{width:94vw;height:94vw;transform:rotateX(50deg) scale(.98)}
+  .roulette-arrow-wheel{width:76vw;height:76vw}
+  .roulette-label{transform:rotate(var(--a)) translateY(calc(-1 * min(170px, 27vw))) rotate(calc(-1 * var(--a)));width:70px;margin-left:-35px;font-size:10px}
+  .roulette-label.casino-label{transform:rotate(var(--a)) translateY(calc(-1 * min(178px, 29vw))) rotate(calc(-1 * var(--a)))}
+  .roulette-casino-stage{min-height:540px}
+}
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -1517,41 +1725,52 @@ function fitBrushText(text){
     </section>
 
     
+
 <section id="roulette" class="screen">
   <div class="roulette-fullscreen">
     <div class="roulette-full-head">
       <div>
-        <h2>🎰 CASINO ROULETTE</h2>
-        <p class="muted">チンチロと同じ専用画面。配信で見せる用に盤面を大きく表示。</p>
+        <h2>🎰 ROULETTE SHOW</h2>
+        <p class="muted">カチカチ矢印式。カスタム盤面 / カジノ盤面を切替可能。</p>
       </div>
       <button class="btn" id="backRouletteToGames" type="button">ゲーム一覧へ戻る</button>
     </div>
 
     <div class="roulette-full-layout">
-      <div class="roulette-casino-stage" id="rouletteStage">
-        <div class="roulette-light-ring"></div>
+      <div class="roulette-casino-stage roulette-arrow-stage" id="rouletteStage">
         <div class="roulette-countdown" id="rouletteCountdown">3</div>
-        <div class="roulette-fixed-pointer"></div>
+        <div class="roulette-tension-cut" id="rouletteCutin">
+          <div class="tension-title">行くか…？</div>
+          <div class="tension-sub">次の枠まで滑るか！？</div>
+        </div>
 
-        <div class="roulette-table">
-          <div class="roulette-orbit">
-            <div class="roulette-ball" id="rouletteBall"></div>
-          </div>
+        <div class="roulette-mode-label" id="rouletteModeLabel">CUSTOM MODE</div>
+        <div class="roulette-click-arrow" id="rouletteArrow">▼</div>
 
-          <div class="roulette-wheel luxe-wheel" id="rouletteWheel">
-            <div class="roulette-number-ring" id="rouletteNumberRing"></div>
-            <div class="roulette-inner-bowl"></div>
-            <div class="roulette-center-tower">
-              <span>SS</span>
+        <div class="roulette-arrow-table">
+          <div class="roulette-arrow-wheel" id="rouletteWheel">
+            <div class="roulette-segments" id="rouletteSegments"></div>
+            <div class="roulette-label-layer" id="rouletteLabelLayer"></div>
+            <div class="roulette-center-hub">
+              <span id="rouletteCenterText">SS</span>
             </div>
           </div>
         </div>
 
-        <div class="roulette-cutin" id="rouletteCutin"><div class="cutin-ball"></div><div class="cutin-text">LAST BET...</div></div>
-            <div class="roulette-result-panel" id="rouletteResult">READY</div>
+        <div class="roulette-result-panel" id="rouletteResult">READY</div>
       </div>
 
       <aside class="roulette-control-card">
+        <h3>盤面モード</h3>
+        <div class="roulette-mode-buttons">
+          <button class="btn primary" id="rouletteCustomMode" type="button">カスタム</button>
+          <button class="btn" id="rouletteCasinoMode" type="button">カジノ</button>
+        </div>
+
+        <div class="roulette-mode-note" id="rouletteModeNote">
+          項目数に合わせて盤面のマス目が変わるモード。
+        </div>
+
         <h3>項目追加</h3>
         <div class="row">
           <input id="newRouletteItem" placeholder="名前・項目を追加">
@@ -1559,12 +1778,12 @@ function fitBrushText(text){
         </div>
 
         <div class="roulette-main-actions">
-          <button class="btn primary roulette-spin-main" id="spinRoulette" type="button">3秒カウント → SPIN</button>
+          <button class="btn primary roulette-spin-main" id="spinRoulette" type="button">3秒カウント → カチカチ開始</button>
           <button class="btn" id="shuffleRoulette" type="button">並びシャッフル</button>
           <button class="btn danger" id="clearRouletteHistory" type="button">履歴削除</button>
         </div>
 
-        <h3>項目</h3>
+        <h3 id="rouletteItemsTitle">カスタム項目</h3>
         <div id="rouletteItems" class="roulette-full-items"></div>
 
         <h3>履歴</h3>
@@ -4311,16 +4530,21 @@ const firebaseConfig = { ... }
 
 
 
+
 <script>
-/* v63 perspective roulette + dramatic ball cut-in */
+/* v64 click arrow roulette modes */
 (function(){
-  let rouletteRotationV63 = 0;
-  let rouletteSpinningV63 = false;
-  const rouletteNumbers = ["0","32","15","19","4","21","2","25","17","34","6","27","13","36","11","30","8","23","10","5","24","16","33","1","20","14","31","9","22","18","29","7","28","12","35","3","26"];
+  let rouletteRotationV64 = 0;
+  let rouletteSpinningV64 = false;
+  let tickTimerV64 = null;
+
+  const casinoNumbers = ["0","32","15","19","4","21","2","25","17","34","6","27","13","36","11","30","8","23","10","5","24","16","33","1","20","14","31","9","22","18","29","7","28","12","35","3","26"];
+  const casinoColors = ["#047857","#7f1d1d","#030712"];
 
   function ensureRouletteState(){
     window.state = window.state || {};
     state.roulette = state.roulette || {};
+    if(!state.roulette.mode) state.roulette.mode = "custom";
     if(!Array.isArray(state.roulette.items) || state.roulette.items.length < 1){
       state.roulette.items = ["チンチロ","大喜利","雑談","罰ゲーム","歌う","モノマネ"];
     }
@@ -4329,38 +4553,92 @@ const firebaseConfig = { ... }
   function safeSave(){ try{ if(typeof save === "function") save(); }catch(e){} }
   function esc(s){ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
 
-  function renderNumberRing(){
-    const ring = document.getElementById("rouletteNumberRing");
-    if(!ring || ring.dataset.ready === "1") return;
-    ring.innerHTML = rouletteNumbers.map((n,i)=>{
-      const a = i * (360 / rouletteNumbers.length);
-      return `<span class="roulette-num" style="--a:${a}deg">${n}</span>`;
+  function currentSlots(){
+    ensureRouletteState();
+    if(state.roulette.mode === "casino"){
+      return casinoNumbers.map((n,i)=>({
+        label:n,
+        value:n,
+        color:i===0 ? "#047857" : (i%2 ? "#7f1d1d" : "#030712"),
+        locked:true
+      }));
+    }
+    const colors = ["#7c3aed","#22d3ee","#f59e0b","#ef4444","#10b981","#ec4899","#a3e635","#6366f1","#fb7185","#14b8a6"];
+    return state.roulette.items.map((item,i)=>({
+      label:item,
+      value:item,
+      color:colors[i % colors.length],
+      locked:false
+    }));
+  }
+
+  function renderWheel(){
+    const segments = document.getElementById("rouletteSegments");
+    const labels = document.getElementById("rouletteLabelLayer");
+    const slots = currentSlots();
+    if(!segments || !labels || !slots.length) return;
+
+    const slice = 360 / slots.length;
+    const gradient = slots.map((s,i)=>`${s.color} ${i*slice}deg ${(i+1)*slice}deg`).join(",");
+    segments.style.background = `conic-gradient(${gradient})`;
+
+    labels.innerHTML = slots.map((s,i)=>{
+      const a = i * slice + slice / 2;
+      const cls = state.roulette.mode === "casino" ? "roulette-label casino-label" : "roulette-label";
+      const text = esc(String(s.label).length > 10 ? String(s.label).slice(0,10) + "…" : s.label);
+      return `<span class="${cls}" style="--a:${a}deg">${text}</span>`;
     }).join("");
-    ring.dataset.ready = "1";
   }
 
   window.renderRoulette = function renderRoulette(){
     ensureRouletteState();
-    renderNumberRing();
+    renderWheel();
 
+    const resultEl = document.getElementById("rouletteResult");
     const itemsBox = document.getElementById("rouletteItems");
     const historyBox = document.getElementById("rouletteHistory");
-    const resultEl = document.getElementById("rouletteResult");
+    const modeLabel = document.getElementById("rouletteModeLabel");
+    const modeNote = document.getElementById("rouletteModeNote");
+    const center = document.getElementById("rouletteCenterText");
+    const itemsTitle = document.getElementById("rouletteItemsTitle");
+    const customBtn = document.getElementById("rouletteCustomMode");
+    const casinoBtn = document.getElementById("rouletteCasinoMode");
 
     if(resultEl && !resultEl.classList.contains("show")) resultEl.textContent = "READY";
 
+    const isCasino = state.roulette.mode === "casino";
+    if(modeLabel) modeLabel.textContent = isCasino ? "CASINO MODE" : "CUSTOM MODE";
+    if(modeNote) modeNote.textContent = isCasino
+      ? "0〜36のカジノ盤面。結果は数字で出る。項目編集はカスタムで使う。"
+      : "項目数に合わせて盤面のマス目が変わるモード。抽選・罰ゲーム向き。";
+    if(center) center.textContent = isCasino ? "37" : "SS";
+    if(itemsTitle) itemsTitle.textContent = isCasino ? "カジノ数字" : "カスタム項目";
+    if(customBtn){
+      customBtn.classList.toggle("primary", !isCasino);
+      casinoBtn.classList.toggle("primary", isCasino);
+    }
+
     if(itemsBox){
-      itemsBox.innerHTML = state.roulette.items.map((item,i)=>`
-        <div class="roulette-full-item">
-          <span>${esc(item)}</span>
-          <button class="btn danger mini-btn" type="button" data-del-roulette="${i}">削除</button>
-        </div>
-      `).join("") || `<div class="muted">項目なし</div>`;
+      if(isCasino){
+        itemsBox.innerHTML = casinoNumbers.map(n=>`
+          <div class="roulette-full-item locked">
+            <span>${esc(n)}</span>
+            <span class="roulette-tag">CASINO</span>
+          </div>
+        `).join("");
+      }else{
+        itemsBox.innerHTML = state.roulette.items.map((item,i)=>`
+          <div class="roulette-full-item">
+            <span>${esc(item)}</span>
+            <button class="btn danger mini-btn" type="button" data-del-roulette="${i}">削除</button>
+          </div>
+        `).join("") || `<div class="muted">項目なし</div>`;
+      }
     }
 
     if(historyBox){
       historyBox.innerHTML = state.roulette.history.map(h=>`
-        <div>${esc(h.time || "")}　<b>${esc(h.result || h)}</b></div>
+        <div>${esc(h.time || "")}　<span class="muted">${esc(h.mode || "")}</span>　<b>${esc(h.result || h)}</b></div>
       `).join("") || `<div>まだ履歴なし</div>`;
     }
   };
@@ -4371,16 +4649,45 @@ const firebaseConfig = { ... }
     setTimeout(()=>window.renderRoulette(), 0);
   }
 
+  function startTicking(duration){
+    const arrow = document.getElementById("rouletteArrow");
+    if(!arrow) return;
+    clearInterval(tickTimerV64);
+    let interval = 70;
+    const start = Date.now();
+
+    function tick(){
+      arrow.classList.remove("tick");
+      void arrow.offsetWidth;
+      arrow.classList.add("tick");
+      const elapsed = Date.now() - start;
+      const progress = Math.min(1, elapsed / duration);
+      interval = 70 + progress * progress * 460;
+      clearInterval(tickTimerV64);
+      if(progress < 1){
+        tickTimerV64 = setInterval(tick, interval);
+      }
+    }
+    tickTimerV64 = setInterval(tick, interval);
+  }
+
+  function stopTicking(){
+    clearInterval(tickTimerV64);
+    tickTimerV64 = null;
+  }
+
   function countdownThenSpin(){
     ensureRouletteState();
-    if(rouletteSpinningV63) return;
-    if(state.roulette.items.length < 2){
+    if(rouletteSpinningV64) return;
+
+    const slots = currentSlots();
+    if(slots.length < 2){
       alert("ルーレット項目は2個以上ほしいｗ");
       return;
     }
 
     const countdown = document.getElementById("rouletteCountdown");
-    rouletteSpinningV63 = true;
+    rouletteSpinningV64 = true;
     let n = 3;
 
     if(countdown){
@@ -4396,7 +4703,7 @@ const firebaseConfig = { ... }
           setTimeout(()=>{
             countdown.classList.remove("show");
             spinRoulette();
-          },360);
+          },350);
         }
       },1000);
     }else{
@@ -4410,64 +4717,57 @@ const firebaseConfig = { ... }
     cutin.classList.remove("show");
     void cutin.offsetWidth;
     cutin.classList.add("show");
-    setTimeout(()=>cutin.classList.remove("show"), 1400);
+    setTimeout(()=>cutin.classList.remove("show"), 1300);
   }
 
   function spinRoulette(){
     const stage = document.getElementById("rouletteStage");
     const wheel = document.getElementById("rouletteWheel");
-    const ball = document.getElementById("rouletteBall");
     const resultEl = document.getElementById("rouletteResult");
     if(!stage || !wheel || !resultEl){
-      rouletteSpinningV63 = false;
+      rouletteSpinningV64 = false;
       alert("ルーレット表示が見つからないｗ");
       return;
     }
 
+    const slots = currentSlots();
+    const winnerIndex = Math.floor(Math.random() * slots.length);
+    const winner = slots[winnerIndex];
+
     stage.classList.remove("hit");
     resultEl.classList.remove("show");
-    resultEl.textContent = "回転中…";
+    resultEl.textContent = "カチカチ中…";
 
-    const items = state.roulette.items;
-    const winnerIndex = Math.floor(Math.random() * items.length);
-    const winner = items[winnerIndex];
-
-    const slice = 360 / items.length;
+    const slice = 360 / slots.length;
     const targetAngle = 360 - (winnerIndex * slice) - slice / 2;
-    const currentMod = ((rouletteRotationV63 % 360) + 360) % 360;
+    const currentMod = ((rouletteRotationV64 % 360) + 360) % 360;
 
-    rouletteRotationV63 = rouletteRotationV63 + 360 * 8 + targetAngle - currentMod;
-    wheel.style.transform = `rotate(${rouletteRotationV63}deg)`;
+    rouletteRotationV64 = rouletteRotationV64 + 360 * 9 + targetAngle - currentMod;
+    wheel.style.transform = `rotate(${rouletteRotationV64}deg)`;
 
-    if(ball){
-      ball.classList.remove("spin");
-      void ball.offsetWidth;
-      const slow = -2860 - targetAngle - Math.floor(Math.random()*80);
-      const bounce = -3060 - targetAngle - Math.floor(Math.random()*70);
-      const end = -3240 - targetAngle;
-      ball.style.setProperty("--ball-slow", `${slow}deg`);
-      ball.style.setProperty("--ball-bounce", `${bounce}deg`);
-      ball.style.setProperty("--ball-end", `${end}deg`);
-      ball.classList.add("spin");
-    }
+    startTicking(5600);
 
-    // ギャンブラー精神くすぐる、止まる直前の玉カットイン
-    setTimeout(showCutin, 4300);
+    // 止まる直前「次の枠に行くか行かないか」カットイン
+    setTimeout(showCutin, 4200);
 
     setTimeout(()=>{
-      resultEl.textContent = "🎉 " + winner + " 🎉";
+      stopTicking();
+      resultEl.textContent = state.roulette.mode === "casino"
+        ? "🎲 " + winner.value + " 🎲"
+        : "🎉 " + winner.value + " 🎉";
       resultEl.classList.add("show");
       stage.classList.add("hit");
 
       state.roulette.history.unshift({
         time:new Date().toLocaleTimeString("ja-JP"),
-        result:winner
+        mode:state.roulette.mode === "casino" ? "CASINO" : "CUSTOM",
+        result:winner.value
       });
       state.roulette.history = state.roulette.history.slice(0,30);
       safeSave();
       window.renderRoulette();
-      rouletteSpinningV63 = false;
-    },6250);
+      rouletteSpinningV64 = false;
+    },5900);
   }
 
   document.addEventListener("click", function(e){
@@ -4482,14 +4782,29 @@ const firebaseConfig = { ... }
       if(typeof showScreen === "function") showScreen("games");
       return;
     }
+    if(t.id === "rouletteCustomMode"){
+      ensureRouletteState();
+      state.roulette.mode = "custom";
+      safeSave();
+      window.renderRoulette();
+      return;
+    }
+    if(t.id === "rouletteCasinoMode"){
+      ensureRouletteState();
+      state.roulette.mode = "casino";
+      safeSave();
+      window.renderRoulette();
+      return;
+    }
     if(t.id === "addRouletteItem"){
       ensureRouletteState();
-      if(rouletteSpinningV63) return;
+      if(rouletteSpinningV64) return;
       const input = document.getElementById("newRouletteItem");
       const v = input && input.value ? input.value.trim() : "";
       if(!v) return;
       state.roulette.items.push(v);
       input.value = "";
+      state.roulette.mode = "custom";
       safeSave();
       window.renderRoulette();
       return;
@@ -4500,7 +4815,7 @@ const firebaseConfig = { ... }
     }
     if(t.id === "shuffleRoulette"){
       ensureRouletteState();
-      if(rouletteSpinningV63) return;
+      if(rouletteSpinningV64) return;
       const arr = state.roulette.items;
       for(let i=arr.length-1;i>0;i--){
         const j = Math.floor(Math.random()*(i+1));
@@ -4520,7 +4835,8 @@ const firebaseConfig = { ... }
     }
     if(t.dataset && t.dataset.delRoulette !== undefined){
       ensureRouletteState();
-      if(rouletteSpinningV63) return;
+      if(rouletteSpinningV64) return;
+      if(state.roulette.mode === "casino") return;
       const i = Number(t.dataset.delRoulette);
       if(state.roulette.items.length <= 2){
         alert("項目は2個以上必要！");
