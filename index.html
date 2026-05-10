@@ -957,6 +957,314 @@ function fitBrushText(text){
   .v60-roulette-shell{grid-template-columns:1fr}
   .v60-roulette-stage{min-height:390px}
 }
+/* v62 fullscreen luxury roulette */
+.roulette-fullscreen{
+  width:100%;
+}
+.roulette-full-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:14px;
+}
+.roulette-full-head h2{
+  font-size:clamp(30px,5vw,58px);
+  letter-spacing:-.04em;
+  margin:0;
+  text-shadow:0 0 26px #a855f7;
+}
+.roulette-full-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1.25fr) minmax(310px,.75fr);
+  gap:14px;
+  align-items:start;
+}
+.roulette-casino-stage{
+  min-height:min(78vh,760px);
+  position:relative;
+  overflow:hidden;
+  border-radius:28px;
+  border:1px solid #7c3aed;
+  display:grid;
+  place-items:center;
+  background:
+    radial-gradient(circle at 50% 45%,rgba(245,158,11,.18),transparent 17%),
+    radial-gradient(circle at 50% 35%,rgba(168,85,247,.45),transparent 34%),
+    radial-gradient(circle at 50% 100%,rgba(34,211,238,.14),transparent 35%),
+    linear-gradient(180deg,#13091f,#050407 72%);
+  box-shadow:
+    0 0 50px rgba(168,85,247,.32),
+    inset 0 0 90px rgba(0,0,0,.85);
+}
+.roulette-casino-stage.hit{
+  animation:rouletteStageHitV62 1.1s ease-in-out infinite;
+}
+@keyframes rouletteStageHitV62{
+  0%,100%{filter:brightness(1);box-shadow:0 0 45px rgba(168,85,247,.32),inset 0 0 90px rgba(0,0,0,.85)}
+  50%{filter:brightness(1.35);box-shadow:0 0 90px rgba(250,204,21,.75),inset 0 0 90px rgba(0,0,0,.85)}
+}
+.roulette-light-ring{
+  position:absolute;
+  width:min(650px,95vw);
+  height:min(650px,95vw);
+  border-radius:50%;
+  border:3px solid rgba(216,180,254,.42);
+  box-shadow:
+    0 0 28px #a855f7,
+    inset 0 0 34px rgba(168,85,247,.45);
+  animation:rouletteNeonPulse 2.2s ease-in-out infinite;
+}
+@keyframes rouletteNeonPulse{
+  0%,100%{opacity:.55;transform:scale(.98)}
+  50%{opacity:1;transform:scale(1.015)}
+}
+.roulette-table{
+  position:relative;
+  width:min(600px,86vw);
+  height:min(600px,86vw);
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:
+    radial-gradient(circle,#3b2306 0 30%,#8a4b10 31% 39%,#2b1207 40% 52%,transparent 53%),
+    radial-gradient(circle,#160a22 0,#070407 68%);
+  box-shadow:
+    0 32px 80px rgba(0,0,0,.8),
+    inset 0 0 50px rgba(255,255,255,.08);
+}
+.roulette-orbit{
+  position:absolute;
+  inset:22px;
+  border-radius:50%;
+  border:9px solid rgba(245,158,11,.9);
+  box-shadow:
+    inset 0 0 26px rgba(0,0,0,.95),
+    0 0 26px rgba(245,158,11,.55);
+  z-index:7;
+  pointer-events:none;
+}
+.roulette-ball{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:24px;
+  height:24px;
+  margin:-12px 0 0 -12px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 30% 25%,#fff 0 18%,#e5e7eb 36%,#94a3b8 70%,#475569 100%);
+  box-shadow:
+    0 0 12px #fff,
+    0 0 28px rgba(255,255,255,.85),
+    0 8px 18px rgba(0,0,0,.7);
+  transform:rotate(0deg) translateY(calc(-1 * min(270px, 39vw)));
+}
+.roulette-ball.spin{
+  animation:rouletteBallLuxury 5.9s cubic-bezier(.05,.74,.08,1) forwards;
+}
+@keyframes rouletteBallLuxury{
+  0%{transform:rotate(0deg) translateY(calc(-1 * min(270px, 39vw))) scale(1)}
+  18%{transform:rotate(-980deg) translateY(calc(-1 * min(272px, 39vw))) scale(1.06)}
+  58%{transform:rotate(-2140deg) translateY(calc(-1 * min(250px, 36vw))) scale(.98)}
+  78%{transform:rotate(-2760deg) translateY(calc(-1 * min(210px, 31vw))) scale(.94)}
+  90%{transform:rotate(var(--ball-bounce, -3060deg)) translateY(calc(-1 * min(185px, 28vw))) scale(1.05)}
+  100%{transform:rotate(var(--ball-end, -3180deg)) translateY(calc(-1 * min(160px, 24vw))) scale(.92)}
+}
+.luxe-wheel{
+  width:min(455px,68vw);
+  height:min(455px,68vw);
+  border-radius:50%;
+  position:relative;
+  overflow:hidden;
+  border:16px solid #f8d36a;
+  transition:transform 5.9s cubic-bezier(.05,.74,.08,1);
+  background:
+    radial-gradient(circle at center,transparent 0 22%,rgba(255,255,255,.12) 23% 24%,transparent 25%),
+    repeating-conic-gradient(
+      from 0deg,
+      #065f46 0deg 9.73deg,
+      #7f1d1d 9.73deg 19.46deg,
+      #030712 19.46deg 29.19deg
+    );
+  box-shadow:
+    0 0 55px rgba(250,204,21,.45),
+    inset 0 0 42px rgba(0,0,0,.9);
+}
+.luxe-wheel::before{
+  content:"";
+  position:absolute;
+  inset:18px;
+  border-radius:50%;
+  border:2px dashed rgba(255,255,255,.32);
+  z-index:2;
+}
+.roulette-number-ring{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  z-index:3;
+}
+.roulette-num{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:34px;
+  height:20px;
+  margin:-10px 0 0 -17px;
+  display:grid;
+  place-items:center;
+  font-size:10px;
+  font-weight:1000;
+  color:#fff;
+  text-shadow:0 1px 2px #000,0 0 4px #000;
+  transform:rotate(var(--a)) translateY(calc(-1 * min(205px, 31vw))) rotate(calc(-1 * var(--a)));
+}
+.roulette-inner-bowl{
+  position:absolute;
+  inset:88px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 45% 35%,#fff7 0 5%,transparent 10%),
+    radial-gradient(circle,#5b2c0b 0,#2a1206 55%,#120704 100%);
+  border:12px solid #9a5b18;
+  box-shadow:
+    inset 0 0 30px rgba(0,0,0,.9),
+    0 0 26px rgba(245,158,11,.45);
+  z-index:4;
+}
+.roulette-center-tower{
+  position:absolute;
+  width:min(130px,22vw);
+  height:min(130px,22vw);
+  border-radius:50%;
+  z-index:8;
+  display:grid;
+  place-items:center;
+  background:
+    radial-gradient(circle at 35% 25%,#fff 0 12%,#f5e8c7 28%,#b8860b 62%,#4b2307 100%);
+  border:5px solid #fff2b8;
+  box-shadow:
+    0 0 22px #facc15,
+    0 18px 28px rgba(0,0,0,.75),
+    inset 0 0 16px rgba(255,255,255,.55);
+}
+.roulette-center-tower span{
+  font-size:clamp(28px,5vw,48px);
+  font-weight:1000;
+  color:#13070f;
+  text-shadow:0 1px 0 #fff7;
+}
+.roulette-fixed-pointer{
+  position:absolute;
+  top:38px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:20;
+  width:0;
+  height:0;
+  border-left:30px solid transparent;
+  border-right:30px solid transparent;
+  border-top:68px solid #fff7ad;
+  filter:
+    drop-shadow(0 4px 8px #000)
+    drop-shadow(0 0 12px #facc15);
+}
+.roulette-result-panel{
+  position:absolute;
+  left:26px;
+  right:26px;
+  bottom:24px;
+  min-height:92px;
+  border-radius:26px;
+  background:rgba(5,6,10,.88);
+  border:1px solid #facc15;
+  display:grid;
+  place-items:center;
+  padding:16px;
+  text-align:center;
+  color:#ffe08a;
+  font-size:clamp(28px,6vw,68px);
+  font-weight:1000;
+  letter-spacing:-.04em;
+  opacity:0;
+  transform:translateY(22px) scale(.94);
+  transition:.45s;
+  text-shadow:
+    0 0 18px rgba(250,204,21,.85),
+    0 0 36px rgba(168,85,247,.55);
+  z-index:30;
+}
+.roulette-result-panel.show{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+.roulette-countdown{
+  position:absolute;
+  inset:0;
+  display:none;
+  place-items:center;
+  background:rgba(0,0,0,.48);
+  z-index:50;
+  font-size:clamp(86px,20vw,180px);
+  font-weight:1000;
+  color:#fff;
+  text-shadow:0 0 28px #fff,0 0 50px #a855f7;
+}
+.roulette-countdown.show{display:grid}
+.roulette-control-card{
+  background:linear-gradient(180deg,#141822,#0f1118);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px;
+  box-shadow:0 20px 60px #0008;
+}
+.roulette-main-actions{
+  display:grid;
+  gap:8px;
+  margin-top:10px;
+}
+.roulette-spin-main{
+  font-size:20px;
+  padding:17px 18px!important;
+}
+.roulette-full-items{
+  display:grid;
+  gap:8px;
+  max-height:280px;
+  overflow:auto;
+}
+.roulette-full-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  background:#0b0d13;
+  border:1px solid #29324a;
+  border-radius:13px;
+  padding:9px;
+}
+.roulette-full-item button{
+  min-height:34px!important;
+  padding:6px 10px!important;
+  border-radius:10px!important;
+}
+.roulette-full-history{
+  max-height:220px;
+  overflow:auto;
+}
+@media(max-width:900px){
+  .roulette-full-head{flex-direction:column}
+  .roulette-full-layout{grid-template-columns:1fr}
+  .roulette-casino-stage{min-height:560px}
+}
+@media(max-width:520px){
+  .roulette-casino-stage{min-height:500px}
+  .roulette-table{width:94vw;height:94vw}
+  .luxe-wheel{width:72vw;height:72vw}
+  .roulette-inner-bowl{inset:64px}
+  .roulette-result-panel{left:12px;right:12px;bottom:14px}
+}
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -1039,46 +1347,14 @@ function fitBrushText(text){
 
           
           
-<div class="tool-item open" id="rouletteGameCard" style="margin-bottom:12px">
+
+<div class="tool-item" id="rouletteGameCard" style="margin-bottom:12px;background:#120d08;border-color:#b45309">
   <div class="row" style="justify-content:space-between">
     <div>
       <div class="tool-title">🎰 カジノルーレット</div>
-      <div class="muted">参加者抽選・罰ゲーム決定・企画決定用 / SEなし版</div>
+      <div class="muted">専用画面で大きく表示 / 参加者抽選・罰ゲーム決定用</div>
     </div>
-    <button class="btn mini-btn" id="toggleRoulettePanel" type="button">閉じる</button>
-  </div>
-
-  <div class="roulette-body" id="roulettePanelBody">
-    <div class="v60-roulette-shell">
-      <div class="v60-roulette-stage" id="rouletteStage">
-        <div class="v60-countdown" id="rouletteCountdown">3</div>
-        <div class="v60-roulette-pointer"></div>
-        <div class="v60-roulette-wheel" id="rouletteWheel">
-          <div class="v60-roulette-center">SS</div>
-        </div>
-        <div class="v60-roulette-ball" id="rouletteBall"></div>
-        <div class="v60-roulette-result" id="rouletteResult">READY</div>
-      </div>
-
-      <div class="v60-roulette-side">
-        <div class="row">
-          <input id="newRouletteItem" placeholder="名前・項目を追加">
-          <button class="btn primary" id="addRouletteItem" type="button">追加</button>
-        </div>
-
-        <div class="row">
-          <button class="btn primary" id="spinRoulette" type="button">3秒カウント → 開始</button>
-          <button class="btn" id="shuffleRoulette" type="button">並びシャッフル</button>
-          <button class="btn danger" id="clearRouletteHistory" type="button">履歴削除</button>
-        </div>
-
-        <h3>項目</h3>
-        <div id="rouletteItems" class="v60-roulette-items"></div>
-
-        <h3>履歴</h3>
-        <div id="rouletteHistory" class="history v60-roulette-history"></div>
-      </div>
-    </div>
+    <button class="btn primary" id="openRouletteFromGames" type="button">開く</button>
   </div>
 </div>
 
@@ -1095,6 +1371,63 @@ function fitBrushText(text){
         </div></div>
       </div>
     </section>
+
+    
+<section id="roulette" class="screen">
+  <div class="roulette-fullscreen">
+    <div class="roulette-full-head">
+      <div>
+        <h2>🎰 CASINO ROULETTE</h2>
+        <p class="muted">チンチロと同じ専用画面。配信で見せる用に盤面を大きく表示。</p>
+      </div>
+      <button class="btn" id="backRouletteToGames" type="button">ゲーム一覧へ戻る</button>
+    </div>
+
+    <div class="roulette-full-layout">
+      <div class="roulette-casino-stage" id="rouletteStage">
+        <div class="roulette-light-ring"></div>
+        <div class="roulette-countdown" id="rouletteCountdown">3</div>
+        <div class="roulette-fixed-pointer"></div>
+
+        <div class="roulette-table">
+          <div class="roulette-orbit">
+            <div class="roulette-ball" id="rouletteBall"></div>
+          </div>
+
+          <div class="roulette-wheel luxe-wheel" id="rouletteWheel">
+            <div class="roulette-number-ring" id="rouletteNumberRing"></div>
+            <div class="roulette-inner-bowl"></div>
+            <div class="roulette-center-tower">
+              <span>SS</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="roulette-result-panel" id="rouletteResult">READY</div>
+      </div>
+
+      <aside class="roulette-control-card">
+        <h3>項目追加</h3>
+        <div class="row">
+          <input id="newRouletteItem" placeholder="名前・項目を追加">
+          <button class="btn primary" id="addRouletteItem" type="button">追加</button>
+        </div>
+
+        <div class="roulette-main-actions">
+          <button class="btn primary roulette-spin-main" id="spinRoulette" type="button">3秒カウント → SPIN</button>
+          <button class="btn" id="shuffleRoulette" type="button">並びシャッフル</button>
+          <button class="btn danger" id="clearRouletteHistory" type="button">履歴削除</button>
+        </div>
+
+        <h3>項目</h3>
+        <div id="rouletteItems" class="roulette-full-items"></div>
+
+        <h3>履歴</h3>
+        <div id="rouletteHistory" class="history roulette-full-history"></div>
+      </aside>
+    </div>
+  </div>
+</section>
 
     <section id="chinchiro" class="screen">
       <div class="mode-tabs" id="chinModeTabs">
@@ -3831,47 +4164,49 @@ const firebaseConfig = { ... }
   </div>
 </div>
 
+
 <script>
-/* v60 StreamStaff casino roulette integrated - no SE */
+/* v62 fullscreen luxury roulette */
 (function(){
-  let rouletteRotationV60 = 0;
-  let rouletteSpinningV60 = false;
+  let rouletteRotationV62 = 0;
+  let rouletteSpinningV62 = false;
+  const rouletteNumbers = ["0","32","15","19","4","21","2","25","17","34","6","27","13","36","11","30","8","23","10","5","24","16","33","1","20","14","31","9","22","18","29","7","28","12","35","3","26"];
 
   function ensureRouletteState(){
     window.state = window.state || {};
-    state.ui = Object.assign({rouletteOpen:true}, state.ui || {});
     state.roulette = state.roulette || {};
     if(!Array.isArray(state.roulette.items) || state.roulette.items.length < 1){
       state.roulette.items = ["チンチロ","大喜利","雑談","罰ゲーム","歌う","モノマネ"];
     }
     if(!Array.isArray(state.roulette.history)) state.roulette.history = [];
   }
+  function safeSave(){ try{ if(typeof save === "function") save(); }catch(e){} }
+  function esc(s){ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
 
-  function safeSave(){
-    try{ if(typeof save === "function") save(); }catch(e){}
-  }
-
-  function escapeHtmlV60(s){
-    return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+  function renderNumberRing(){
+    const ring = document.getElementById("rouletteNumberRing");
+    if(!ring || ring.dataset.ready === "1") return;
+    ring.innerHTML = rouletteNumbers.map((n,i)=>{
+      const a = i * (360 / rouletteNumbers.length);
+      return `<span class="roulette-num" style="--a:${a}deg">${n}</span>`;
+    }).join("");
+    ring.dataset.ready = "1";
   }
 
   window.renderRoulette = function renderRoulette(){
     ensureRouletteState();
+    renderNumberRing();
 
-    const card = document.getElementById("rouletteGameCard");
-    const toggle = document.getElementById("toggleRoulettePanel");
     const itemsBox = document.getElementById("rouletteItems");
     const historyBox = document.getElementById("rouletteHistory");
     const resultEl = document.getElementById("rouletteResult");
 
-    if(card) card.classList.toggle("open", !!state.ui.rouletteOpen);
-    if(toggle) toggle.textContent = state.ui.rouletteOpen ? "閉じる" : "開く";
     if(resultEl && !resultEl.classList.contains("show")) resultEl.textContent = "READY";
 
     if(itemsBox){
       itemsBox.innerHTML = state.roulette.items.map((item,i)=>`
-        <div class="v60-roulette-item">
-          <span>${escapeHtmlV60(item)}</span>
+        <div class="roulette-full-item">
+          <span>${esc(item)}</span>
           <button class="btn danger mini-btn" type="button" data-del-roulette="${i}">削除</button>
         </div>
       `).join("") || `<div class="muted">項目なし</div>`;
@@ -3879,55 +4214,57 @@ const firebaseConfig = { ... }
 
     if(historyBox){
       historyBox.innerHTML = state.roulette.history.map(h=>`
-        <div>${escapeHtmlV60(h.time || "")}　<b>${escapeHtmlV60(h.result || h)}</b></div>
+        <div>${esc(h.time || "")}　<b>${esc(h.result || h)}</b></div>
       `).join("") || `<div>まだ履歴なし</div>`;
     }
   };
 
-  function startCountdownThenSpin(){
+  function openRoulette(){
     ensureRouletteState();
-    if(rouletteSpinningV60) return;
+    if(typeof showScreen === "function") showScreen("roulette");
+    setTimeout(()=>window.renderRoulette(), 0);
+  }
+
+  function countdownThenSpin(){
+    ensureRouletteState();
+    if(rouletteSpinningV62) return;
     if(state.roulette.items.length < 2){
       alert("ルーレット項目は2個以上ほしいｗ");
       return;
     }
 
     const countdown = document.getElementById("rouletteCountdown");
-    if(!countdown) return spinRouletteV60();
-
-    rouletteSpinningV60 = true;
+    rouletteSpinningV62 = true;
     let n = 3;
-    countdown.textContent = n;
-    countdown.classList.add("show");
 
-    const timer = setInterval(()=>{
-      n--;
-      if(n > 0){
-        countdown.textContent = n;
-      }else{
-        clearInterval(timer);
-        countdown.textContent = "GO!";
-        setTimeout(()=>{
-          countdown.classList.remove("show");
-          spinRouletteV60(true);
-        },350);
-      }
-    },1000);
+    if(countdown){
+      countdown.textContent = n;
+      countdown.classList.add("show");
+      const timer = setInterval(()=>{
+        n--;
+        if(n > 0){
+          countdown.textContent = n;
+        }else{
+          clearInterval(timer);
+          countdown.textContent = "GO!";
+          setTimeout(()=>{
+            countdown.classList.remove("show");
+            spinRoulette(true);
+          },360);
+        }
+      },1000);
+    }else{
+      spinRoulette(true);
+    }
   }
 
-  function spinRouletteV60(fromCountdown){
-    ensureRouletteState();
-    if(!fromCountdown){
-      if(rouletteSpinningV60) return;
-      rouletteSpinningV60 = true;
-    }
-
+  function spinRoulette(fromCountdown){
     const stage = document.getElementById("rouletteStage");
     const wheel = document.getElementById("rouletteWheel");
     const ball = document.getElementById("rouletteBall");
     const resultEl = document.getElementById("rouletteResult");
     if(!stage || !wheel || !resultEl){
-      rouletteSpinningV60 = false;
+      rouletteSpinningV62 = false;
       alert("ルーレット表示が見つからないｗ");
       return;
     }
@@ -3942,16 +4279,18 @@ const firebaseConfig = { ... }
 
     const slice = 360 / items.length;
     const targetAngle = 360 - (winnerIndex * slice) - slice / 2;
-    const currentMod = ((rouletteRotationV60 % 360) + 360) % 360;
-    rouletteRotationV60 = rouletteRotationV60 + 360 * 7 + targetAngle - currentMod;
+    const currentMod = ((rouletteRotationV62 % 360) + 360) % 360;
 
-    wheel.style.transform = `rotate(${rouletteRotationV60}deg)`;
+    rouletteRotationV62 = rouletteRotationV62 + 360 * 8 + targetAngle - currentMod;
+    wheel.style.transform = `rotate(${rouletteRotationV62}deg)`;
 
     if(ball){
       ball.classList.remove("spin");
       void ball.offsetWidth;
-      const ballEnd = -2160 - targetAngle;
-      ball.style.setProperty("--ball-end", `${ballEnd}deg`);
+      const bounce = -2940 - targetAngle - Math.floor(Math.random()*120);
+      const end = -3240 - targetAngle;
+      ball.style.setProperty("--ball-bounce", `${bounce}deg`);
+      ball.style.setProperty("--ball-end", `${end}deg`);
       ball.classList.add("spin");
     }
 
@@ -3967,26 +4306,27 @@ const firebaseConfig = { ... }
       state.roulette.history = state.roulette.history.slice(0,30);
       safeSave();
       window.renderRoulette();
-
-      rouletteSpinningV60 = false;
-    },5900);
+      rouletteSpinningV62 = false;
+    },6000);
   }
 
   document.addEventListener("click", function(e){
     const t = e.target;
     if(!t) return;
 
-    if(t.id === "toggleRoulettePanel"){
-      ensureRouletteState();
-      state.ui.rouletteOpen = !state.ui.rouletteOpen;
-      safeSave();
-      window.renderRoulette();
+    if(t.id === "openRouletteFromGames"){
+      openRoulette();
+      return;
+    }
+
+    if(t.id === "backRouletteToGames"){
+      if(typeof showScreen === "function") showScreen("games");
       return;
     }
 
     if(t.id === "addRouletteItem"){
       ensureRouletteState();
-      if(rouletteSpinningV60) return;
+      if(rouletteSpinningV62) return;
       const input = document.getElementById("newRouletteItem");
       const v = input && input.value ? input.value.trim() : "";
       if(!v) return;
@@ -3998,13 +4338,13 @@ const firebaseConfig = { ... }
     }
 
     if(t.id === "spinRoulette"){
-      startCountdownThenSpin();
+      countdownThenSpin();
       return;
     }
 
     if(t.id === "shuffleRoulette"){
       ensureRouletteState();
-      if(rouletteSpinningV60) return;
+      if(rouletteSpinningV62) return;
       const arr = state.roulette.items;
       for(let i=arr.length-1;i>0;i--){
         const j = Math.floor(Math.random()*(i+1));
@@ -4026,7 +4366,7 @@ const firebaseConfig = { ... }
 
     if(t.dataset && t.dataset.delRoulette !== undefined){
       ensureRouletteState();
-      if(rouletteSpinningV60) return;
+      if(rouletteSpinningV62) return;
       const i = Number(t.dataset.delRoulette);
       if(state.roulette.items.length <= 2){
         alert("項目は2個以上必要！");
@@ -4050,7 +4390,6 @@ const firebaseConfig = { ... }
     ensureRouletteState();
     window.renderRoulette();
   });
-
   if(document.readyState !== "loading"){
     ensureRouletteState();
     window.renderRoulette();
