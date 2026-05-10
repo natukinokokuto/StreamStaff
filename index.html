@@ -239,6 +239,29 @@ function fitBrushText(text){
       .ch-stage{min-height:430px}
       .rule-panel{display:block}
     }
+  
+    /* v21: ログボ専用グリッド。共通 .calendar と完全分離 */
+    .logbo-days-grid{
+      display:grid !important;
+      grid-template-columns:repeat(7, minmax(0, 1fr)) !important;
+      gap:7px !important;
+      width:100% !important;
+    }
+    .logbo-days-grid .day{
+      width:100% !important;
+      min-width:0 !important;
+      box-sizing:border-box !important;
+    }
+    .logbo-days-grid .day.blank{
+      display:block !important;
+      visibility:hidden !important;
+      pointer-events:none !important;
+    }
+    @media(max-width:760px){
+      .logbo-days-grid{gap:4px !important}
+      .logbo-days-grid .day{min-height:46px !important;font-size:12px !important}
+    }
+
   </style>
 </head>
 <body>
@@ -829,7 +852,7 @@ function renderLogboCalendar(listener, listenerIndex){
       <span>${day}</span><small>${weeks[dow]}</small>
     </button>`;
   }
-  return `<div class="logbo-calendar"><div class="calendar">${daysHtml}</div></div>`;
+  return `<div class="logbo-calendar"><div class="logbo-days-grid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;width:100%">${daysHtml}</div></div>`;
 }
 function currentLogboCount(listener){
   return getLogboDays(listener).length;
