@@ -461,6 +461,18 @@ function fitBrushText(text){
   font-size:13px;
 }
 
+
+@keyframes countdownFadeBlink{
+  0%{opacity:1;transform:scale(1)}
+  50%{opacity:.35;transform:scale(1.03)}
+  100%{opacity:1;transform:scale(1)}
+}
+.countdown-finished{
+  animation:countdownFadeBlink 2.4s ease-in-out infinite;
+  border-color:#f59e0b !important;
+  box-shadow:0 0 24px rgba(245,158,11,.35);
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -835,18 +847,37 @@ function fitBrushText(text){
       <div class="tool-title">⏳ カウントダウン</div>
       <div class="muted">誕生日 / 新年度 / 締め切りまでリアルタイム表示</div>
     </div>
+    <button class="btn mini-btn" id="toggleCountdownsPanel">開く</button>
   </div>
 
-  <div class="row" style="margin-top:10px">
-    <input id="newCountdownTitle" placeholder="タイトル">
-    <input id="newCountdownTarget" type="datetime-local">
-    <button class="btn primary" id="addCountdown">追加</button>
-  </div>
+  <div class="collapsible-body" id="countdownsPanelBody">
+    <div class="row" style="margin-top:10px">
+      <input id="newCountdownTitle" placeholder="タイトル">
+      <input id="newCountdownTarget" type="datetime-local">
+      <select id="newCountdownSound">
+        <option value="assets/countdown/学校のチャイム.mp3">学校のチャイム</option>
+        <option value="assets/countdown/ジャジャーン.mp3">ジャジャーン</option>
+        <option value="assets/countdown/柱時計の鐘.mp3">柱時計の鐘</option>
+        <option value="assets/countdown/鳩時計1.mp3">鳩時計1</option>
+        <option value="assets/countdown/鳩時計2.mp3">鳩時計2</option>
+        <option value="assets/countdown/目覚まし時計のアラーム.mp3">目覚まし時計</option>
+      </select>
+      <button class="btn primary" id="addCountdown">追加</button>
+    </div>
 
-  <div id="countdownList"></div>
+    <div id="countdownList"></div>
+  </div>
 </div>
 
-<h2>カウント機能</h2>
+<div class="tool-item" style="margin-bottom:12px">
+  <div class="row" style="justify-content:space-between">
+    <div>
+      <div class="tool-title">🔢 カウント機能</div>
+      <div class="muted">項目ごとの回数カウント</div>
+    </div>
+    <button class="btn mini-btn" id="toggleCountersPanel">開く</button>
+  </div>
+  <div class="collapsible-body" id="countersPanelBody">
 
           <p class="muted">項目を何個でも追加して、配信中に数をポチポチ数えられる。</p>
           <div class="row">
@@ -854,10 +885,19 @@ function fitBrushText(text){
             <button class="btn primary" id="addCounter">カウンター追加</button>
           </div>
           <div id="counterList" class="tool-list" style="margin-top:12px"></div>
+  </div>
         </div></div>
 
         <div class="card"><div class="inner">
-          <h2>タイマー機能</h2>
+          <div class="tool-item" style="margin-bottom:12px">
+            <div class="row" style="justify-content:space-between">
+              <div>
+                <div class="tool-title">⏱️ タイマー機能</div>
+                <div class="muted">複数タイマーとアラーム</div>
+              </div>
+              <button class="btn mini-btn" id="toggleTimersPanel">開く</button>
+            </div>
+            <div class="collapsible-body" id="timersPanelBody">
           <p class="muted">タイマーを何個でも追加。アラーム音も個別に選べる。</p>
           <div class="row">
             <input id="newTimerName" placeholder="例：休憩 / 企画残り時間">
@@ -867,6 +907,8 @@ function fitBrushText(text){
             <button class="btn primary" id="addTimer">タイマー追加</button>
           </div>
           <div id="timerList" class="tool-list" style="margin-top:12px"></div>
+            </div>
+          </div>
         </div></div>
       </div>
 
@@ -1015,7 +1057,8 @@ const defaultState={
     {
       id:"cd_newyear",
       title:"新年度",
-      target:"2027-04-01T00:00:00"
+      target:"2027-04-01T00:00:00",
+      sound:"assets/countdown/学校のチャイム.mp3"
     }
   ],
   tools:{
@@ -1045,9 +1088,13 @@ let state=load();
 state.settings = state.settings || structuredClone(defaultState.settings);
 if(typeof state.settings.alarmVolume!=="number") state.settings.alarmVolume=80;
 state.polls = state.polls || structuredClone(defaultState.polls || []);
-state.ui = state.ui || {pollOpen:false};
-state.ui = state.ui || {pollOpen:false};
+state.ui = Object.assign({pollOpen:false,countersOpen:true,timersOpen:true,countdownsOpen:true}, state.ui || {});
+state.ui = Object.assign({pollOpen:false,countersOpen:true,timersOpen:true,countdownsOpen:true}, state.ui || {});
     state.countdowns = state.countdowns || structuredClone(defaultState.countdowns || []);
+state.countdowns.forEach(c=>{
+  if(typeof c.sound!=="string") c.sound="assets/countdown/学校のチャイム.mp3";
+  if(typeof c.finishedPlayed!=="boolean") c.finishedPlayed=false;
+});
     state.tools = state.tools || structuredClone(defaultState.tools);
 state.tools.counters = state.tools.counters || [];
 state.tools.timers = state.tools.timers || [];
@@ -2310,17 +2357,29 @@ function formatCountdown(ms){
   return `${String(days).padStart(2,"0")}日 ${String(hours).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
 }
 function renderCountdowns(){
+  setupToolCollapse();
   if(!window.countdownList) return;
 
   countdownList.innerHTML=(state.countdowns||[]).map((c,i)=>{
     const diff=new Date(c.target).getTime()-Date.now();
     const done=diff<=0;
+    if(!done && c.finishedPlayed) c.finishedPlayed=false;
 
-    return `<div class="countdown-box">
+    if(done && !c.finishedPlayed){
+      c.finishedPlayed=true;
+      try{
+        const a=new Audio(c.sound || "assets/countdown/学校のチャイム.mp3");
+        a.volume=(state.settings?.masterVolume ?? 70)/100;
+        a.play();
+      }catch(e){}
+      save();
+    }
+    return `<div class="countdown-box ${done ? "countdown-finished" : ""}">
       <div class="row" style="justify-content:space-between">
         <div>
           <h3 style="margin:0">${escapeHtml(c.title)}</h3>
           <div class="countdown-label">${escapeHtml(c.target.replace("T"," "))}</div>
+          <div class="countdown-label">通知音：${escapeHtml((c.sound||"").split("/").pop().replace(".mp3",""))}</div>
         </div>
         <button class="btn danger mini-btn" data-del-countdown="${i}">削除</button>
       </div>
@@ -2348,7 +2407,9 @@ if(window.addCountdown) addCountdown.onclick=()=>{
   state.countdowns.push({
     id:uid("countdown"),
     title,
-    target
+    target,
+    sound:newCountdownSound.value,
+    finishedPlayed:false
   });
 
   newCountdownTitle.value="";
@@ -2361,7 +2422,29 @@ setInterval(()=>{
   renderCountdowns();
 },1000);
 
+
+function setupToolCollapse(){
+  const pairs=[
+    ["countersOpen","toggleCountersPanel","countersPanelBody"],
+    ["timersOpen","toggleTimersPanel","timersPanelBody"],
+    ["countdownsOpen","toggleCountdownsPanel","countdownsPanelBody"]
+  ];
+  pairs.forEach(([key,btnId,bodyId])=>{
+    const btn=document.getElementById(btnId);
+    const body=document.getElementById(bodyId);
+    if(!btn || !body) return;
+    body.classList.toggle("open", !!state.ui[key]);
+    btn.textContent=state.ui[key] ? "閉じる" : "開く";
+    btn.onclick=()=>{
+      state.ui[key]=!state.ui[key];
+      save();
+      setupToolCollapse();
+    };
+  });
+}
+
 function renderTools(){
+  setupToolCollapse();
   renderPolls();
   if(!window.counterList) return;
   newTimerSound.innerHTML=timerSounds.map(s=>`<option value="${s.id}">${s.label}</option>`).join("");
