@@ -73,14 +73,40 @@
     .tool-item.done{border-color:#ff4d4d;box-shadow:0 0 32px #ff4d4d33}
     .month-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
     .calendar-month{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
-    .cal-week{font-size:12px;color:var(--muted);text-align:center;font-weight:800;padding:4px}
+    
     .cal-day{
-      min-height:92px;border:1px solid var(--line);background:#090b10;border-radius:14px;padding:7px;
-      cursor:pointer;display:flex;flex-direction:column;gap:4px;overflow:hidden;
+      min-height:92px;
+      border:1px solid #d7dce6;
+      background:#ffffff;
+      color:#111827;
+      border-radius:14px;
+      padding:7px;
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      overflow:hidden;
+      transition:.15s;
     }
-    .cal-day.out{opacity:.35}
-    .cal-day.today{border-color:var(--accent);box-shadow:0 0 18px #21d4fd33}
-    .cal-num{font-weight:950}
+    .cal-day:hover{transform:translateY(-1px);box-shadow:0 6px 18px #00000014}
+    .cal-day.out{opacity:.45;background:#f1f3f7}
+    .cal-day.today{
+      border-color:#21d4fd;
+      box-shadow:0 0 0 3px #21d4fd33;
+      background:#f4fdff;
+    }
+    .cal-day.sat .cal-num{color:#2196f3}
+    .cal-day.sun .cal-num{color:#ff4d5e}
+    .cal-week{
+      font-size:12px;
+      color:var(--muted);
+      text-align:center;
+      font-weight:800;
+      padding:4px;
+    }
+    .cal-week.sat{color:#53a8ff}
+    .cal-week.sun{color:#ff6b77}
+    .cal-num{font-weight:950;font-size:16px}
     .cal-mark{font-size:11px;border-radius:999px;padding:2px 6px;background:#172033;color:#dce7ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .cal-mark.gift{background:#3d2b08;color:#ffd76a}
     .cal-mark.reg{background:#063225;color:#80ffd5}
@@ -1190,18 +1216,39 @@ function renderCalendar(){
   const start=new Date(y,m,1-first.getDay());
   const today=ymd(new Date());
   const weeks=["日","月","火","水","木","金","土"];
-  let cells=weeks.map(w=>`<div class="cal-week">${w}</div>`).join("");
+  let cells=weeks.map((w,i)=>`<div class="cal-week ${i===0?"sun":i===6?"sat":""}">${w}</div>`).join("");
+
+  const jpHolidays={
+    "01-01":"元日",
+    "02-11":"建国記念の日",
+    "02-23":"天皇誕生日",
+    "04-29":"昭和の日",
+    "05-03":"憲法記念日",
+    "05-04":"みどりの日",
+    "05-05":"こどもの日",
+    "08-11":"山の日",
+    "11-03":"文化の日",
+    "11-23":"勤労感謝の日"
+  };
+
   for(let i=0;i<42;i++){
     const d=new Date(start);
     d.setDate(start.getDate()+i);
     const date=ymd(d);
+    const md=date.slice(5);
+    const dow=d.getDay();
+    const isHoliday=Boolean(jpHolidays[md]);
     const evs=eventsForDate(date);
     const marks=evs.slice(0,3).map(ev=>{
       const cls=ev.type==="返礼品獲得日"?"gift":ev.type==="登録日"?"reg":"memo";
       return `<div class="cal-mark ${cls}">${escapeHtml(ev.listener)}：${escapeHtml(ev.type)}</div>`;
     }).join("");
     const more=evs.length>3?`<div class="cal-mark">+${evs.length-3}</div>`:"";
-    cells+=`<button class="cal-day ${d.getMonth()!==m?"out":""} ${date===today?"today":""}" data-cal-date="${date}">
+    cells+=`<button class="cal-day 
+      ${d.getMonth()!==m?"out":""}
+      ${date===today?"today":""}
+      ${(dow===0 || isHoliday)?"sun":dow===6?"sat":""}
+      " data-cal-date="${date}">
       <div class="cal-num">${d.getDate()}</div>${marks}${more}
     </button>`;
   }
