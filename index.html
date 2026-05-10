@@ -1617,6 +1617,101 @@ function fitBrushText(text){
   .roulette-label.casino-label{transform:rotate(var(--a)) translateY(calc(-1 * min(178px, 29vw))) rotate(calc(-1 * var(--a)))}
   .roulette-casino-stage{min-height:540px}
 }
+/* v65 zoom hype window */
+.roulette-zoom-window{
+  position:absolute;
+  right:20px;
+  top:18px;
+  width:min(240px,42vw);
+  min-height:150px;
+  border-radius:24px;
+  padding:14px;
+  background:
+    linear-gradient(180deg,rgba(20,20,28,.96),rgba(5,6,10,.96));
+  border:1px solid rgba(250,204,21,.45);
+  box-shadow:
+    0 0 28px rgba(250,204,21,.28),
+    inset 0 0 24px rgba(255,255,255,.05);
+  z-index:55;
+  overflow:hidden;
+}
+.roulette-zoom-window::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(130deg,transparent 0 42%,rgba(255,255,255,.08) 50%,transparent 58%);
+  animation:zoomShineV65 3s linear infinite;
+  pointer-events:none;
+}
+@keyframes zoomShineV65{
+  from{transform:translateX(-120%)}
+  to{transform:translateX(120%)}
+}
+.zoom-title{
+  color:#fde68a;
+  font-size:13px;
+  font-weight:1000;
+  letter-spacing:.18em;
+  opacity:.9;
+}
+.zoom-main{
+  margin-top:4px;
+  font-size:clamp(54px,10vw,96px);
+  line-height:1;
+  font-weight:1000;
+  color:#fff;
+  text-shadow:
+    0 0 18px #fff,
+    0 0 32px #facc15,
+    0 6px 0 #000;
+  transition:.16s;
+}
+.zoom-main.tick{
+  animation:zoomTickV65 .14s ease;
+}
+@keyframes zoomTickV65{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.18)}
+  100%{transform:scale(1)}
+}
+.zoom-sub{
+  margin-top:6px;
+  color:#cbd5e1;
+  font-size:13px;
+  font-weight:900;
+  min-height:20px;
+  opacity:.92;
+}
+.roulette-zoom-window.hot{
+  animation:zoomHotV65 .45s ease-in-out infinite;
+}
+@keyframes zoomHotV65{
+  0%,100%{
+    transform:scale(1);
+    box-shadow:0 0 28px rgba(250,204,21,.28), inset 0 0 24px rgba(255,255,255,.05);
+  }
+  50%{
+    transform:scale(1.04);
+    box-shadow:0 0 56px rgba(250,204,21,.95), inset 0 0 24px rgba(255,255,255,.08);
+  }
+}
+@media(max-width:700px){
+  .roulette-zoom-window{
+    right:10px;
+    top:10px;
+    width:44vw;
+    min-height:110px;
+    border-radius:18px;
+    padding:10px;
+  }
+  .zoom-main{
+    font-size:clamp(40px,11vw,66px);
+  }
+  .zoom-sub{
+    font-size:11px;
+  }
+}
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -1745,6 +1840,11 @@ function fitBrushText(text){
         </div>
 
         <div class="roulette-mode-label" id="rouletteModeLabel">CUSTOM MODE</div>
+            <div class="roulette-zoom-window" id="rouletteZoomWindow">
+              <div class="zoom-title">NEXT?</div>
+              <div class="zoom-main" id="rouletteZoomMain">17</div>
+              <div class="zoom-sub" id="rouletteZoomSub">31 → 9 → 22</div>
+            </div>
         <div class="roulette-click-arrow" id="rouletteArrow">▼</div>
 
         <div class="roulette-arrow-table">
@@ -4531,15 +4631,16 @@ const firebaseConfig = { ... }
 
 
 
+
 <script>
-/* v64 click arrow roulette modes */
+/* v65 zoom hype window roulette */
 (function(){
-  let rouletteRotationV64 = 0;
-  let rouletteSpinningV64 = false;
-  let tickTimerV64 = null;
+  let rouletteRotationV65 = 0;
+  let rouletteSpinningV65 = false;
+  let tickTimerV65 = null;
+  let zoomTimerV65 = null;
 
   const casinoNumbers = ["0","32","15","19","4","21","2","25","17","34","6","27","13","36","11","30","8","23","10","5","24","16","33","1","20","14","31","9","22","18","29","7","28","12","35","3","26"];
-  const casinoColors = ["#047857","#7f1d1d","#030712"];
 
   function ensureRouletteState(){
     window.state = window.state || {};
@@ -4560,7 +4661,6 @@ const firebaseConfig = { ... }
         label:n,
         value:n,
         color:i===0 ? "#047857" : (i%2 ? "#7f1d1d" : "#030712"),
-        locked:true
       }));
     }
     const colors = ["#7c3aed","#22d3ee","#f59e0b","#ef4444","#10b981","#ec4899","#a3e635","#6366f1","#fb7185","#14b8a6"];
@@ -4568,7 +4668,6 @@ const firebaseConfig = { ... }
       label:item,
       value:item,
       color:colors[i % colors.length],
-      locked:false
     }));
   }
 
@@ -4590,6 +4689,21 @@ const firebaseConfig = { ... }
     }).join("");
   }
 
+  function renderZoom(main, sub, hot){
+    const zMain = document.getElementById("rouletteZoomMain");
+    const zSub = document.getElementById("rouletteZoomSub");
+    const box = document.getElementById("rouletteZoomWindow");
+
+    if(zMain){
+      zMain.textContent = main;
+      zMain.classList.remove("tick");
+      void zMain.offsetWidth;
+      zMain.classList.add("tick");
+    }
+    if(zSub) zSub.textContent = sub || "";
+    if(box) box.classList.toggle("hot", !!hot);
+  }
+
   window.renderRoulette = function renderRoulette(){
     ensureRouletteState();
     renderWheel();
@@ -4601,22 +4715,16 @@ const firebaseConfig = { ... }
     const modeNote = document.getElementById("rouletteModeNote");
     const center = document.getElementById("rouletteCenterText");
     const itemsTitle = document.getElementById("rouletteItemsTitle");
-    const customBtn = document.getElementById("rouletteCustomMode");
-    const casinoBtn = document.getElementById("rouletteCasinoMode");
 
     if(resultEl && !resultEl.classList.contains("show")) resultEl.textContent = "READY";
 
     const isCasino = state.roulette.mode === "casino";
     if(modeLabel) modeLabel.textContent = isCasino ? "CASINO MODE" : "CUSTOM MODE";
     if(modeNote) modeNote.textContent = isCasino
-      ? "0〜36のカジノ盤面。結果は数字で出る。項目編集はカスタムで使う。"
-      : "項目数に合わせて盤面のマス目が変わるモード。抽選・罰ゲーム向き。";
+      ? "0〜36のカジノ盤面。数字のギリギリ感を楽しむモード。"
+      : "項目数に合わせて盤面のマス目が変わるモード。";
     if(center) center.textContent = isCasino ? "37" : "SS";
     if(itemsTitle) itemsTitle.textContent = isCasino ? "カジノ数字" : "カスタム項目";
-    if(customBtn){
-      customBtn.classList.toggle("primary", !isCasino);
-      casinoBtn.classList.toggle("primary", isCasino);
-    }
 
     if(itemsBox){
       if(isCasino){
@@ -4649,36 +4757,75 @@ const firebaseConfig = { ... }
     setTimeout(()=>window.renderRoulette(), 0);
   }
 
-  function startTicking(duration){
+  function startTicking(duration, slots, winnerIndex){
     const arrow = document.getElementById("rouletteArrow");
-    if(!arrow) return;
-    clearInterval(tickTimerV64);
+    clearInterval(tickTimerV65);
+    clearInterval(zoomTimerV65);
+
     let interval = 70;
     const start = Date.now();
+    let currentIndex = 0;
 
     function tick(){
-      arrow.classList.remove("tick");
-      void arrow.offsetWidth;
-      arrow.classList.add("tick");
+      if(arrow){
+        arrow.classList.remove("tick");
+        void arrow.offsetWidth;
+        arrow.classList.add("tick");
+      }
+
+      const current = slots[currentIndex % slots.length];
+      const next = slots[(currentIndex + 1) % slots.length];
+      const next2 = slots[(currentIndex + 2) % slots.length];
+
       const elapsed = Date.now() - start;
       const progress = Math.min(1, elapsed / duration);
-      interval = 70 + progress * progress * 460;
-      clearInterval(tickTimerV64);
+      const hot = progress > .72;
+
+      renderZoom(
+        current.value,
+        `${next.value} → ${next2.value}`,
+        hot
+      );
+
+      currentIndex++;
+
+      interval = 70 + progress * progress * 520;
+
+      clearInterval(tickTimerV65);
       if(progress < 1){
-        tickTimerV64 = setInterval(tick, interval);
+        tickTimerV65 = setInterval(tick, interval);
       }
     }
-    tickTimerV64 = setInterval(tick, interval);
+
+    tickTimerV65 = setInterval(tick, interval);
+
+    // 止まる寸前のフェイク煽り
+    setTimeout(()=>{
+      const before = slots[(winnerIndex - 1 + slots.length) % slots.length];
+      renderZoom(
+        before.value,
+        "止まるか！？ → まだ滑る！？",
+        True if False else True
+      );
+    }, duration - 1050);
+
+    setTimeout(()=>{
+      renderZoom(
+        slots[winnerIndex].value,
+        "ここだぁぁ！！",
+        True if False else True
+      );
+    }, duration - 360);
   }
 
   function stopTicking(){
-    clearInterval(tickTimerV64);
-    tickTimerV64 = null;
+    clearInterval(tickTimerV65);
+    clearInterval(zoomTimerV65);
   }
 
   function countdownThenSpin(){
     ensureRouletteState();
-    if(rouletteSpinningV64) return;
+    if(rouletteSpinningV65) return;
 
     const slots = currentSlots();
     if(slots.length < 2){
@@ -4687,7 +4834,7 @@ const firebaseConfig = { ... }
     }
 
     const countdown = document.getElementById("rouletteCountdown");
-    rouletteSpinningV64 = true;
+    rouletteSpinningV65 = true;
     let n = 3;
 
     if(countdown){
@@ -4725,7 +4872,7 @@ const firebaseConfig = { ... }
     const wheel = document.getElementById("rouletteWheel");
     const resultEl = document.getElementById("rouletteResult");
     if(!stage || !wheel || !resultEl){
-      rouletteSpinningV64 = false;
+      rouletteSpinningV65 = false;
       alert("ルーレット表示が見つからないｗ");
       return;
     }
@@ -4740,21 +4887,28 @@ const firebaseConfig = { ... }
 
     const slice = 360 / slots.length;
     const targetAngle = 360 - (winnerIndex * slice) - slice / 2;
-    const currentMod = ((rouletteRotationV64 % 360) + 360) % 360;
+    const currentMod = ((rouletteRotationV65 % 360) + 360) % 360;
 
-    rouletteRotationV64 = rouletteRotationV64 + 360 * 9 + targetAngle - currentMod;
-    wheel.style.transform = `rotate(${rouletteRotationV64}deg)`;
+    rouletteRotationV65 = rouletteRotationV65 + 360 * 9 + targetAngle - currentMod;
+    wheel.style.transform = `rotate(${rouletteRotationV65}deg)`;
 
-    startTicking(5600);
+    startTicking(5600, slots, winnerIndex);
 
-    // 止まる直前「次の枠に行くか行かないか」カットイン
-    setTimeout(showCutin, 4200);
+    setTimeout(showCutin, 4300);
 
     setTimeout(()=>{
       stopTicking();
+
+      renderZoom(
+        winner.value,
+        "WINNER",
+        true
+      );
+
       resultEl.textContent = state.roulette.mode === "casino"
         ? "🎲 " + winner.value + " 🎲"
         : "🎉 " + winner.value + " 🎉";
+
       resultEl.classList.add("show");
       stage.classList.add("hit");
 
@@ -4764,9 +4918,10 @@ const firebaseConfig = { ... }
         result:winner.value
       });
       state.roulette.history = state.roulette.history.slice(0,30);
+
       safeSave();
       window.renderRoulette();
-      rouletteSpinningV64 = false;
+      rouletteSpinningV65 = false;
     },5900);
   }
 
@@ -4798,7 +4953,7 @@ const firebaseConfig = { ... }
     }
     if(t.id === "addRouletteItem"){
       ensureRouletteState();
-      if(rouletteSpinningV64) return;
+      if(rouletteSpinningV65) return;
       const input = document.getElementById("newRouletteItem");
       const v = input && input.value ? input.value.trim() : "";
       if(!v) return;
@@ -4815,7 +4970,7 @@ const firebaseConfig = { ... }
     }
     if(t.id === "shuffleRoulette"){
       ensureRouletteState();
-      if(rouletteSpinningV64) return;
+      if(rouletteSpinningV65) return;
       const arr = state.roulette.items;
       for(let i=arr.length-1;i>0;i--){
         const j = Math.floor(Math.random()*(i+1));
@@ -4835,7 +4990,7 @@ const firebaseConfig = { ... }
     }
     if(t.dataset && t.dataset.delRoulette !== undefined){
       ensureRouletteState();
-      if(rouletteSpinningV64) return;
+      if(rouletteSpinningV65) return;
       if(state.roulette.mode === "casino") return;
       const i = Number(t.dataset.delRoulette);
       if(state.roulette.items.length <= 2){
@@ -4858,10 +5013,12 @@ const firebaseConfig = { ... }
 
   document.addEventListener("DOMContentLoaded", function(){
     ensureRouletteState();
+    renderZoom("17","31 → 9 → 22",false);
     window.renderRoulette();
   });
   if(document.readyState !== "loading"){
     ensureRouletteState();
+    renderZoom("17","31 → 9 → 22",false);
     window.renderRoulette();
   }
 })();
