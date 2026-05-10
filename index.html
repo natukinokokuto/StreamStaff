@@ -442,6 +442,25 @@ function fitBrushText(text){
   max-width:90px;
 }
 
+
+.countdown-box{
+  background:#0b1020;
+  border:1px solid #263a63;
+  border-radius:16px;
+  padding:12px;
+  margin-top:10px;
+}
+.countdown-time{
+  font-size:24px;
+  font-weight:1000;
+  margin-top:8px;
+  letter-spacing:.04em;
+}
+.countdown-label{
+  color:var(--muted);
+  font-size:13px;
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -809,7 +828,26 @@ function fitBrushText(text){
           </div>
         </div>
 
-          <h2>カウント機能</h2>
+          
+<div class="tool-item" style="margin-bottom:12px;background:#09111d;border-color:#24476f">
+  <div class="row" style="justify-content:space-between">
+    <div>
+      <div class="tool-title">⏳ カウントダウン</div>
+      <div class="muted">誕生日 / 新年度 / 締め切りまでリアルタイム表示</div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <input id="newCountdownTitle" placeholder="タイトル">
+    <input id="newCountdownTarget" type="datetime-local">
+    <button class="btn primary" id="addCountdown">追加</button>
+  </div>
+
+  <div id="countdownList"></div>
+</div>
+
+<h2>カウント機能</h2>
+
           <p class="muted">項目を何個でも追加して、配信中に数をポチポチ数えられる。</p>
           <div class="row">
             <input id="newCounterName" placeholder="例：ツッコミ回数 / 水飲み回数">
@@ -973,6 +1011,13 @@ const defaultState={
       memo:"URL投票は外部連携が必要。今は手動集計用。"
     }
   ],
+  countdowns:[
+    {
+      id:"cd_newyear",
+      title:"新年度",
+      target:"2027-04-01T00:00:00"
+    }
+  ],
   tools:{
     counters:[
       {id:"c_sample_1",name:"ツッコミ回数",value:0},
@@ -1002,6 +1047,7 @@ if(typeof state.settings.alarmVolume!=="number") state.settings.alarmVolume=80;
 state.polls = state.polls || structuredClone(defaultState.polls || []);
 state.ui = state.ui || {pollOpen:false};
 state.ui = state.ui || {pollOpen:false};
+    state.countdowns = state.countdowns || structuredClone(defaultState.countdowns || []);
     state.tools = state.tools || structuredClone(defaultState.tools);
 state.tools.counters = state.tools.counters || [];
 state.tools.timers = state.tools.timers || [];
@@ -2253,6 +2299,68 @@ function playAlarm(sound){
     a.play().catch(()=>{});
   }catch(e){}
 }
+
+function formatCountdown(ms){
+  if(ms<=0) return "00日 00:00:00";
+  const total=Math.floor(ms/1000);
+  const days=Math.floor(total/86400);
+  const hours=Math.floor((total%86400)/3600);
+  const mins=Math.floor((total%3600)/60);
+  const secs=total%60;
+  return `${String(days).padStart(2,"0")}日 ${String(hours).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+}
+function renderCountdowns(){
+  if(!window.countdownList) return;
+
+  countdownList.innerHTML=(state.countdowns||[]).map((c,i)=>{
+    const diff=new Date(c.target).getTime()-Date.now();
+    const done=diff<=0;
+
+    return `<div class="countdown-box">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <h3 style="margin:0">${escapeHtml(c.title)}</h3>
+          <div class="countdown-label">${escapeHtml(c.target.replace("T"," "))}</div>
+        </div>
+        <button class="btn danger mini-btn" data-del-countdown="${i}">削除</button>
+      </div>
+
+      <div class="countdown-time">
+        ${done ? "🎉 到達！" : formatCountdown(diff)}
+      </div>
+    </div>`;
+  }).join("") || `<div class="countdown-box muted">カウントダウンなし</div>`;
+
+  countdownList.querySelectorAll("[data-del-countdown]").forEach(btn=>btn.onclick=()=>{
+    const i=Number(btn.dataset.delCountdown);
+    if(!confirm(`${state.countdowns[i].title} を削除する？`)) return;
+    state.countdowns.splice(i,1);
+    save();
+    renderCountdowns();
+  });
+}
+
+if(window.addCountdown) addCountdown.onclick=()=>{
+  const title=newCountdownTitle.value.trim() || "カウントダウン";
+  const target=newCountdownTarget.value;
+  if(!target) return alert("日時を入れてｗ");
+
+  state.countdowns.push({
+    id:uid("countdown"),
+    title,
+    target
+  });
+
+  newCountdownTitle.value="";
+  newCountdownTarget.value="";
+  save();
+  renderCountdowns();
+};
+
+setInterval(()=>{
+  renderCountdowns();
+},1000);
+
 function renderTools(){
   renderPolls();
   if(!window.counterList) return;
@@ -2409,6 +2517,7 @@ function refreshAll(){
   renderCalendar();
   renderTools();
   renderPolls();
+  renderCountdowns();
   applyVolumes();
 }
 if(window.exportDataCode) exportDataCode.onclick=()=>{
@@ -2475,7 +2584,7 @@ state.tools = state.tools || structuredClone(defaultState.tools);
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
 function escapeAttr(s){return escapeHtml(s).replace(/"/g,"&quot;")}
 
-renderHome();renderGames();renderBonus();renderMemo();renderCalendar();renderChLog();renderChinMode();renderSettings();renderTools();renderPolls();applyVolumes();ensureTimerTick();
+renderHome();renderGames();renderBonus();renderMemo();renderCalendar();renderChLog();renderChinMode();renderSettings();renderTools();renderPolls();renderCountdowns();applyVolumes();ensureTimerTick();
 </script>
 </body>
 </html>
