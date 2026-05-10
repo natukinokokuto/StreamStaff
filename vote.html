@@ -83,27 +83,54 @@ h1{margin:0 0 8px;font-size:28px}
       Firebase設定がURLに入っていないため、今は見本ページです。主のStreamStaffでFirebase同期を開始してからURL/QRを出してください。
     </div>
   </div>
+
 <script>
 const params=new URLSearchParams(location.search);
-const pollId=params.get("poll")||"";
-const title=params.get("title")||"投票";
-const optionsFromUrl=(params.get("options")||"").split("|").filter(Boolean);
-const fb=params.get("fb");
-
-document.getElementById("title").textContent=title;
 
 function decodeUrlData(str){
   const bin=atob(str);
   const bytes=new Uint8Array([...bin].map(ch=>ch.charCodeAt(0)));
   return JSON.parse(new TextDecoder().decode(bytes));
 }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+}
+
+let payload={poll:"",title:"投票",options:[]};
+
+try{
+  const data=params.get("data");
+  if(data){
+    payload=decodeUrlData(data);
+  }else{
+    payload={
+      poll:params.get("poll")||"",
+      title:params.get("title")||"投票",
+      options:(params.get("options")||"").split("|").filter(Boolean)
+    };
+  }
+}catch(e){
+  payload={
+    poll:params.get("poll")||"",
+    title:params.get("title")||"投票",
+    options:(params.get("options")||"").split("|").filter(Boolean)
+  };
+}
+
+const pollId=payload.poll || "";
+const title=payload.title || "投票";
+const optionsFromUrl=(payload.options||[]).map(x=>typeof x==="string"?x:x.text).filter(Boolean);
+const fb=params.get("fb");
+
+document.getElementById("title").textContent=title;
+
 function renderOptions(options, live){
   const box=document.getElementById("options");
-  box.innerHTML=options.map((o,i)=>{
-    const text=typeof o==="string" ? o : o.text;
-    return `<button class="option" data-i="${i}">${escapeHtml(text)}</button>`;
+  const list=(options||[]).map(o=>typeof o==="string" ? {text:o,votes:0} : o).filter(o=>o && o.text);
+  box.innerHTML=list.map((o,i)=>{
+    return `<button class="option" data-i="${i}">${escapeHtml(o.text)}</button>`;
   }).join("") || "<p>選択肢がありません</p>";
+
   box.querySelectorAll(".option").forEach(btn=>{
     btn.onclick=()=>vote(Number(btn.dataset.i), live);
   });
@@ -123,7 +150,7 @@ async function vote(index, live){
       const snap=await tx.get(docRef);
       if(!snap.exists) throw new Error("poll not found");
       const data=snap.data();
-      const opts=data.options || [];
+      const opts=data.options || currentOptions;
       opts[index].votes=Number(opts[index].votes||0)+1;
       tx.update(docRef,{options:opts,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
     });
@@ -141,6 +168,7 @@ async function start(){
     renderOptions(optionsFromUrl,false);
     return;
   }
+
   try{
     const cfg=decodeUrlData(fb);
     firebase.initializeApp(cfg);
@@ -150,14 +178,21 @@ async function start(){
     document.getElementById("status").textContent="リアルタイム投票受付中";
     document.getElementById("liveBadge").style.display="inline-block";
 
+    // 投票データがまだ無い場合でも、URLに入っている選択肢で初期作成
+    await docRef.set({
+      id:pollId,
+      title:title,
+      options:currentOptions,
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+
     docRef.onSnapshot(snap=>{
       if(!snap.exists){
-        renderOptions(optionsFromUrl,false);
-        document.getElementById("status").textContent="投票データ未作成";
+        renderOptions(currentOptions,true);
         return;
       }
       const data=snap.data();
-      currentOptions=data.options || currentOptions;
+      currentOptions=(data.options && data.options.length) ? data.options : currentOptions;
       document.getElementById("title").textContent=data.title || title;
       renderOptions(currentOptions,true);
     });
@@ -168,6 +203,7 @@ async function start(){
     renderOptions(optionsFromUrl,false);
   }
 }
+
 start();
 </script>
 </body>

@@ -2547,9 +2547,16 @@ function firebaseReady(){
 function getPollVoteUrl(poll){
   const base=location.href.split("#")[0].split("?")[0].replace(/index\.html$/,"");
   const url=new URL("vote.html", base);
+  const payload={
+    poll:poll.id,
+    title:poll.title || "",
+    options:(poll.options||[]).map(o=>o.text || String(o))
+  };
+  url.searchParams.set("data", encodeUrlData(payload));
+  // 古いURL形式との互換用
   url.searchParams.set("poll", poll.id);
   url.searchParams.set("title", poll.title || "");
-  url.searchParams.set("options", (poll.options||[]).map(o=>o.text).join("|"));
+  url.searchParams.set("options", payload.options.join("|"));
   if(firebaseReady()){
     url.searchParams.set("fb", encodeUrlData(getFirebaseConfig()));
   }

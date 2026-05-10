@@ -332,3 +332,10 @@ v54変更:
 - URL/QR表示時にFirebase同期を自動開始
 - vote.htmlからFirestoreへ投票送信
 - StreamStaff側がFirestoreを監視して票数をリアルタイム更新
+
+
+v55変更:
+- 投票ページに選択肢が出ない問題を修正
+- 投票データをURLに安全な形式で丸ごと埋め込み
+- 日本語選択肢でも表示されるように改善
+- Firebase側にデータが未作成でも vote.html 側で初期作成するように修正
