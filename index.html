@@ -111,6 +111,7 @@
     .cal-mark.gift{background:#3d2b08;color:#ffd76a}
     .cal-mark.reg{background:#063225;color:#80ffd5}
     .cal-mark.memo{background:#28133a;color:#e0b8ff}
+    .cal-mark.penalty{background:#4b1118;color:#ff9aa5}
     .calendar-events{display:grid;gap:8px;max-height:360px;overflow:auto}
     .event-item{background:#0b0d13;border:1px solid var(--line);border-radius:12px;padding:10px}
     .event-item b{display:block}
@@ -420,6 +421,7 @@ function fitBrushText(text){
             <option value="登録日">登録日</option>
             <option value="返礼品獲得日">返礼品獲得日</option>
             <option value="配信メモ">配信メモ</option>
+            <option value="ペナルティー">ペナルティー</option>
             <option value="約束">約束</option>
             <option value="その他">その他</option>
           </select>
@@ -1204,6 +1206,13 @@ function calendarMemoList(listenerName){
   if(!evs.length) return `<ul class="clean"><li>カレンダー記録なし</li></ul>`;
   return `<ul class="clean">${evs.map(ev=>`<li>${escapeHtml(ev.date)}：${escapeHtml(ev.type)} / ${escapeHtml(ev.item)}</li>`).join("")}</ul>`;
 }
+function applyCalendarPenalty(listenerName, delta){
+  const l=state.listeners.find(x=>x.name===listenerName);
+  if(!l) return;
+  if(typeof l.penalty!=="number") l.penalty=0;
+  l.penalty=Math.max(0,l.penalty+delta);
+}
+
 function renderCalendar(){
   if(!window.calendarMonth) return;
   const y=calendarCursor.getFullYear();
@@ -1240,7 +1249,7 @@ function renderCalendar(){
     const isHoliday=Boolean(jpHolidays[md]);
     const evs=eventsForDate(date);
     const marks=evs.slice(0,3).map(ev=>{
-      const cls=ev.type==="返礼品獲得日"?"gift":ev.type==="登録日"?"reg":"memo";
+      const cls=ev.type==="返礼品獲得日"?"gift":ev.type==="登録日"?"reg":ev.type==="ペナルティー"?"penalty":"memo";
       return `<div class="cal-mark ${cls}">${escapeHtml(ev.listener)}：${escapeHtml(ev.type)}</div>`;
     }).join("");
     const more=evs.length>3?`<div class="cal-mark">+${evs.length-3}</div>`:"";
@@ -1270,8 +1279,10 @@ function renderSelectedDateEvents(){
   `).join("") || `<div class="event-item muted">この日の記録なし</div>`;
   selectedDateEvents.querySelectorAll("[data-del-cal]").forEach(btn=>btn.onclick=()=>{
     if(!confirm("このカレンダー記録を削除する？")) return;
+    const target=state.calendarEvents.find(ev=>ev.id===btn.dataset.delCal);
+    if(target && target.type==="ペナルティー") applyCalendarPenalty(target.listener,-1);
     state.calendarEvents=state.calendarEvents.filter(ev=>ev.id!==btn.dataset.delCal);
-    save();renderCalendar();renderMemo();
+    save();renderCalendar();renderMemo();renderBonus();
   });
 }
 if(window.prevMonth) prevMonth.onclick=()=>{calendarCursor=addMonths(calendarCursor,-1);renderCalendar();}
@@ -1287,8 +1298,11 @@ if(window.addCalendarEvent) addCalendarEvent.onclick=()=>{
     const l=state.listeners.find(x=>x.name===listener);
     if(l) l.registeredDate=selectedCalendarDate;
   }
+  if(type==="ペナルティー"){
+    applyCalendarPenalty(listener,1);
+  }
   calendarItem.value="";
-  save();renderCalendar();renderMemo();
+  save();renderCalendar();renderMemo();renderBonus();
 }
 
 const timerSounds=[
