@@ -650,10 +650,8 @@ function fitBrushText(text){
             <input id="detailNickname" placeholder="例：○○ニキ / ○○ネキ / ○○先生">
             <label>誕生日</label>
             <input id="detailBirthday" type="date">
-            <label style="display:flex;align-items:center;gap:8px;margin-top:10px">
-              <input id="detailAgeHidden" type="checkbox" style="width:auto">
-              年齢不詳で表示する
-            </label>
+            <label>生まれ年（任意）</label>
+            <input id="detailBirthYear" type="number" placeholder="未入力なら年齢不詳" min="1900" max="2100">
             <label>血液型</label>
             <select id="detailBlood">
               <option value="">未設定</option>
@@ -1013,7 +1011,7 @@ state.listeners.forEach(l=>{
   if(typeof l.penalty!=="number") l.penalty=0;
   if(typeof l.registeredDate!=="string") l.registeredDate="";
   if(typeof l.birthday!=="string") l.birthday="";
-  if(typeof l.ageHidden!=="boolean") l.ageHidden=false;
+  if(typeof l.birthYear!=="string") l.birthYear="";
   if(typeof l.bloodType!=="string") l.bloodType="";
   if(typeof l.firstVisitDate!=="string") l.firstVisitDate="";
   if(typeof l.nickname!=="string") l.nickname="";
@@ -1377,7 +1375,13 @@ function calcAge(birthday){
 }
 function displayAge(l){
   if(!l || !l.birthday) return "-";
-  return l.ageHidden ? "年齢不詳" : calcAge(l.birthday);
+  if(!l.birthYear) return "年齢不詳";
+  const birth=l.birthday || "";
+  if(birth.length>=10){
+    const md=birth.slice(5);
+    return calcAge(`${l.birthYear}-${md}`);
+  }
+  return "年齢不詳";
 }
 
 function generateTopicSeeds(l){
@@ -1447,7 +1451,7 @@ function renderListenerDetail(){
   detailInputName.value=l.name || "";
   detailNickname.value=l.nickname || "";
   detailBirthday.value=l.birthday || "";
-  detailAgeHidden.checked=!!l.ageHidden;
+  detailBirthYear.value=l.birthYear || "";
   detailBlood.value=l.bloodType || "";
   detailFirstVisit.value=l.firstVisitDate || l.registeredDate || "";
   detailAge.textContent=displayAge(l);
@@ -1494,7 +1498,7 @@ if(window.saveListenerDetail) saveListenerDetail.onclick=()=>{
   l.name=newName;
   l.nickname=detailNickname.value.trim();
   l.birthday=detailBirthday.value;
-  l.ageHidden=!!detailAgeHidden.checked;
+  l.birthYear=detailBirthYear.value.trim();
   l.bloodType=detailBlood.value;
   l.firstVisitDate=detailFirstVisit.value;
   l.favorites={
@@ -1552,6 +1556,7 @@ function renderMemo(){
         </div>
       </div>
       <p class="muted">${l.nickname ? "@" + escapeHtml(l.nickname) + " / " : ""}ログボ ${currentLogboCount(l)}日 / ${state.logboMonth}</p>
+      ${l.birthday ? `<p class="muted">🎂 誕生日 ${escapeHtml(l.birthday.slice(5).replace("-","/"))} / ${displayAge(l)}</p>` : ""}
       <p class="muted">年齢 ${displayAge(l)} / 初来枠から ${dateDiffText(l.firstVisitDate || l.registeredDate)}</p>
       ${renderSeedList(l,i)}
       <div class="penalty-box">
@@ -2413,7 +2418,7 @@ state.tools = state.tools || structuredClone(defaultState.tools);
     state.listeners = state.listeners || [];
     state.listeners.forEach(l=>{ if(typeof l.penalty!=="number") l.penalty=0; if(typeof l.registeredDate!=="string") l.registeredDate="";
   if(typeof l.birthday!=="string") l.birthday="";
-  if(typeof l.ageHidden!=="boolean") l.ageHidden=false;
+  if(typeof l.birthYear!=="string") l.birthYear="";
   if(typeof l.bloodType!=="string") l.bloodType="";
   if(typeof l.firstVisitDate!=="string") l.firstVisitDate="";
   if(typeof l.nickname!=="string") l.nickname="";
