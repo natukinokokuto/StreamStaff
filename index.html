@@ -387,6 +387,17 @@ function fitBrushText(text){
             <button class="btn" id="addListener">常連追加</button>
             <button class="btn danger" id="deleteSelectedListener">選択中の常連を削除</button>
           </div>
+
+          <div class="penalty-box" style="background:#0b1320;border-color:#1e3a5f">
+            <h3 style="margin-top:0">ログボ一括入力</h3>
+            <p class="muted">配信を休んだ日など、指定した日付のログボを全員まとめてチェックできる。</p>
+            <div class="row">
+              <input id="bulkLogboDate" type="date">
+              <button class="btn primary" id="bulkLogboAdd">この日を全員に入力</button>
+              <button class="btn danger" id="bulkLogboRemove">この日を全員から外す</button>
+            </div>
+            <p class="muted">※ログボ表は1〜31日管理なので、指定日の「日」だけを使う。</p>
+          </div>
           <div id="selectedListenerBox"></div>
         </div></div>
         <div class="card"><div class="inner">
@@ -756,6 +767,7 @@ rollGame.onclick=()=>{const r=gameData[selectedGame].roll();gameResult.textConte
 saveGameLog.onclick=()=>{const r=gameResult.textContent.trim();state.logs.unshift({date:new Date().toLocaleString("ja-JP"),title:"ゲーム結果",text:r});save();renderHome()}
 
 function renderBonus(){
+  if(window.bulkLogboDate && !bulkLogboDate.value) bulkLogboDate.value=ymd(new Date());
   listenerTabs.innerHTML=state.listeners.map((l,i)=>`<button class="${i===selectedListener?"active":""}" data-i="${i}">${escapeHtml(l.name)}</button>`).join("");
   listenerTabs.querySelectorAll("button").forEach(b=>b.onclick=()=>{selectedListener=Number(b.dataset.i);renderBonus()});
   const l=state.listeners[selectedListener];
@@ -787,6 +799,39 @@ function renderBonus(){
   bindPenaltyButtons(selectedListenerBox);
   renderRewards();
 }
+
+function getBulkLogboDay(){
+  const v=bulkLogboDate?.value;
+  if(!v){
+    const now=new Date();
+    if(bulkLogboDate) bulkLogboDate.value=ymd(now);
+    return now.getDate();
+  }
+  return Number(v.split("-")[2]);
+}
+function bulkSetLogbo(shouldAdd){
+  const day=getBulkLogboDay();
+  if(!day || day<1 || day>31) return alert("日付が変だぞｗ");
+  const msg=shouldAdd
+    ? `${day}日を全員にログボ入力する？`
+    : `${day}日を全員から外す？`;
+  if(!confirm(msg)) return;
+  state.listeners.forEach(l=>{
+    l.days=l.days||[];
+    if(shouldAdd){
+      if(!l.days.includes(day)) l.days.push(day);
+      l.days.sort((a,b)=>a-b);
+    }else{
+      l.days=l.days.filter(d=>d!==day);
+    }
+  });
+  save();
+  renderBonus();
+  renderMemo();
+}
+if(window.bulkLogboAdd) bulkLogboAdd.onclick=()=>bulkSetLogbo(true);
+if(window.bulkLogboRemove) bulkLogboRemove.onclick=()=>bulkSetLogbo(false);
+
 function renderRewards(){
   rewardEditor.innerHTML=state.rewards.map((r,i)=>`
     <div class="reward-row">
