@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>StreamStaff 投票</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 <style>
 body{
   margin:0;
@@ -56,33 +58,117 @@ h1{margin:0 0 8px;font-size:28px}
   color:#fed7aa;
   font-size:14px;
 }
+.live{
+  display:inline-block;
+  margin-top:8px;
+  border:1px solid #22c55e66;
+  color:#86efac;
+  background:#13251b;
+  border-radius:999px;
+  padding:4px 8px;
+  font-size:12px;
+  font-weight:900;
+}
 </style>
 </head>
 <body>
   <div class="card">
     <div class="muted">StreamStaff 投票ページ</div>
     <h1 id="title">投票</h1>
-    <div class="muted">選択肢を押して投票</div>
+    <div id="status" class="muted">準備中...</div>
+    <div id="liveBadge" class="live" style="display:none">Firebase LIVE</div>
     <div id="options"></div>
     <div id="done" class="done">投票ありがとう！</div>
-    <div class="warn">
-      現在このページはQR/URL表示用の受け皿です。Firebase連携が有効になると、ここから主のStreamStaffへリアルタイム反映できます。
+    <div id="warn" class="warn" style="display:none">
+      Firebase設定がURLに入っていないため、今は見本ページです。主のStreamStaffでFirebase同期を開始してからURL/QRを出してください。
     </div>
   </div>
 <script>
 const params=new URLSearchParams(location.search);
+const pollId=params.get("poll")||"";
 const title=params.get("title")||"投票";
-const options=(params.get("options")||"").split("|").filter(Boolean);
+const optionsFromUrl=(params.get("options")||"").split("|").filter(Boolean);
+const fb=params.get("fb");
+
 document.getElementById("title").textContent=title;
-const box=document.getElementById("options");
-box.innerHTML=options.map((o,i)=>`<button class="option" data-i="${i}">${escapeHtml(o)}</button>`).join("") || "<p>選択肢がありません</p>";
-box.querySelectorAll(".option").forEach(btn=>{
-  btn.onclick=()=>{
+
+function decodeUrlData(str){
+  const bin=atob(str);
+  const bytes=new Uint8Array([...bin].map(ch=>ch.charCodeAt(0)));
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function renderOptions(options, live){
+  const box=document.getElementById("options");
+  box.innerHTML=options.map((o,i)=>{
+    const text=typeof o==="string" ? o : o.text;
+    return `<button class="option" data-i="${i}">${escapeHtml(text)}</button>`;
+  }).join("") || "<p>選択肢がありません</p>";
+  box.querySelectorAll(".option").forEach(btn=>{
+    btn.onclick=()=>vote(Number(btn.dataset.i), live);
+  });
+}
+
+let db=null;
+let docRef=null;
+let currentOptions=optionsFromUrl.map(text=>({text,votes:0}));
+
+async function vote(index, live){
+  if(!live || !docRef){
     document.getElementById("done").style.display="block";
-    // Firebase連携版ではここで送信する
-  };
-});
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","'":"&#39;"}[m]))}
+    return;
+  }
+  try{
+    await db.runTransaction(async tx=>{
+      const snap=await tx.get(docRef);
+      if(!snap.exists) throw new Error("poll not found");
+      const data=snap.data();
+      const opts=data.options || [];
+      opts[index].votes=Number(opts[index].votes||0)+1;
+      tx.update(docRef,{options:opts,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    });
+    document.getElementById("done").style.display="block";
+  }catch(e){
+    alert("投票に失敗。時間を置いてもう一回お願いｗ");
+    console.error(e);
+  }
+}
+
+async function start(){
+  if(!fb || !pollId){
+    document.getElementById("status").textContent="見本モード";
+    document.getElementById("warn").style.display="block";
+    renderOptions(optionsFromUrl,false);
+    return;
+  }
+  try{
+    const cfg=decodeUrlData(fb);
+    firebase.initializeApp(cfg);
+    db=firebase.firestore();
+    docRef=db.collection("streamstaff_polls").doc(pollId);
+
+    document.getElementById("status").textContent="リアルタイム投票受付中";
+    document.getElementById("liveBadge").style.display="inline-block";
+
+    docRef.onSnapshot(snap=>{
+      if(!snap.exists){
+        renderOptions(optionsFromUrl,false);
+        document.getElementById("status").textContent="投票データ未作成";
+        return;
+      }
+      const data=snap.data();
+      currentOptions=data.options || currentOptions;
+      document.getElementById("title").textContent=data.title || title;
+      renderOptions(currentOptions,true);
+    });
+  }catch(e){
+    console.error(e);
+    document.getElementById("status").textContent="Firebase接続エラー";
+    document.getElementById("warn").style.display="block";
+    renderOptions(optionsFromUrl,false);
+  }
+}
+start();
 </script>
 </body>
 </html>

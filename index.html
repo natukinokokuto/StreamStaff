@@ -593,6 +593,25 @@ function fitBrushText(text){
   padding:8px;
 }
 
+
+.firebase-sync-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border-radius:999px;
+  padding:4px 8px;
+  font-size:12px;
+  font-weight:900;
+  background:#13251b;
+  color:#86efac;
+  border:1px solid #22c55e66;
+}
+.firebase-sync-badge.off{
+  background:#251313;
+  color:#fecaca;
+  border-color:#ef444466;
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -602,6 +621,10 @@ function fitBrushText(text){
 <meta name="theme-color" content="#0a0a12">
 
 <link rel="manifest" href="manifest.json">
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+
 </head>
 <body>
   <div class="app">
@@ -2499,16 +2522,98 @@ if(window.addCalendarEvent) addCalendarEvent.onclick=()=>{
 
 
 
+function encodeUrlData(obj){
+  const json=JSON.stringify(obj);
+  const bytes=new TextEncoder().encode(json);
+  let bin="";
+  bytes.forEach(b=>bin+=String.fromCharCode(b));
+  return btoa(bin);
+}
+function getFirebaseConfig(){
+  const f=state.settings?.firebase || {};
+  return {
+    apiKey:f.apiKey || "",
+    authDomain:f.authDomain || "",
+    projectId:f.projectId || "",
+    storageBucket:f.storageBucket || "",
+    messagingSenderId:f.messagingSenderId || "",
+    appId:f.appId || ""
+  };
+}
+function firebaseReady(){
+  const f=state.settings?.firebase || {};
+  return !!(f.enabled && f.apiKey && f.projectId && f.appId);
+}
 function getPollVoteUrl(poll){
   const base=location.href.split("#")[0].split("?")[0].replace(/index\.html$/,"");
   const url=new URL("vote.html", base);
   url.searchParams.set("poll", poll.id);
   url.searchParams.set("title", poll.title || "");
   url.searchParams.set("options", (poll.options||[]).map(o=>o.text).join("|"));
+  if(firebaseReady()){
+    url.searchParams.set("fb", encodeUrlData(getFirebaseConfig()));
+  }
   return url.toString();
 }
 function getQrUrl(text){
   return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(text)}`;
+}
+
+
+let ssFirebaseApp=null;
+let ssFirestore=null;
+const pollUnsubs={};
+
+function initSSFirebase(){
+  if(!firebaseReady()) return null;
+  if(ssFirestore) return ssFirestore;
+  try{
+    const cfg=getFirebaseConfig();
+    ssFirebaseApp=firebase.apps && firebase.apps.length ? firebase.app() : firebase.initializeApp(cfg);
+    ssFirestore=firebase.firestore();
+    return ssFirestore;
+  }catch(e){
+    console.error(e);
+    alert("Firebase初期化に失敗。設定を確認してｗ");
+    return null;
+  }
+}
+async function syncPollToFirebase(pi){
+  const poll=state.polls[pi];
+  if(!poll) return;
+  const db=initSSFirebase();
+  if(!db) return alert("Firebase設定が未完了。設定画面で有効化してねｗ");
+
+  const docRef=db.collection("streamstaff_polls").doc(poll.id);
+  const payload={
+    id:poll.id,
+    title:poll.title,
+    options:poll.options.map(o=>({text:o.text,votes:Number(o.votes||0)})),
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  await docRef.set(payload,{merge:true});
+
+  if(pollUnsubs[poll.id]) pollUnsubs[poll.id]();
+
+  pollUnsubs[poll.id]=docRef.onSnapshot(snap=>{
+    if(!snap.exists) return;
+    const data=snap.data();
+    const target=state.polls.find(p=>p.id===poll.id);
+    if(!target || !data.options) return;
+    target.options=target.options.map((o,i)=>({
+      text:o.text,
+      votes:Number(data.options[i]?.votes || 0)
+    }));
+    target.firebaseLive=true;
+    save();
+    renderPolls();
+  });
+
+  poll.firebaseLive=true;
+  save();
+  renderPolls();
+  alert("Firebaseリアルタイム同期を開始した！");
 }
 
 function renderPolls(){
@@ -2543,8 +2648,12 @@ function renderPolls(){
         <div>
           <h3 style="margin:0">${escapeHtml(poll.title)}</h3>
           <div class="muted">合計 ${total}票</div>
+          <div class="firebase-sync-badge ${poll.firebaseLive ? "" : "off"}">${poll.firebaseLive ? "Firebase LIVE" : "Local"}</div>
         </div>
-        <button class="btn danger mini-btn" data-poll-delete="${pi}">削除</button>
+        <div class="row">
+          <button class="btn mini-btn" data-poll-firebase="${pi}">Firebase同期</button>
+          <button class="btn danger mini-btn" data-poll-delete="${pi}">削除</button>
+        </div>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn mini-btn" data-poll-share="${pi}">URL / QR表示</button>
@@ -2557,7 +2666,7 @@ function renderPolls(){
           <a class="btn mini-btn" href="${escapeHtml(getPollVoteUrl(poll))}" target="_blank">投票ページを開く</a>
         </div>
         <img class="poll-qr" src="${escapeHtml(getQrUrl(getPollVoteUrl(poll)))}" alt="投票QR">
-        <div class="muted" style="margin-top:8px">※QR生成にはネット接続が必要。Firebase接続後にリアルタイム投票化できる。</div>
+        <div class="muted" style="margin-top:8px">※Firebase設定済みなら、このURLからリアルタイム投票できます。QR生成にはネット接続が必要。</div>
       </div>
       ${options}
       <div class="row" style="margin-top:10px">
@@ -2584,6 +2693,7 @@ function renderPolls(){
     p.options.forEach(o=>o.votes=0);
     save();renderPolls();
   });
+  pollList.querySelectorAll("[data-poll-firebase]").forEach(btn=>btn.onclick=()=>syncPollToFirebase(Number(btn.dataset.pollFirebase)));
   pollList.querySelectorAll("[data-poll-delete]").forEach(btn=>btn.onclick=()=>{
     const i=Number(btn.dataset.pollDelete);
     if(!confirm(`${state.polls[i].title} を削除する？`)) return;
@@ -2592,6 +2702,9 @@ function renderPolls(){
   });
   pollList.querySelectorAll("[data-poll-share]").forEach(btn=>btn.onclick=()=>{
     const i=Number(btn.dataset.pollShare);
+    if(firebaseReady() && !state.polls[i].firebaseLive){
+      syncPollToFirebase(i);
+    }
     const box=pollList.querySelector(`[data-poll-share-box="${i}"]`);
     if(box) box.classList.toggle("open");
   });

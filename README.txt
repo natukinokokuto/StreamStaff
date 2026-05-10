@@ -324,3 +324,11 @@ v53変更:
 - 投票URLコピー機能を追加
 - vote.html を追加
 - QRコード表示に対応
+
+
+v54変更:
+- 投票URL/QRをFirebaseリアルタイム対応化
+- StreamStaff側でFirebase同期開始ボタン追加
+- URL/QR表示時にFirebase同期を自動開始
+- vote.htmlからFirestoreへ投票送信
+- StreamStaff側がFirestoreを監視して票数をリアルタイム更新
