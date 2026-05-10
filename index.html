@@ -49,7 +49,7 @@
     .tree-box{display:grid;gap:10px}
     .tree-item{padding:14px;border-radius:16px;background:#0b0d13;border:1px solid var(--line)}
     .tree-item b{display:block;color:#fff;font-size:14px;margin-bottom:6px}
-    .tree-item span{font-size:18px;font-weight:800}
+    .tree-item span{font-size:18px;font-weight:800;white-space:pre-line;display:block;line-height:1.45}
     .big-output{font-size:clamp(22px,4.5vw,38px);font-weight:950;line-height:1.35;background:#080a10;border:1px solid var(--line);border-radius:18px;padding:18px;min-height:128px;display:flex;align-items:center}
 
     /* Game */
@@ -183,7 +183,7 @@
           </div>
           <div class="row" style="margin-top:12px">
             <button class="btn primary" id="autoTree">自動で組む</button>
-            <button class="btn" id="nextBranch">枝をもう1本</button>
+            <button class="btn" id="nextBranch">枝を出し直す</button>
             <button class="btn" id="branchToLeaf">今の枝を葉にする</button>
           </div>
         </div></div>
@@ -382,14 +382,94 @@ const gameData={
   bob:{label:"ボブ",roll:()=>`📘 ボブジテン：${pick(["アクセル","エンジン","オイル","オートマチック","ガソリン","ガソリンスタンド","カバー","ガレージ","アプローチ","ジュース","ランプ"])} ※カタカナ禁止で説明`},
   relo:{label:"酒場",roll:()=>`🍻 レロレロ酒場：${pick(["マーボー豆腐","チャンジャ","鮭とば","たこわさ","だし巻きたまご","枝豆","焼きナス","冷やしトマト","もつ鍋","軟骨のから揚げ"])} を噛まずに言える？`}
 };
-const trunks=["最近あった地味にムカついた話","昔はダサいと思ってたけど今はアリなもの","仕事中にふと思ったこと","最近ちょっと成長したこと","配信中に決めたい謎ルール","人に言うほどじゃないけど好きなもの"];
-const branches=["食べ物の話に逃げる","ダーツに例える","英語学習に例える","服の話に飛ばす","昔の自分を掘る","リスナーに二択で聞く","失敗談に変える","地域ネタにする"];
-const leaves=["コメントが増えた単語を拾う","初見が反応したらそこを太くする","常連がツッコんだら枝化する","笑いが起きた表現を保存","次回の伏線としてログに残す"];
+const trunks=[
+  "最近あった地味にムカついた話",
+  "昔はダサいと思ってたけど今はアリなもの",
+  "仕事中にふと思ったこと",
+  "最近ちょっと成長したこと",
+  "配信中に決めたい謎ルール",
+  "人に言うほどじゃないけど好きなもの",
+  "最近買ってよかったもの / 失敗したもの",
+  "昔の自分に言いたいこと",
+  "大人になってから分かったこと",
+  "自分だけかもしれない変なこだわり",
+  "初見に聞きたい質問",
+  "常連にだけ伝わる内輪ネタ",
+  "最近の生活改善チャレンジ",
+  "ちょっとした怒りを笑い話にする",
+  "食べ物で一生語れるテーマ",
+  "仕事あるあるから広げる話",
+  "配信で起きたら面白い事件",
+  "子どもの頃の謎ルール",
+  "もし1日だけ別の職業をやるなら",
+  "視聴者に二択で決めてもらう話",
+  "自分の弱点をネタにする",
+  "最近覚えた言葉・表現",
+  "やってみたい企画の相談",
+  "昔の流行を今見たらどう思うか",
+  "今日のどうでもいいニュース"
+];
+
+const branches=[
+  "食べ物の話に逃げる",
+  "ダーツに例える",
+  "英語学習に例える",
+  "服の話に飛ばす",
+  "昔の自分を掘る",
+  "リスナーに二択で聞く",
+  "失敗談に変える",
+  "地域ネタにする",
+  "仕事現場あるあるにする",
+  "家族・友達の話に薄く寄せる",
+  "コンビニで例える",
+  "ゲームのステータス風にする",
+  "ランキング形式にする",
+  "『逆に』で反対意見を作る",
+  "自分の偏見として話す",
+  "昭和/平成/令和で比べる",
+  "値段の話にする",
+  "モテる/モテない論に脱線する",
+  "配信者あるあるにする",
+  "もしリスナーだったらで聞く",
+  "一番ダサい答えを募集する",
+  "一番かっこいい言い方に変える",
+  "あるあるを3つ出す",
+  "小学生の頃ならどうだったか考える",
+  "老後の自分ならどうするか考える",
+  "湘南っぽく言い換える",
+  "英語で言うなら何か考える",
+  "食わず嫌いだったものに繋げる",
+  "自分ルールを作る",
+  "次回企画にできるか考える"
+];
+
+const leaves=[
+  "コメントが増えた単語を拾う",
+  "初見が反応したらそこを太くする",
+  "常連がツッコんだら枝化する",
+  "笑いが起きた表現を保存",
+  "次回の伏線としてログに残す",
+  "リスナーの一言をタイトル化する",
+  "投票ネタに変える",
+  "切り抜き候補として保存する"
+];
+
+function makeBranchPack(){
+  const pool=[...branches];
+  const count=2+Math.floor(Math.random()*2);
+  const picked=[];
+  for(let i=0;i<count;i++){
+    const idx=Math.floor(Math.random()*pool.length);
+    picked.push(`・${pool.splice(idx,1)[0]}`);
+  }
+  return picked.join("\\n");
+}
 
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||defaultState}catch(e){return structuredClone(defaultState)}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function showScreen(id){
+  if(id!=="chinchiro") stopChinBgm();
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.screen===id));
@@ -404,8 +484,8 @@ function renderHome(){
   treeTrunk.textContent=state.tree.trunk; treeBranch.textContent=state.tree.branch; treeLeaf.textContent=state.tree.leaf;
   homeLogs.innerHTML=state.logs.slice(0,8).map(l=>`<div><b>${escapeHtml(l.title||"ログ")}</b><br><span class="muted">${escapeHtml(l.date)}</span><br>${escapeHtml(l.text)}</div>`).join("")||`<div>まだログなし</div>`;
 }
-autoTree.onclick=()=>{state.tree={trunk:pick(trunks),branch:pick(branches),leaf:pick(leaves)};save();renderHome()}
-nextBranch.onclick=()=>{state.tree.branch=pick(branches);save();renderHome()}
+autoTree.onclick=()=>{state.tree={trunk:pick(trunks),branch:makeBranchPack(),leaf:pick(leaves)};save();renderHome()}
+nextBranch.onclick=()=>{state.tree.branch=makeBranchPack();save();renderHome()}
 branchToLeaf.onclick=()=>{state.tree.leaf=state.tree.branch;state.logs.unshift({date:new Date().toLocaleString("ja-JP"),title:"葉っぱ保存",text:state.tree.branch});save();renderHome()}
 saveQuickMemo.onclick=()=>{const v=quickMemo.value.trim();if(!v)return;state.logs.unshift({date:new Date().toLocaleString("ja-JP"),title:"配信メモ",text:v});quickMemo.value="";save();renderHome()}
 
