@@ -70,7 +70,15 @@
     .history{display:grid;gap:8px;max-height:260px;overflow:auto}
     .history div{background:#0b0d13;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:14px;color:#d9deea}
 
-    /* Chinchiro */
+    
+function fitBrushText(text){
+  const plain=String(text).replace(/[─ー\\s]/g,"");
+  brush.classList.remove("long","xlong");
+  if(plain.length>=18) brush.classList.add("xlong");
+  else if(plain.length>=10) brush.classList.add("long");
+}
+
+/* Chinchiro */
     .chinchiro-wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
     .ch-stage{
       position:relative;min-height:520px;border-radius:22px;border:1px solid #333747;background:
@@ -104,18 +112,20 @@
     }
     .roll-btn{font-size:clamp(20px,3.4vw,34px);padding:16px 42px;border-radius:999px;background:linear-gradient(135deg,#b91c1c,#ff4d4d);box-shadow:0 18px 50px #ff4d4d33;border:1px solid #ff9d9d;color:#fff}
     .brush{
-      position:absolute;right:-120%;top:17%;font-family:"Yuji Syuku","Yu Mincho","Hiragino Mincho ProN","HGS行書体","HG行書体",serif;font-size:clamp(42px,10vw,104px);font-weight:950;white-space:nowrap;
+      position:absolute;right:-120%;top:14%;left:auto;max-width:92%;font-family:"Yuji Syuku","Yu Mincho","Hiragino Mincho ProN","HGS行書体","HG行書体",serif;font-size:clamp(34px,8vw,92px);font-weight:950;white-space:normal;line-height:1.08;text-align:center;overflow-wrap:anywhere;
       letter-spacing:-.08em; font-style:italic;
       filter:contrast(1.25);
       text-shadow:3px 5px 0 #000, -2px 0 0 #111, 0 0 28px #fff8;opacity:0;pointer-events:none;z-index:4;
     }
     .brush.show{animation:brushSlash 1.05s cubic-bezier(.1,1.15,.2,1) forwards}
     .brush.gold{color:var(--gold);text-shadow:0 5px 0 #5b1d00,0 0 30px #ffd76a}
+    .brush.long{font-size:clamp(26px,5.6vw,58px);letter-spacing:-.05em}
+    .brush.xlong{font-size:clamp(21px,4.5vw,44px);letter-spacing:-.04em}
     .brush.blue{color:var(--blue);text-shadow:0 5px 0 #001927,0 0 22px #75d5ff}
     @keyframes brushSlash{
       0%{right:-120%;opacity:0;transform:skewX(-20deg) scale(1.18)}
       32%{opacity:1}
-      100%{right:5%;opacity:1;transform:skewX(0deg) scale(1)}
+      100%{right:4%;opacity:1;transform:skewX(0deg) scale(1)}
     }
     .ink{
       position:absolute;inset:0;opacity:0;pointer-events:none;background:
@@ -277,10 +287,10 @@
 
           <div id="localPanel" class="mode-panel" style="margin-top:14px">
             <h3>ローカルモード設定</h3>
-            <p class="muted">出目の組み合わせごとに表示文を設定。出た組み合わせの項目を表示。</p>
+            <p class="muted">通常目の「余り」だけ設定。例：1の目が出たら何を表示するか。</p>
             <div class="row">
               <select id="localComboSelect"></select>
-              <input id="localComboText" placeholder="この出目で表示する内容">
+              <input id="localComboText" placeholder="この余りで表示する内容">
               <button class="btn primary" id="saveLocalCombo">保存</button>
             </div>
           </div>
@@ -598,6 +608,14 @@ function renderMemo(){
   memoGrid.querySelectorAll("textarea").forEach(t=>t.onchange=()=>{state.listeners[Number(t.dataset.memo)].memo=t.value;save()});
 }
 
+
+function fitBrushText(text){
+  const plain=String(text).replace(/[─ー\\s]/g,"");
+  brush.classList.remove("long","xlong");
+  if(plain.length>=18) brush.classList.add("xlong");
+  else if(plain.length>=10) brush.classList.add("long");
+}
+
 /* Chinchiro */
 let rolling=false;
 const diceEls=[d1,d2,d3];
@@ -663,11 +681,12 @@ rollChin.onclick=()=>{
       ink.className="ink show";
       brush.textContent=displayText;
       brush.className="brush show";
-      if(res.type==="best"){chStage.className="ch-stage hot shake";brush.className="brush gold show";play("seHorn")}
-      else if(res.type==="worst"){chStage.className="ch-stage cold shake";brush.className="brush blue show";play("seChime")}
-      else if(res.type==="zoro" || res.type==="customHit"){chStage.className="ch-stage hot shake";brush.className="brush gold show";play("seSword")}
-      else if(res.type==="win"){chStage.className="ch-stage hot";brush.className="brush gold show"}
-      else {chStage.className="ch-stage"}
+      fitBrushText(displayText);
+      if(res.type==="best"){chStage.className="ch-stage hot shake";brush.className="brush gold show";fitBrushText(displayText);play("seHorn")}
+      else if(res.type==="worst"){chStage.className="ch-stage cold shake";brush.className="brush blue show";fitBrushText(displayText);play("seChime")}
+      else if(res.type==="zoro" || res.type==="customHit"){chStage.className="ch-stage hot shake";brush.className="brush gold show";fitBrushText(displayText);play("seSword")}
+      else if(res.type==="win"){chStage.className="ch-stage hot";brush.className="brush gold show";fitBrushText(displayText)}
+      else {chStage.className="ch-stage";fitBrushText(displayText)}
       state.chLog.unshift(`${new Date().toLocaleTimeString("ja-JP")}　${final.join("・")}　${logName}`);
       state.chLog=state.chLog.slice(0,20); save(); renderChLog();
       rolling=false;
@@ -771,28 +790,45 @@ function renderCustomDiceEditor(){
     inp.onchange=()=>{state.chin.customDice[diceIndex][inp.dataset.customFace]=inp.value;save();}
   });
 }
-function comboKey(arr){return [...arr].sort((a,b)=>a-b).join("-")}
-function comboLabelFromKey(key){return key.split("-").join("・")}
-function makeAllCombos(){
-  const keys=[];
-  for(let a=1;a<=6;a++){
-    for(let b=a;b<=6;b++){
-      for(let c=b;c<=6;c++){
-        keys.push(`${a}-${b}-${c}`);
-      }
+function comboKey(arr){
+  for(let n=1;n<=6;n++){
+    if(arr.filter(x=>x===n).length===2){
+      const point=arr.find(x=>x!==n);
+      return `point-${point}`;
     }
   }
-  return keys;
+  const res=judge(arr);
+  return res.type;
+}
+function comboLabelFromKey(key){
+  if(key.startsWith("point-")) return `${key.replace("point-","")}の目`;
+  const labels={best:"ピンゾロ",worst:"ヒフミ",zoro:"ゾロ目",win:"シゴロ",none:"目なし"};
+  return labels[key] || key;
+}
+function makeLocalKeys(){
+  return ["point-1","point-2","point-3","point-4","point-5","point-6","best","zoro","win","worst","none"];
 }
 function defaultLocalText(key){
-  const arr=key.split("-").map(Number);
-  const res=judge(arr);
-  return res.name;
+  const defaults={
+    "point-1":"一の目",
+    "point-2":"二の目",
+    "point-3":"三の目",
+    "point-4":"四の目",
+    "point-5":"五の目",
+    "point-6":"六の目",
+    best:"ピンゾロ",
+    zoro:"ゾロ目",
+    win:"シゴロ",
+    worst:"ヒフミ",
+    none:"目なし"
+  };
+  return defaults[key] || key;
 }
 function renderLocalComboEditor(){
   if(!window.localComboSelect) return;
-  const keys=makeAllCombos();
-  localComboSelect.innerHTML=keys.map(k=>`<option value="${k}">${comboLabelFromKey(k)}</option>`).join("");
+  const keys=makeLocalKeys();
+  const current=localComboSelect.value || keys[0];
+  localComboSelect.innerHTML=keys.map(k=>`<option value="${k}" ${k===current?"selected":""}>${comboLabelFromKey(k)}</option>`).join("");
   const key=localComboSelect.value || keys[0];
   localComboText.value=state.chin.localMap[key] || defaultLocalText(key);
 }
