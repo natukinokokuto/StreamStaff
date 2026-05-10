@@ -161,3 +161,17 @@ v21変更:
 - ログボ横8マス問題の再修正
 - 共通 .calendar クラスをやめて、ログボ専用 .logbo-days-grid に完全分離
 - インラインstyleでも grid-template-columns: repeat(7, ...) を固定
+
+
+v22変更:
+- アプリ名を StreamStaff に変更
+- ホーム画面タイトルを SS StreamStaff に変更
+- シンプルロゴ系アイコンを追加
+
+
+v23変更:
+- アイコンを『5番のシンプルロゴ系』デザインへ修正
+
+
+v25変更:
+- 最終版3D StreamStaffアイコンを追加

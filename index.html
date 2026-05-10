@@ -262,14 +262,34 @@ function fitBrushText(text){
       .logbo-days-grid .day{min-height:46px !important;font-size:12px !important}
     }
 
-  </style>
+  
+.ss-logo{
+  font-weight:1000;
+  letter-spacing:.06em;
+  font-size:clamp(28px,5vw,52px);
+  text-align:center;
+  margin:10px 0 4px;
+}
+.ss-logo .ss{
+  background:linear-gradient(135deg,#ffffff,#c084fc);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.ss-sub{
+  text-align:center;
+  color:#b794f4;
+  font-size:13px;
+  letter-spacing:.25em;
+  margin-bottom:12px;
+}
+</style>
 </head>
 <body>
   <div class="app">
     <header>
       <div class="brand">
-        <h1>配信管制室</h1>
-        <p>配信マネージャー × ログボ × チンチロ演出 統合版</p>
+        <h1 class="ss-logo"><span class="ss">SS</span> StreamStaff</h1><div class="ss-sub">STREAM SUPPORT SYSTEM</div>
+        <p>StreamStaff × ログボ × チンチロ演出 統合版</p>
       </div>
       <div class="badge">🎙️</div>
     </header>
