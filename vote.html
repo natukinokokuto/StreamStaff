@@ -57,6 +57,7 @@ h1{margin:0 0 8px;font-size:28px}
   padding:12px;
   color:#fed7aa;
   font-size:14px;
+  white-space:pre-wrap;
 }
 .live{
   display:inline-block;
@@ -79,21 +80,40 @@ h1{margin:0 0 8px;font-size:28px}
     <div id="liveBadge" class="live" style="display:none">Firebase LIVE</div>
     <div id="options"></div>
     <div id="done" class="done">投票ありがとう！</div>
-    <div id="warn" class="warn" style="display:none">
-      Firebase設定がURLに入っていないため、今は見本ページです。主のStreamStaffでFirebase同期を開始してからURL/QRを出してください。
-    </div>
+    <div id="warn" class="warn" style="display:none"></div>
   </div>
 
 <script>
 const params=new URLSearchParams(location.search);
 
 function decodeUrlData(str){
+  // URLSearchParams has already decoded percent encoding.
+  // Convert base64 encoded UTF-8 JSON back to object.
   const bin=atob(str);
-  const bytes=new Uint8Array([...bin].map(ch=>ch.charCodeAt(0)));
+  const bytes=new Uint8Array(Array.from(bin, ch=>ch.charCodeAt(0)));
   return JSON.parse(new TextDecoder().decode(bytes));
 }
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+}
+function normalizeOptions(raw){
+  if(!raw) return [];
+  if(Array.isArray(raw)){
+    return raw.map(o=>{
+      if(typeof o==="string") return {text:o,votes:0};
+      return {text:String(o.text||""), votes:Number(o.votes||0)};
+    }).filter(o=>o.text);
+  }
+  if(typeof raw==="string"){
+    // support both | and comma separated old URLs
+    return raw.split("|").flatMap(x=>x.split(",")).map(x=>x.trim()).filter(Boolean).map(text=>({text,votes:0}));
+  }
+  return [];
+}
+function showWarn(msg){
+  const w=document.getElementById("warn");
+  w.textContent=msg;
+  w.style.display="block";
 }
 
 let payload={poll:"",title:"投票",options:[]};
@@ -102,35 +122,30 @@ try{
   const data=params.get("data");
   if(data){
     payload=decodeUrlData(data);
-  }else{
-    payload={
-      poll:params.get("poll")||"",
-      title:params.get("title")||"投票",
-      options:(params.get("options")||"").split("|").filter(Boolean)
-    };
   }
 }catch(e){
-  payload={
-    poll:params.get("poll")||"",
-    title:params.get("title")||"投票",
-    options:(params.get("options")||"").split("|").filter(Boolean)
-  };
+  console.error("data parse failed", e);
 }
+
+if(!payload.poll && params.get("poll")) payload.poll=params.get("poll");
+if((!payload.title || payload.title==="投票") && params.get("title")) payload.title=params.get("title");
+if((!payload.options || !payload.options.length) && params.get("options")) payload.options=params.get("options");
 
 const pollId=payload.poll || "";
 const title=payload.title || "投票";
-const optionsFromUrl=(payload.options||[]).map(x=>typeof x==="string"?x:x.text).filter(Boolean);
+let currentOptions=normalizeOptions(payload.options);
 const fb=params.get("fb");
 
 document.getElementById("title").textContent=title;
 
 function renderOptions(options, live){
   const box=document.getElementById("options");
-  const list=(options||[]).map(o=>typeof o==="string" ? {text:o,votes:0} : o).filter(o=>o && o.text);
-  box.innerHTML=list.map((o,i)=>{
-    return `<button class="option" data-i="${i}">${escapeHtml(o.text)}</button>`;
-  }).join("") || "<p>選択肢がありません</p>";
-
+  const list=normalizeOptions(options);
+  if(!list.length){
+    box.innerHTML="<p class='muted'>選択肢がありません</p>";
+    return;
+  }
+  box.innerHTML=list.map((o,i)=>`<button class="option" data-i="${i}">${escapeHtml(o.text)}</button>`).join("");
   box.querySelectorAll(".option").forEach(btn=>{
     btn.onclick=()=>vote(Number(btn.dataset.i), live);
   });
@@ -138,7 +153,6 @@ function renderOptions(options, live){
 
 let db=null;
 let docRef=null;
-let currentOptions=optionsFromUrl.map(text=>({text,votes:0}));
 
 async function vote(index, live){
   if(!live || !docRef){
@@ -150,7 +164,7 @@ async function vote(index, live){
       const snap=await tx.get(docRef);
       if(!snap.exists) throw new Error("poll not found");
       const data=snap.data();
-      const opts=data.options || currentOptions;
+      const opts=normalizeOptions(data.options && data.options.length ? data.options : currentOptions);
       opts[index].votes=Number(opts[index].votes||0)+1;
       tx.update(docRef,{options:opts,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
     });
@@ -164,8 +178,12 @@ async function vote(index, live){
 async function start(){
   if(!fb || !pollId){
     document.getElementById("status").textContent="見本モード";
-    document.getElementById("warn").style.display="block";
-    renderOptions(optionsFromUrl,false);
+    renderOptions(currentOptions,false);
+    if(!currentOptions.length){
+      showWarn("URLから選択肢を読み取れませんでした。\nStreamStaff側で投票を作り直して、URL / QR表示から開いてください。");
+    }else{
+      showWarn("Firebase設定がURLに入っていないため、今は見本ページです。");
+    }
     return;
   }
 
@@ -178,13 +196,29 @@ async function start(){
     document.getElementById("status").textContent="リアルタイム投票受付中";
     document.getElementById("liveBadge").style.display="inline-block";
 
-    // 投票データがまだ無い場合でも、URLに入っている選択肢で初期作成
-    await docRef.set({
-      id:pollId,
-      title:title,
-      options:currentOptions,
-      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-    },{merge:true});
+    // Ensure document has at least URL options.
+    const firstSnap=await docRef.get();
+    if(!firstSnap.exists){
+      await docRef.set({
+        id:pollId,
+        title:title,
+        options:currentOptions,
+        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }else{
+      const data=firstSnap.data();
+      const firestoreOptions=normalizeOptions(data.options);
+      if(firestoreOptions.length){
+        currentOptions=firestoreOptions;
+      }else if(currentOptions.length){
+        await docRef.set({
+          id:pollId,
+          title:title,
+          options:currentOptions,
+          updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+        },{merge:true});
+      }
+    }
 
     docRef.onSnapshot(snap=>{
       if(!snap.exists){
@@ -192,18 +226,21 @@ async function start(){
         return;
       }
       const data=snap.data();
-      currentOptions=(data.options && data.options.length) ? data.options : currentOptions;
+      const opts=normalizeOptions(data.options);
+      if(opts.length) currentOptions=opts;
       document.getElementById("title").textContent=data.title || title;
       renderOptions(currentOptions,true);
+      if(!currentOptions.length){
+        showWarn("Firebaseには接続できましたが、選択肢データがありません。主側でFirebase同期を押してからURLを出してください。");
+      }
     });
   }catch(e){
     console.error(e);
     document.getElementById("status").textContent="Firebase接続エラー";
-    document.getElementById("warn").style.display="block";
-    renderOptions(optionsFromUrl,false);
+    renderOptions(currentOptions,false);
+    showWarn("Firebase接続エラー。\n設定やFirestoreルールを確認してください。\n\n" + (e.message || e));
   }
 }
-
 start();
 </script>
 </body>
