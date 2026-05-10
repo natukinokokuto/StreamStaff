@@ -565,6 +565,34 @@ function fitBrushText(text){
   font-size:13px;
 }
 
+
+.poll-share{
+  margin-top:10px;
+  background:#07111f;
+  border:1px solid #1e3a5f;
+  border-radius:14px;
+  padding:10px;
+  display:none;
+}
+.poll-share.open{display:block}
+.poll-url{
+  font-size:12px;
+  word-break:break-all;
+  background:#020617;
+  border:1px solid #1e293b;
+  border-radius:10px;
+  padding:8px;
+  margin-top:8px;
+}
+.poll-qr{
+  margin-top:10px;
+  width:160px;
+  height:160px;
+  border-radius:12px;
+  background:white;
+  padding:8px;
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -2470,6 +2498,19 @@ if(window.addCalendarEvent) addCalendarEvent.onclick=()=>{
 }
 
 
+
+function getPollVoteUrl(poll){
+  const base=location.href.split("#")[0].split("?")[0].replace(/index\.html$/,"");
+  const url=new URL("vote.html", base);
+  url.searchParams.set("poll", poll.id);
+  url.searchParams.set("title", poll.title || "");
+  url.searchParams.set("options", (poll.options||[]).map(o=>o.text).join("|"));
+  return url.toString();
+}
+function getQrUrl(text){
+  return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(text)}`;
+}
+
 function renderPolls(){
   if(window.pollPanelBody){
     pollPanelBody.classList.toggle("open", !!state.ui?.pollOpen);
@@ -2505,6 +2546,19 @@ function renderPolls(){
         </div>
         <button class="btn danger mini-btn" data-poll-delete="${pi}">削除</button>
       </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn mini-btn" data-poll-share="${pi}">URL / QR表示</button>
+      </div>
+      <div class="poll-share" data-poll-share-box="${pi}">
+        <b>リスナー投票URL</b>
+        <div class="poll-url">${escapeHtml(getPollVoteUrl(poll))}</div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn primary mini-btn" data-copy-poll-url="${pi}">URLコピー</button>
+          <a class="btn mini-btn" href="${escapeHtml(getPollVoteUrl(poll))}" target="_blank">投票ページを開く</a>
+        </div>
+        <img class="poll-qr" src="${escapeHtml(getQrUrl(getPollVoteUrl(poll)))}" alt="投票QR">
+        <div class="muted" style="margin-top:8px">※QR生成にはネット接続が必要。Firebase接続後にリアルタイム投票化できる。</div>
+      </div>
       ${options}
       <div class="row" style="margin-top:10px">
         <button class="btn mini-btn" data-poll-reset="${pi}">投票リセット</button>
@@ -2535,6 +2589,21 @@ function renderPolls(){
     if(!confirm(`${state.polls[i].title} を削除する？`)) return;
     state.polls.splice(i,1);
     save();renderPolls();
+  });
+  pollList.querySelectorAll("[data-poll-share]").forEach(btn=>btn.onclick=()=>{
+    const i=Number(btn.dataset.pollShare);
+    const box=pollList.querySelector(`[data-poll-share-box="${i}"]`);
+    if(box) box.classList.toggle("open");
+  });
+  pollList.querySelectorAll("[data-copy-poll-url]").forEach(btn=>btn.onclick=async()=>{
+    const i=Number(btn.dataset.copyPollUrl);
+    const url=getPollVoteUrl(state.polls[i]);
+    try{
+      await navigator.clipboard.writeText(url);
+      alert("投票URLをコピーした！");
+    }catch(e){
+      prompt("コピーできなかったから手動でコピーしてｗ", url);
+    }
   });
 }
 if(window.addPoll) addPoll.onclick=()=>{
@@ -2901,23 +2970,26 @@ function escapeAttr(s){return escapeHtml(s).replace(/"/g,"&quot;")}
 
 renderHome();renderGames();renderBonus();renderMemo();renderCalendar();renderChLog();renderChinMode();renderSettings();renderTools();renderPolls();renderCountdowns();applyVolumes();ensureTimerTick();
 
-if(window.openFirebaseHelp){
-  openFirebaseHelp.onclick=()=>{
-    firebaseHelpModal.classList.add("open");
-  };
-}
-if(window.closeFirebaseHelp){
-  closeFirebaseHelp.onclick=()=>{
-    firebaseHelpModal.classList.remove("open");
-  };
-}
-if(window.firebaseHelpModal){
-  firebaseHelpModal.onclick=(e)=>{
-    if(e.target===firebaseHelpModal){
-      firebaseHelpModal.classList.remove("open");
-    }
-  };
-}
+
+document.addEventListener("click",(e)=>{
+  if(e.target && e.target.id==="openFirebaseHelp"){
+    const modal=document.getElementById("firebaseHelpModal");
+    if(modal) modal.classList.add("open");
+  }
+  if(e.target && e.target.id==="closeFirebaseHelp"){
+    const modal=document.getElementById("firebaseHelpModal");
+    if(modal) modal.classList.remove("open");
+  }
+  if(e.target && e.target.id==="firebaseHelpModal"){
+    e.target.classList.remove("open");
+  }
+});
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="Escape"){
+    const modal=document.getElementById("firebaseHelpModal");
+    if(modal) modal.classList.remove("open");
+  }
+});
 
 </script>
 
