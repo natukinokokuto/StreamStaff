@@ -544,6 +544,11 @@ function fitBrushText(text){
 
 <script>
 const KEY="stream_manager_integrated_v1";
+function ym(d){
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  return `${y}-${m}`;
+}
 const kana=["一","二","三","四","五","六"];
 const pipMap={
   1:[5],
@@ -592,6 +597,7 @@ const defaultState={
     localMap:{}
   },
   calendarEvents:[],
+  logboMonth:"",
   tools:{
     counters:[
       {id:"c_sample_1",name:"ツッコミ回数",value:0},
@@ -632,7 +638,15 @@ state.customGames = state.customGames || structuredClone(defaultState.customGame
 for (const k in defaultState.customGames) state.customGames[k] = state.customGames[k] || structuredClone(defaultState.customGames[k]);
 state.listeners = state.listeners || [];
 state.calendarEvents = state.calendarEvents || [];
-state.listeners.forEach(l=>{ if(typeof l.penalty!=="number") l.penalty=0; if(typeof l.registeredDate!=="string") l.registeredDate=""; });
+state.logboMonth = state.logboMonth || ym(new Date());
+state.listeners.forEach(l=>{
+  if(typeof l.penalty!=="number") l.penalty=0;
+  if(typeof l.registeredDate!=="string") l.registeredDate="";
+  l.logboByMonth = l.logboByMonth || {};
+  if(Array.isArray(l.days) && !l.logboByMonth[state.logboMonth]){
+    l.logboByMonth[state.logboMonth] = [...l.days].sort((a,b)=>a-b);
+  }
+});
 let selectedListener=0;
 let selectedGame="animal";
 
@@ -766,14 +780,61 @@ function renderGames(){
 rollGame.onclick=()=>{const r=gameData[selectedGame].roll();gameResult.textContent=r;state.gameHistory.unshift(r);state.gameHistory=state.gameHistory.slice(0,20);save();renderGames()}
 saveGameLog.onclick=()=>{const r=gameResult.textContent.trim();state.logs.unshift({date:new Date().toLocaleString("ja-JP"),title:"ゲーム結果",text:r});save();renderHome()}
 
+
+function getLogboDays(listener){
+  listener.logboByMonth = listener.logboByMonth || {};
+  if(!listener.logboByMonth[state.logboMonth]) listener.logboByMonth[state.logboMonth]=[];
+  return listener.logboByMonth[state.logboMonth];
+}
+function setLogboDays(listener, days){
+  listener.logboByMonth = listener.logboByMonth || {};
+  listener.logboByMonth[state.logboMonth]=[...days].sort((a,b)=>a-b);
+  listener.days = listener.logboByMonth[state.logboMonth]; // 旧表示互換
+}
+function logboMonthDate(){
+  const [y,m]=state.logboMonth.split("-").map(Number);
+  return new Date(y,m-1,1);
+}
+function shiftLogboMonth(delta){
+  const d=logboMonthDate();
+  d.setMonth(d.getMonth()+delta);
+  state.logboMonth=ym(d);
+  state.listeners.forEach(l=>{ l.days=getLogboDays(l); });
+  save();
+  renderBonus();
+  renderMemo();
+}
+function renderLogboCalendar(listener, listenerIndex){
+  const d=logboMonthDate();
+  const y=d.getFullYear();
+  const m=d.getMonth();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const firstDow=new Date(y,m,1).getDay();
+  const checked=getLogboDays(listener);
+  const weeks=["日","月","火","水","木","金","土"];
+  let html=weeks.map((w,i)=>`<div class="logbo-week ${i===0?"sun":i===6?"sat":""}">${w}</div>`).join("");
+  for(let i=0;i<firstDow;i++) html+=`<button class="day blank"></button>`;
+  for(let day=1;day<=daysInMonth;day++){
+    const dow=new Date(y,m,day).getDay();
+    html+=`<button class="day ${checked.includes(day)?"on":""} ${dow===0?"sun":dow===6?"sat":""}" data-day="${day}">
+      <span>${day}</span><small>${weeks[dow]}</small>
+    </button>`;
+  }
+  return html;
+}
+function currentLogboCount(listener){
+  return getLogboDays(listener).length;
+}
+
 function renderBonus(){
   if(window.bulkLogboDate && !bulkLogboDate.value) bulkLogboDate.value=ymd(new Date());
+  state.listeners.forEach(l=>{ l.days=getLogboDays(l); });
   listenerTabs.innerHTML=state.listeners.map((l,i)=>`<button class="${i===selectedListener?"active":""}" data-i="${i}">${escapeHtml(l.name)}</button>`).join("");
   listenerTabs.querySelectorAll("button").forEach(b=>b.onclick=()=>{selectedListener=Number(b.dataset.i);renderBonus()});
   const l=state.listeners[selectedListener];
   selectedListenerBox.innerHTML=`
     <h3>${escapeHtml(l.name)}</h3>
-    <p class="muted">参加 ${l.days.length}/31日</p>
+    <p class="muted">参加 ${currentLogboCount(l)}日 / ${state.logboMonth}</p>
     <div class="penalty-box">
       <div class="row" style="justify-content:space-between">
         <div>
@@ -791,39 +852,47 @@ function renderBonus(){
         ${penaltyDetailList(l.name)}
       </div>
     </div>
-    <div class="calendar">${Array.from({length:31},(_,i)=>`<button class="day ${l.days.includes(i+1)?"on":""}" data-day="${i+1}">${i+1}</button>`).join("")}</div>
+    <div class="logbo-month-head">
+      <button class="btn mini-btn" onclick="shiftLogboMonth(-1)">← 前月</button>
+      <b>${state.logboMonth}</b>
+      <button class="btn mini-btn" onclick="shiftLogboMonth(1)">次月 →</button>
+    </div>
+    <div class="calendar">${renderLogboCalendar(l, selectedListener)}</div>
     <h3 style="margin-top:14px">達成済み</h3>
     ${achievedList(l)}
   `;
-  selectedListenerBox.querySelectorAll(".day").forEach(b=>b.onclick=()=>{const d=Number(b.dataset.day); l.days=l.days.includes(d)?l.days.filter(x=>x!==d):[...l.days,d].sort((a,b)=>a-b); save();renderBonus();renderMemo()});
+  selectedListenerBox.querySelectorAll(".day:not(.blank)").forEach(b=>b.onclick=()=>{
+    const d=Number(b.dataset.day);
+    const days=getLogboDays(l);
+    setLogboDays(l, days.includes(d)?days.filter(x=>x!==d):[...days,d]);
+    save();renderBonus();renderMemo();
+  });
   bindPenaltyButtons(selectedListenerBox);
   renderRewards();
 }
 
-function getBulkLogboDay(){
+function getBulkLogboInfo(){
   const v=bulkLogboDate?.value;
-  if(!v){
-    const now=new Date();
-    if(bulkLogboDate) bulkLogboDate.value=ymd(now);
-    return now.getDate();
-  }
-  return Number(v.split("-")[2]);
+  const date=v ? new Date(v+"T00:00:00") : new Date();
+  if(!v && bulkLogboDate) bulkLogboDate.value=ymd(date);
+  return {month:ym(date), day:date.getDate()};
 }
 function bulkSetLogbo(shouldAdd){
-  const day=getBulkLogboDay();
+  const info=getBulkLogboInfo();
+  const day=info.day;
   if(!day || day<1 || day>31) return alert("日付が変だぞｗ");
   const msg=shouldAdd
-    ? `${day}日を全員にログボ入力する？`
-    : `${day}日を全員から外す？`;
+    ? `${info.month} ${day}日を全員にログボ入力する？`
+    : `${info.month} ${day}日を全員から外す？`;
   if(!confirm(msg)) return;
+  state.logboMonth=info.month;
   state.listeners.forEach(l=>{
-    l.days=l.days||[];
-    if(shouldAdd){
-      if(!l.days.includes(day)) l.days.push(day);
-      l.days.sort((a,b)=>a-b);
-    }else{
-      l.days=l.days.filter(d=>d!==day);
-    }
+    l.logboByMonth=l.logboByMonth||{};
+    const days=l.logboByMonth[info.month]||[];
+    l.logboByMonth[info.month]=shouldAdd
+      ? Array.from(new Set([...days,day])).sort((a,b)=>a-b)
+      : days.filter(d=>d!==day);
+    l.days=l.logboByMonth[state.logboMonth];
   });
   save();
   renderBonus();
@@ -843,7 +912,7 @@ function renderRewards(){
   rewardEditor.querySelectorAll("[data-del]").forEach(btn=>btn.onclick=()=>{state.rewards.splice(Number(btn.dataset.del),1);save();renderBonus();renderMemo()});
 }
 addReward.onclick=()=>{state.rewards.push({days:1,name:"新しい達成品"});state.rewards.sort((a,b)=>a.days-b.days);save();renderBonus()}
-addListener.onclick=()=>{const name=prompt("常連名");if(!name)return;const today=ymd(new Date());state.listeners.push({name,days:[],memo:"",penalty:0,registeredDate:today});selectedListener=state.listeners.length-1;state.calendarEvents.push({id:uid("cal"),date:today,listener:name,type:"登録日",item:"常連登録"});save();renderBonus();renderMemo();renderCalendar()}
+addListener.onclick=()=>{const name=prompt("常連名");if(!name)return;const today=ymd(new Date());state.listeners.push({name,days:[],logboByMonth:{[state.logboMonth]:[]},memo:"",penalty:0,registeredDate:today});selectedListener=state.listeners.length-1;state.calendarEvents.push({id:uid("cal"),date:today,listener:name,type:"登録日",item:"常連登録"});save();renderBonus();renderMemo();renderCalendar()}
 function deleteListener(index){
   const l=state.listeners[index];
   if(!l)return;
@@ -851,7 +920,7 @@ function deleteListener(index){
   state.calendarEvents = (state.calendarEvents||[]).filter(ev=>ev.listener!==l.name);
   state.listeners.splice(index,1);
   if(state.listeners.length===0){
-    state.listeners.push({name:"新しい常連",days:[],memo:"",penalty:0,registeredDate:""});
+    state.listeners.push({name:"新しい常連",days:[],logboByMonth:{[state.logboMonth]:[]},memo:"",penalty:0,registeredDate:""});
   }
   selectedListener=Math.min(selectedListener,state.listeners.length-1);
   if(selectedListener<0) selectedListener=0;
@@ -892,7 +961,8 @@ function bindPenaltyButtons(root=document){
 }
 
 function achievedList(l){
-  const items=state.rewards.filter(r=>l.days.length>=r.days).map(r=>`<li>${r.days}日：${escapeHtml(r.name)}</li>`).join("");
+  const count=currentLogboCount(l);
+  const items=state.rewards.filter(r=>count>=r.days).map(r=>`<li>${r.days}日：${escapeHtml(r.name)}</li>`).join("");
   return `<ul class="clean">${items||"<li>まだ達成品なし</li>"}</ul>`;
 }
 function renderMemo(){
@@ -902,7 +972,7 @@ function renderMemo(){
         <h2 style="margin:0">${escapeHtml(l.name)}</h2>
         <button class="btn danger" data-delete-memo-listener="${i}" style="min-height:36px;padding:6px 10px">削除</button>
       </div>
-      <p class="muted">ログボ ${l.days.length}/31日</p>
+      <p class="muted">ログボ ${currentLogboCount(l)}日 / ${state.logboMonth}</p>
       <div class="penalty-box">
         <div class="row" style="justify-content:space-between">
           <div>
@@ -1585,6 +1655,13 @@ if(window.importDataCode) importDataCode.onclick=()=>{
     state.settings = state.settings || structuredClone(defaultState.settings);
     if(typeof state.settings.alarmVolume!=="number") state.settings.alarmVolume=80;
     state.calendarEvents = state.calendarEvents || [];
+    state.logboMonth = state.logboMonth || ym(new Date());
+    state.listeners = state.listeners || [];
+    state.listeners.forEach(l=>{
+      l.logboByMonth = l.logboByMonth || {};
+      if(Array.isArray(l.days) && !l.logboByMonth[state.logboMonth]) l.logboByMonth[state.logboMonth]=[...l.days].sort((a,b)=>a-b);
+      l.days=getLogboDays(l);
+    });
     state.tools = state.tools || structuredClone(defaultState.tools);
     state.tools.counters = state.tools.counters || [];
     state.tools.timers = state.tools.timers || [];
