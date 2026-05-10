@@ -514,6 +514,57 @@ function fitBrushText(text){
   padding:8px;
 }
 
+
+.firebase-help-btn{
+  width:32px;
+  height:32px;
+  border-radius:999px;
+  font-weight:1000;
+  font-size:18px;
+  background:#2563eb;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+.firebase-help-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:18px;
+}
+.firebase-help-modal.open{
+  display:flex;
+}
+.firebase-help-content{
+  width:min(920px,100%);
+  max-height:90vh;
+  overflow:auto;
+  background:#09111d;
+  border:1px solid #355b93;
+  border-radius:22px;
+  padding:20px;
+}
+.firebase-step{
+  background:#101a2b;
+  border:1px solid #2d4770;
+  border-radius:16px;
+  padding:14px;
+  margin-top:12px;
+}
+.firebase-shot{
+  margin-top:10px;
+  background:#17263f;
+  border-radius:12px;
+  padding:14px;
+  text-align:center;
+  color:#9fb8dd;
+  font-size:13px;
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -1028,7 +1079,7 @@ function fitBrushText(text){
 <div class="card" style="margin-top:14px"><div class="inner">
   <div class="row" style="justify-content:space-between">
     <div>
-      <h2 style="margin:0">🔥 Firebase連携</h2>
+      <div class="row" style="gap:10px;align-items:center"><h2 style="margin:0">🔥 Firebase連携</h2><button class="firebase-help-btn" id="openFirebaseHelp">？</button></div>
       <p class="muted">リアルタイム投票・QR投票・参加型イベント用</p>
     </div>
 
@@ -1076,10 +1127,8 @@ function fitBrushText(text){
   </div>
 
   <div class="history" style="margin-top:12px">
-    <div>① Firebaseでプロジェクト作成</div>
-    <div>② Webアプリ追加</div>
-    <div>③ 表示された firebaseConfig をコピペ</div>
-    <div>④ 保存でリアルタイム機能解放</div>
+    <div>💡 ド素人向け説明は「？」ボタンから見れます</div>
+    <div>Firebase側で表示された文字を、そのままコピペするだけ！</div>
   </div>
 
   <div class="tool-item" style="margin-top:14px;background:#0b1020;border-color:#2563eb">
@@ -2851,6 +2900,88 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":
 function escapeAttr(s){return escapeHtml(s).replace(/"/g,"&quot;")}
 
 renderHome();renderGames();renderBonus();renderMemo();renderCalendar();renderChLog();renderChinMode();renderSettings();renderTools();renderPolls();renderCountdowns();applyVolumes();ensureTimerTick();
+
+if(window.openFirebaseHelp){
+  openFirebaseHelp.onclick=()=>{
+    firebaseHelpModal.classList.add("open");
+  };
+}
+if(window.closeFirebaseHelp){
+  closeFirebaseHelp.onclick=()=>{
+    firebaseHelpModal.classList.remove("open");
+  };
+}
+if(window.firebaseHelpModal){
+  firebaseHelpModal.onclick=(e)=>{
+    if(e.target===firebaseHelpModal){
+      firebaseHelpModal.classList.remove("open");
+    }
+  };
+}
+
 </script>
+
+<div class="firebase-help-modal" id="firebaseHelpModal">
+  <div class="firebase-help-content">
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <div>
+        <h2 style="margin:0">🔥 Firebase設定ガイド</h2>
+        <div class="muted">初めてでも分かる版</div>
+      </div>
+      <button class="btn danger" id="closeFirebaseHelp">閉じる</button>
+    </div>
+
+    <div class="firebase-step">
+      <h3>① Firebase Console を開く</h3>
+      <div>設定画面内の「Firebase Console」ボタンを押す。</div>
+      <div class="firebase-shot">
+        ここで Googleログイン するだけでOK
+      </div>
+    </div>
+
+    <div class="firebase-step">
+      <h3>② 「プロジェクトを作成」を押す</h3>
+      <div>名前は何でもOK。</div>
+      <div>例：StreamStaff / HokutoSS など。</div>
+      <div class="firebase-shot">
+        「プロジェクトを作成」ボタンを押す画面
+      </div>
+    </div>
+
+    <div class="firebase-step">
+      <h3>③ Webアプリを追加する</h3>
+      <div>「&lt;/&gt;」みたいなWebマークを押す。</div>
+      <div class="firebase-shot">
+        iOS / Android / Web の中から Web を選択
+      </div>
+    </div>
+
+    <div class="firebase-step">
+      <h3>④ firebaseConfig をコピー</h3>
+      <div>すると Firebase が英語のコードを表示する。</div>
+      <div>その中の apiKey や projectId を StreamStaff にコピペ。</div>
+      <div class="firebase-shot">
+const firebaseConfig = { ... }
+      </div>
+    </div>
+
+    <div class="firebase-step">
+      <h3>⑤ StreamStaffへ貼る</h3>
+      <div>各欄に貼り付けて「Firebase設定保存」を押す。</div>
+      <div class="firebase-shot">
+        接続テストが通ればOK！
+      </div>
+    </div>
+
+    <div class="firebase-step">
+      <h3>💡 何ができるようになる？</h3>
+      <div>・QR投票</div>
+      <div>・リアルタイム投票</div>
+      <div>・参加型ルーレット</div>
+      <div>・配信イベント連動</div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
