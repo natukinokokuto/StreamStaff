@@ -40,14 +40,31 @@
           <div class="card stat"><span>登録常連</span><strong id="listenerCount">0</strong></div>
         </div>
 
-        <div class="card">
-          <label>幹：今日のメインテーマ</label>
+        <div class="card tree-console">
+          <div class="tree-head">
+            <div>
+              <h3>半自動トーク管理</h3>
+              <p class="small">最初に幹を作る → 枝を出す → 食いついたら葉に保存。</p>
+            </div>
+            <button class="secondary" id="autoTreeBtn">今日の流れを作る</button>
+          </div>
+          <div class="tree-flow">
+            <div class="tree-box trunk"><span>幹</span><strong id="trunkView">未設定</strong></div>
+            <div class="tree-box branch"><span>枝</span><strong id="branchView">未設定</strong></div>
+            <div class="tree-box leaf"><span>葉</span><strong id="leafView">未設定</strong></div>
+          </div>
+          <div class="quick-buttons">
+            <button id="nextBranchBtn">枝をもう1本</button>
+            <button id="saveLeafBtn">今の枝を葉にする</button>
+            <button id="resetTreeBtn">流れリセット</button>
+          </div>
+          <label>幹を手動修正</label>
           <input id="trunk" placeholder="例：最近買ってよかったもの" />
-          <label>枝：脱線できる話題</label>
+          <label>枝メモを手動修正</label>
           <input id="branch" placeholder="例：服、飯、仕事、英語、ダーツ" />
-          <label>葉：リスナーが食いついたポイント</label>
+          <label>葉メモを手動修正</label>
           <input id="leaf" placeholder="例：コメントが増えた話題" />
-          <button class="primary" id="saveTree">保存</button>
+          <button class="primary" id="saveTree">手動内容を保存</button>
         </div>
       </section>
 
@@ -82,16 +99,25 @@
       <section id="logbo" class="page">
         <div class="hero">
           <h2>ログボ管理</h2>
-          <p>31日分のチェック。スマホでもPCでも押せる。</p>
+          <p>31日分のチェック。達成品は自分で編集できる。</p>
         </div>
-        <div class="card">
-          <div class="row">
-            <select id="listenerSelect"></select>
-            <button id="addListenerBtn" class="secondary">常連追加</button>
+        <div class="grid two">
+          <div class="card">
+            <div class="row">
+              <select id="listenerSelect"></select>
+              <button id="addListenerBtn" class="secondary">常連追加</button>
+            </div>
+            <h3 id="selectedListenerName">-</h3>
+            <p id="rewardText" class="reward">-</p>
+            <div id="achievedList" class="achieved-list"></div>
+            <div id="dayGrid" class="day-grid"></div>
           </div>
-          <h3 id="selectedListenerName">-</h3>
-          <p id="rewardText" class="reward">-</p>
-          <div id="dayGrid" class="day-grid"></div>
+          <div class="card">
+            <h3>達成品編集</h3>
+            <p class="small">条件日数と報酬名を自由に変更。常連メモにも自動で箇条書き表示。</p>
+            <div id="rewardEditor" class="reward-editor"></div>
+            <button id="addRewardBtn" class="secondary">達成品を追加</button>
+          </div>
         </div>
       </section>
 

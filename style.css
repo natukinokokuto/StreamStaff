@@ -211,3 +211,36 @@ textarea { min-height: 110px; resize: vertical; }
   .menu-btn { font-size: 12px; }
   .three { grid-template-columns: 1fr; }
 }
+
+.two { grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); }
+.tree-console h3 { margin: 0 0 4px; font-size: 24px; }
+.tree-head { display:flex; gap:12px; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
+.tree-head .secondary { margin-top:0; white-space:nowrap; }
+.tree-flow { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; margin:12px 0; }
+.tree-box { min-height:120px; border-radius:22px; padding:16px; border:1px solid rgba(255,255,255,.1); background:#090b10; }
+.tree-box span { display:block; color:var(--muted); font-size:13px; font-weight:900; margin-bottom:8px; }
+.tree-box strong { display:block; font-size:22px; line-height:1.35; }
+.tree-box.trunk { outline:1px solid rgba(57,208,255,.25); }
+.tree-box.branch { outline:1px solid rgba(255,79,216,.25); }
+.tree-box.leaf { outline:1px solid rgba(253,230,138,.25); }
+.quick-buttons { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.quick-buttons button, .mini-btn { color:var(--text); background:var(--panel2); border:0; border-radius:16px; padding:12px; font-weight:900; }
+.reward-editor { display:grid; gap:10px; margin-top:12px; }
+.reward-row { display:grid; grid-template-columns:80px minmax(0,1fr) 52px; gap:8px; align-items:center; }
+.reward-row input { padding:12px; }
+.reward-row button { min-height:46px; border-radius:14px; border:0; background:rgba(239,68,68,.9); color:white; font-weight:900; }
+.achieved-list { background:#090b10; border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:12px 14px; margin:12px 0; }
+.achieved-list ul { margin:8px 0 0 20px; padding:0; color:#fde68a; font-weight:800; }
+.achieved-list .none { color:var(--muted); font-weight:700; }
+.listener-rewards { margin:8px 0 12px; padding:12px 14px; background:#090b10; border-radius:16px; border:1px solid rgba(255,255,255,.08); }
+.listener-rewards ul { margin:8px 0 0 20px; padding:0; color:#fde68a; font-weight:800; }
+
+@media (max-width: 720px) {
+  .two { grid-template-columns: 1fr; }
+  .tree-head { flex-direction:column; }
+  .tree-head .secondary { width:100%; }
+  .tree-flow { grid-template-columns:1fr; }
+  .tree-box { min-height:auto; }
+  .quick-buttons { grid-template-columns:1fr; }
+  .reward-row { grid-template-columns:70px minmax(0,1fr) 48px; }
+}
