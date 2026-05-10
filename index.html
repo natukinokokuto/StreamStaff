@@ -1373,6 +1373,14 @@ function calcAge(birthday){
   if(!hadBirthday) age--;
   return age>=0 ? `${age}歳` : "-";
 }
+
+function isBirthdayToday(birthday){
+  if(!birthday) return false;
+  const now=new Date();
+  const md=`${String(now.getMonth()+1).padStart(2,"0")}/${String(now.getDate()).padStart(2,"0")}`;
+  return birthday===md;
+}
+
 function displayAge(l){
   if(!l || !l.birthday) return "-";
   if(!l.birthYear) return "年齢不詳";
