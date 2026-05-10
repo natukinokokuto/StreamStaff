@@ -1712,6 +1712,172 @@ function fitBrushText(text){
     font-size:11px;
   }
 }
+/* v67 roulette bet board */
+.roulette-full-layout{
+  grid-template-columns:minmax(0,1.2fr) minmax(330px,.8fr);
+}
+.roulette-bet-board-card{
+  grid-column:1 / 2;
+  background:linear-gradient(180deg,#141822,#0f1118);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px;
+  box-shadow:0 20px 60px #0008;
+}
+.roulette-bet-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+.roulette-bet-head h3{
+  margin:0 0 4px;
+  letter-spacing:.08em;
+  color:#fde68a;
+}
+.roulette-better-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  margin:12px 0;
+}
+.bet-board{
+  display:grid;
+  grid-template-columns:64px repeat(6,1fr);
+  gap:6px;
+  background:#08120d;
+  border:1px solid #185c37;
+  border-radius:18px;
+  padding:10px;
+  box-shadow:inset 0 0 30px rgba(0,0,0,.55);
+}
+.number-grid{
+  grid-column:2 / 8;
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:6px;
+}
+.bet-cell{
+  position:relative;
+  border:1px solid rgba(255,255,255,.2);
+  background:#10251a;
+  color:white;
+  border-radius:10px;
+  min-height:50px;
+  padding:6px;
+  font-weight:1000;
+  cursor:pointer;
+  overflow:hidden;
+}
+.bet-cell:hover{
+  filter:brightness(1.25);
+  transform:translateY(-1px);
+}
+.bet-cell.zero{
+  grid-row:1 / span 3;
+  background:#047857;
+  min-height:162px;
+  font-size:28px;
+}
+.bet-cell.red{
+  background:#991b1b;
+}
+.bet-cell.black{
+  background:#020617;
+}
+.bet-cell.green{
+  background:#047857;
+}
+.bet-cell.outside{
+  min-height:48px;
+  background:#12351f;
+}
+.bet-cell .chip-stack{
+  position:absolute;
+  left:4px;
+  right:4px;
+  bottom:4px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:3px;
+  justify-content:center;
+}
+.bet-chip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:28px;
+  max-width:72px;
+  height:24px;
+  padding:0 6px;
+  border-radius:999px;
+  background:radial-gradient(circle at 30% 25%,#fff,#facc15 42%,#92400e);
+  color:#111827;
+  border:2px solid #fff7ad;
+  font-size:10px;
+  font-weight:1000;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  box-shadow:0 2px 6px rgba(0,0,0,.55);
+}
+.roulette-bet-log{
+  margin-top:10px;
+  display:grid;
+  gap:6px;
+  max-height:160px;
+  overflow:auto;
+}
+.roulette-bet-row{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+  background:#0b0d13;
+  border:1px solid #29324a;
+  border-radius:12px;
+  padding:8px;
+}
+.roulette-bet-row b{
+  color:#fde68a;
+}
+.roulette-bet-row button{
+  min-height:32px!important;
+  padding:5px 10px!important;
+  border-radius:10px!important;
+}
+.bet-win{
+  animation:betWinV67 .7s ease-in-out 3;
+  border-color:#facc15!important;
+  box-shadow:0 0 22px #facc15aa!important;
+}
+@keyframes betWinV67{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.8)}
+}
+@media(max-width:900px){
+  .roulette-bet-board-card{
+    grid-column:auto;
+  }
+  .bet-board{
+    grid-template-columns:46px repeat(6,1fr);
+    gap:4px;
+    padding:7px;
+  }
+  .number-grid{
+    grid-template-columns:repeat(6,1fr);
+  }
+  .bet-cell{
+    min-height:44px;
+    font-size:12px;
+  }
+  .bet-cell.zero{
+    min-height:146px;
+  }
+  .roulette-better-row{
+    grid-template-columns:1fr;
+  }
+}
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -4633,14 +4799,16 @@ const firebaseConfig = { ... }
 
 
 
+
 <script>
-/* v66 fixed zoom hype roulette */
+/* v67 fixed zoom hype roulette + bet board */
 (function(){
-  let rouletteRotationV66 = 0;
-  let rouletteSpinningV66 = false;
-  let tickTimerV66 = null;
+  let rouletteRotationV67 = 0;
+  let rouletteSpinningV67 = false;
+  let tickTimerV67 = null;
 
   const casinoNumbers = ["0","32","15","19","4","21","2","25","17","34","6","27","13","36","11","30","8","23","10","5","24","16","33","1","20","14","31","9","22","18","29","7","28","12","35","3","26"];
+  const redNums = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
   function ensureRouletteState(){
     window.state = window.state || {};
@@ -4650,12 +4818,12 @@ const firebaseConfig = { ... }
       state.roulette.items = ["チンチロ","大喜利","雑談","罰ゲーム","歌う","モノマネ"];
     }
     if(!Array.isArray(state.roulette.history)) state.roulette.history = [];
+    if(!Array.isArray(state.roulette.bets)) state.roulette.bets = [];
+    if(!Array.isArray(state.roulette.guestBetters)) state.roulette.guestBetters = [];
   }
 
   function safeSave(){
-    try{
-      if(typeof save === "function") save();
-    }catch(e){}
+    try{ if(typeof save === "function") save(); }catch(e){}
   }
 
   function esc(s){
@@ -4664,28 +4832,29 @@ const firebaseConfig = { ... }
     });
   }
 
+  function getBetters(){
+    ensureRouletteState();
+    const listeners = Array.isArray(state.listeners) ? state.listeners.map(function(l){ return l.name; }).filter(Boolean) : [];
+    return Array.from(new Set(listeners.concat(state.roulette.guestBetters || [])));
+  }
+
   function currentSlots(){
     ensureRouletteState();
 
     if(state.roulette.mode === "casino"){
       return casinoNumbers.map(function(n,i){
+        const num = Number(n);
         return {
           label:n,
           value:n,
-          color:i===0 ? "#047857" : (i%2 ? "#b91c1c" : "#030712")
+          color:n === "0" ? "#047857" : (redNums.has(num) ? "#b91c1c" : "#030712")
         };
       });
     }
 
-    // カスタム盤面：赤 → 黒 → 緑 の順番
     const colors = ["#b91c1c", "#030712", "#047857"];
-
     return state.roulette.items.map(function(item,i){
-      return {
-        label:item,
-        value:item,
-        color:colors[i % colors.length]
-      };
+      return { label:item, value:item, color:colors[i % colors.length] };
     });
   }
 
@@ -4727,9 +4896,101 @@ const firebaseConfig = { ... }
     if(box) box.classList.toggle("hot", !!hot);
   }
 
+  function betLabel(bet){
+    if(!bet) return "";
+    const parts = String(bet).split(":");
+    const type = parts[0];
+    const val = parts[1];
+
+    if(type === "number") return val;
+    if(type === "color") return val === "red" ? "RED" : "BLACK";
+    if(type === "type") return val === "even" ? "EVEN" : "ODD";
+    if(type === "range") return val;
+    return bet;
+  }
+
+  function isWinningBet(bet, result){
+    const n = Number(result);
+    const parts = String(bet).split(":");
+    const type = parts[0];
+    const val = parts[1];
+
+    if(type === "number") return String(result) === val;
+    if(result === "0") return false;
+
+    if(type === "color"){
+      const isRed = redNums.has(n);
+      return (val === "red" && isRed) || (val === "black" && !isRed);
+    }
+    if(type === "type"){
+      return (val === "even" && n % 2 === 0) || (val === "odd" && n % 2 === 1);
+    }
+    if(type === "range"){
+      if(val === "1-18") return n >= 1 && n <= 18;
+      if(val === "19-36") return n >= 19 && n <= 36;
+    }
+    return false;
+  }
+
+  function renderBetBoard(){
+    ensureRouletteState();
+
+    const grid = document.getElementById("rouletteNumberBetGrid");
+    const select = document.getElementById("rouletteBetterSelect");
+    const list = document.getElementById("rouletteBetList");
+
+    if(grid && !grid.dataset.ready){
+      grid.innerHTML = Array.from({length:36}, function(_,i){
+        const n = i + 1;
+        const cls = redNums.has(n) ? "red" : "black";
+        return '<button class="bet-cell ' + cls + '" data-bet="number:' + n + '">' + n + '</button>';
+      }).join("");
+      grid.dataset.ready = "1";
+    }
+
+    const betters = getBetters();
+    if(select){
+      select.innerHTML = betters.length
+        ? betters.map(function(name){ return '<option value="' + esc(name) + '">' + esc(name) + '</option>'; }).join("")
+        : '<option value="">登録者なし</option>';
+    }
+
+    document.querySelectorAll("[data-bet]").forEach(function(cell){
+      const bet = cell.dataset.bet;
+      const bets = state.roulette.bets.filter(function(b){ return b.bet === bet; });
+
+      let stack = cell.querySelector(".chip-stack");
+      if(!stack){
+        stack = document.createElement("div");
+        stack.className = "chip-stack";
+        cell.appendChild(stack);
+      }
+
+      stack.innerHTML = bets.map(function(b){
+        return '<span class="bet-chip">' + esc(b.name) + '</span>';
+      }).join("");
+      cell.classList.remove("bet-win");
+    });
+
+    if(list){
+      list.innerHTML = state.roulette.bets.map(function(b,i){
+        return '<div class="roulette-bet-row"><span><b>' + esc(b.name) + '</b> → ' + esc(betLabel(b.bet)) + '</span><button class="btn danger mini-btn" data-del-bet="' + i + '" type="button">削除</button></div>';
+      }).join("") || '<div class="muted">まだベットなし</div>';
+    }
+  }
+
+  function highlightWinningBets(result){
+    document.querySelectorAll("[data-bet]").forEach(function(cell){
+      if(isWinningBet(cell.dataset.bet, result)){
+        cell.classList.add("bet-win");
+      }
+    });
+  }
+
   window.renderRoulette = function renderRoulette(){
     ensureRouletteState();
     renderWheel();
+    renderBetBoard();
 
     const resultEl = document.getElementById("rouletteResult");
     const itemsBox = document.getElementById("rouletteItems");
@@ -4740,6 +5001,7 @@ const firebaseConfig = { ... }
     const itemsTitle = document.getElementById("rouletteItemsTitle");
     const customBtn = document.getElementById("rouletteCustomMode");
     const casinoBtn = document.getElementById("rouletteCasinoMode");
+    const betCard = document.getElementById("rouletteBetBoardCard");
 
     if(resultEl && !resultEl.classList.contains("show")) resultEl.textContent = "READY";
 
@@ -4748,11 +5010,12 @@ const firebaseConfig = { ... }
     if(modeLabel) modeLabel.textContent = isCasino ? "CASINO MODE" : "CUSTOM MODE";
     if(modeNote){
       modeNote.textContent = isCasino
-        ? "0〜36のカジノ盤面。数字のギリギリ感を楽しむモード。"
+        ? "0〜36のカジノ盤面。ベットボードで登録者を置ける。"
         : "項目数に合わせて盤面のマス目が変わるモード。赤→黒→緑の順で配置。";
     }
     if(center) center.textContent = isCasino ? "37" : "SS";
     if(itemsTitle) itemsTitle.textContent = isCasino ? "カジノ数字" : "カスタム項目";
+    if(betCard) betCard.style.display = isCasino ? "block" : "none";
 
     if(customBtn && casinoBtn){
       customBtn.classList.toggle("primary", !isCasino);
@@ -4773,7 +5036,8 @@ const firebaseConfig = { ... }
 
     if(historyBox){
       historyBox.innerHTML = state.roulette.history.map(function(h){
-        return '<div>' + esc(h.time || "") + '　<span class="muted">' + esc(h.mode || "") + '</span>　<b>' + esc(h.result || h) + '</b></div>';
+        const betText = h.betWinners && h.betWinners.length ? ' / 的中：' + h.betWinners.join("、") : '';
+        return '<div>' + esc(h.time || "") + '　<span class="muted">' + esc(h.mode || "") + '</span>　<b>' + esc(h.result || h) + '</b>' + esc(betText) + '</div>';
       }).join("") || '<div>まだ履歴なし</div>';
     }
   };
@@ -4791,13 +5055,13 @@ const firebaseConfig = { ... }
 
     setTimeout(function(){
       window.renderRoulette();
-      renderZoom("READY", "赤 → 黒 → 緑", false);
+      renderZoom("READY", state.roulette.mode === "casino" ? "BET PLEASE" : "赤 → 黒 → 緑", false);
     }, 0);
   }
 
   function startTicking(duration, slots, winnerIndex){
     const arrow = document.getElementById("rouletteArrow");
-    clearInterval(tickTimerV66);
+    clearInterval(tickTimerV67);
 
     let interval = 70;
     const start = Date.now();
@@ -4823,13 +5087,13 @@ const firebaseConfig = { ... }
       currentIndex++;
       interval = 70 + progress * progress * 520;
 
-      clearInterval(tickTimerV66);
+      clearInterval(tickTimerV67);
       if(progress < 1){
-        tickTimerV66 = setInterval(tick, interval);
+        tickTimerV67 = setInterval(tick, interval);
       }
     }
 
-    tickTimerV66 = setInterval(tick, interval);
+    tickTimerV67 = setInterval(tick, interval);
 
     setTimeout(function(){
       const before = slots[(winnerIndex - 1 + slots.length) % slots.length];
@@ -4842,14 +5106,14 @@ const firebaseConfig = { ... }
   }
 
   function stopTicking(){
-    clearInterval(tickTimerV66);
-    tickTimerV66 = null;
+    clearInterval(tickTimerV67);
+    tickTimerV67 = null;
   }
 
   function countdownThenSpin(){
     ensureRouletteState();
 
-    if(rouletteSpinningV66) return;
+    if(rouletteSpinningV67) return;
 
     const slots = currentSlots();
     if(slots.length < 2){
@@ -4858,7 +5122,7 @@ const firebaseConfig = { ... }
     }
 
     const countdown = document.getElementById("rouletteCountdown");
-    rouletteSpinningV66 = true;
+    rouletteSpinningV67 = true;
     let n = 3;
 
     if(countdown){
@@ -4904,7 +5168,7 @@ const firebaseConfig = { ... }
     const resultEl = document.getElementById("rouletteResult");
 
     if(!stage || !wheel || !resultEl){
-      rouletteSpinningV66 = false;
+      rouletteSpinningV67 = false;
       alert("ルーレット表示が見つからないｗ");
       return;
     }
@@ -4919,10 +5183,10 @@ const firebaseConfig = { ... }
 
     const slice = 360 / slots.length;
     const targetAngle = 360 - (winnerIndex * slice) - slice / 2;
-    const currentMod = ((rouletteRotationV66 % 360) + 360) % 360;
+    const currentMod = ((rouletteRotationV67 % 360) + 360) % 360;
 
-    rouletteRotationV66 = rouletteRotationV66 + 360 * 9 + targetAngle - currentMod;
-    wheel.style.transform = "rotate(" + rouletteRotationV66 + "deg)";
+    rouletteRotationV67 = rouletteRotationV67 + 360 * 9 + targetAngle - currentMod;
+    wheel.style.transform = "rotate(" + rouletteRotationV67 + "deg)";
 
     startTicking(5600, slots, winnerIndex);
     setTimeout(showCutin, 4300);
@@ -4932,8 +5196,16 @@ const firebaseConfig = { ... }
 
       renderZoom(winner.value, "WINNER", true);
 
+      const winners = state.roulette.mode === "casino"
+        ? state.roulette.bets.filter(function(b){ return isWinningBet(b.bet, winner.value); }).map(function(b){ return b.name; })
+        : [];
+
+      if(state.roulette.mode === "casino"){
+        highlightWinningBets(winner.value);
+      }
+
       resultEl.textContent = state.roulette.mode === "casino"
-        ? "🎲 " + winner.value + " 🎲"
+        ? "🎲 " + winner.value + (winners.length ? " / 的中 " + winners.length + "人" : "") + " 🎲"
         : "🎉 " + winner.value + " 🎉";
 
       resultEl.classList.add("show");
@@ -4942,14 +5214,16 @@ const firebaseConfig = { ... }
       state.roulette.history.unshift({
         time:new Date().toLocaleTimeString("ja-JP"),
         mode:state.roulette.mode === "casino" ? "CASINO" : "CUSTOM",
-        result:winner.value
+        result:winner.value,
+        betWinners:winners
       });
 
       state.roulette.history = state.roulette.history.slice(0,30);
 
       safeSave();
       window.renderRoulette();
-      rouletteSpinningV66 = false;
+      if(state.roulette.mode === "casino") highlightWinningBets(winner.value);
+      rouletteSpinningV67 = false;
     }, 5900);
   }
 
@@ -4957,15 +5231,10 @@ const firebaseConfig = { ... }
     const t = e.target;
     if(!t) return;
 
-    if(t.id === "openRouletteFromGames"){
-      openRoulette();
-      return;
-    }
+    if(t.id === "openRouletteFromGames"){ openRoulette(); return; }
 
     if(t.id === "backRouletteToGames"){
-      if(typeof showScreen === "function"){
-        showScreen("games");
-      }
+      if(typeof showScreen === "function") showScreen("games");
       return;
     }
 
@@ -4983,17 +5252,16 @@ const firebaseConfig = { ... }
       state.roulette.mode = "casino";
       safeSave();
       window.renderRoulette();
-      renderZoom("CASINO", "0〜36", false);
+      renderZoom("CASINO", "BET PLEASE", false);
       return;
     }
 
     if(t.id === "addRouletteItem"){
       ensureRouletteState();
-      if(rouletteSpinningV66) return;
+      if(rouletteSpinningV67) return;
 
       const input = document.getElementById("newRouletteItem");
       const v = input && input.value ? input.value.trim() : "";
-
       if(!v) return;
 
       state.roulette.items.push(v);
@@ -5005,14 +5273,60 @@ const firebaseConfig = { ... }
       return;
     }
 
-    if(t.id === "spinRoulette"){
-      countdownThenSpin();
+    if(t.id === "addRouletteGuestBetter"){
+      ensureRouletteState();
+      const name = prompt("ベットに置く名前");
+      if(!name) return;
+      state.roulette.guestBetters.push(name);
+      safeSave();
+      window.renderRoulette();
       return;
     }
 
+    if(t.dataset && t.dataset.bet !== undefined){
+      ensureRouletteState();
+      if(state.roulette.mode !== "casino"){
+        alert("ベットはカジノモードで使うやつｗ");
+        return;
+      }
+      const select = document.getElementById("rouletteBetterSelect");
+      const name = select && select.value ? select.value : "";
+      if(!name){
+        alert("先に登録者かゲスト名を選んでｗ");
+        return;
+      }
+      state.roulette.bets.push({
+        name:name,
+        bet:t.dataset.bet
+      });
+      safeSave();
+      window.renderRoulette();
+      return;
+    }
+
+    if(t.dataset && t.dataset.delBet !== undefined){
+      ensureRouletteState();
+      const i = Number(t.dataset.delBet);
+      state.roulette.bets.splice(i,1);
+      safeSave();
+      window.renderRoulette();
+      return;
+    }
+
+    if(t.id === "clearRouletteBets"){
+      ensureRouletteState();
+      if(!confirm("ベットを全部消す？")) return;
+      state.roulette.bets = [];
+      safeSave();
+      window.renderRoulette();
+      return;
+    }
+
+    if(t.id === "spinRoulette"){ countdownThenSpin(); return; }
+
     if(t.id === "shuffleRoulette"){
       ensureRouletteState();
-      if(rouletteSpinningV66) return;
+      if(rouletteSpinningV67) return;
 
       const arr = state.roulette.items;
       for(let i=arr.length-1;i>0;i--){
@@ -5041,7 +5355,7 @@ const firebaseConfig = { ... }
     if(t.dataset && t.dataset.delRoulette !== undefined){
       ensureRouletteState();
 
-      if(rouletteSpinningV66) return;
+      if(rouletteSpinningV67) return;
       if(state.roulette.mode === "casino") return;
 
       const i = Number(t.dataset.delRoulette);
@@ -5067,13 +5381,13 @@ const firebaseConfig = { ... }
 
   document.addEventListener("DOMContentLoaded", function(){
     ensureRouletteState();
-    renderZoom("READY", "赤 → 黒 → 緑", false);
+    renderZoom("READY", state.roulette.mode === "casino" ? "BET PLEASE" : "赤 → 黒 → 緑", false);
     window.renderRoulette();
   });
 
   if(document.readyState !== "loading"){
     ensureRouletteState();
-    renderZoom("READY", "赤 → 黒 → 緑", false);
+    renderZoom("READY", state.roulette.mode === "casino" ? "BET PLEASE" : "赤 → 黒 → 緑", false);
     window.renderRoulette();
   }
 })();
