@@ -1265,6 +1265,150 @@ function fitBrushText(text){
   .roulette-inner-bowl{inset:64px}
   .roulette-result-panel{left:12px;right:12px;bottom:14px}
 }
+/* v63 perspective roulette + dramatic ball cut-in */
+.roulette-casino-stage{
+  perspective:1100px;
+  perspective-origin:50% 36%;
+}
+.roulette-light-ring{
+  transform:rotateX(58deg) scale(1.03);
+  transform-style:preserve-3d;
+}
+.roulette-table{
+  transform:rotateX(58deg);
+  transform-style:preserve-3d;
+  box-shadow:
+    0 80px 90px rgba(0,0,0,.85),
+    inset 0 0 50px rgba(255,255,255,.08);
+}
+.roulette-table::after{
+  content:"";
+  position:absolute;
+  inset:8%;
+  border-radius:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 45%,rgba(0,0,0,.55));
+  pointer-events:none;
+  z-index:25;
+  mix-blend-mode:screen;
+}
+.roulette-orbit{
+  transform:translateZ(42px);
+  border-width:12px;
+}
+.luxe-wheel{
+  transform-style:preserve-3d;
+}
+.roulette-inner-bowl{
+  transform:translateZ(18px);
+}
+.roulette-center-tower{
+  transform:translateZ(70px);
+}
+.roulette-ball{
+  width:26px;
+  height:26px;
+  margin:-13px 0 0 -13px;
+  transform:rotate(0deg) translateY(calc(-1 * min(275px, 40vw))) translateZ(82px) rotateX(-58deg);
+  z-index:30;
+}
+.roulette-ball.spin{
+  animation:rouletteBallPerspectiveV63 6.2s cubic-bezier(.08,.72,.08,1) forwards;
+}
+@keyframes rouletteBallPerspectiveV63{
+  0%{
+    transform:rotate(0deg) translateY(calc(-1 * min(275px, 40vw))) translateZ(86px) rotateX(-58deg) scale(1);
+    filter:brightness(1.4) blur(0);
+  }
+  35%{
+    transform:rotate(-1280deg) translateY(calc(-1 * min(272px, 39vw))) translateZ(86px) rotateX(-58deg) scale(1.04);
+    filter:brightness(1.35) blur(.2px);
+  }
+  68%{
+    transform:rotate(-2380deg) translateY(calc(-1 * min(252px, 37vw))) translateZ(74px) rotateX(-58deg) scale(.98);
+  }
+  82%{
+    transform:rotate(var(--ball-slow, -2840deg)) translateY(calc(-1 * min(215px, 32vw))) translateZ(58px) rotateX(-58deg) scale(.94);
+  }
+  92%{
+    transform:rotate(var(--ball-bounce, -3040deg)) translateY(calc(-1 * min(186px, 28vw))) translateZ(45px) rotateX(-58deg) scale(1.03);
+  }
+  100%{
+    transform:rotate(var(--ball-end, -3180deg)) translateY(calc(-1 * min(160px, 24vw))) translateZ(38px) rotateX(-58deg) scale(.9);
+    filter:brightness(1.1);
+  }
+}
+.roulette-fixed-pointer{
+  top:26px;
+  transform:translateX(-50%) rotateX(0deg);
+}
+.roulette-result-panel{
+  z-index:70;
+}
+.roulette-cutin{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:60;
+  background:
+    radial-gradient(circle at 52% 42%,rgba(255,255,255,.28),transparent 10%),
+    radial-gradient(circle at center,rgba(250,204,21,.18),transparent 32%),
+    rgba(0,0,0,.35);
+  backdrop-filter:blur(2px);
+  pointer-events:none;
+}
+.roulette-cutin.show{
+  display:flex;
+  animation:cutinFlashV63 1.35s ease forwards;
+}
+.cutin-ball{
+  width:min(180px,38vw);
+  height:min(180px,38vw);
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 32% 26%,#fff 0 13%,#e5e7eb 30%,#94a3b8 60%,#334155 100%);
+  box-shadow:
+    0 0 24px #fff,
+    0 0 70px rgba(255,255,255,.85),
+    0 24px 60px rgba(0,0,0,.85);
+  animation:cutinBallV63 1.35s cubic-bezier(.1,1.25,.18,1) forwards;
+}
+.cutin-text{
+  position:absolute;
+  bottom:18%;
+  color:#ffe08a;
+  font-size:clamp(28px,7vw,72px);
+  font-weight:1000;
+  letter-spacing:.04em;
+  text-shadow:0 0 22px #facc15,0 0 42px #a855f7,0 4px 0 #000;
+  animation:cutinTextV63 1.35s ease forwards;
+}
+@keyframes cutinFlashV63{
+  0%{opacity:0;transform:scale(1.02)}
+  12%{opacity:1}
+  78%{opacity:1}
+  100%{opacity:0;transform:scale(1)}
+}
+@keyframes cutinBallV63{
+  0%{transform:translateX(80vw) scale(.35) rotate(0deg)}
+  34%{transform:translateX(0) scale(1.18) rotate(-360deg)}
+  64%{transform:translateX(0) scale(.92) rotate(-520deg)}
+  100%{transform:translateX(-70vw) scale(.28) rotate(-760deg)}
+}
+@keyframes cutinTextV63{
+  0%{opacity:0;transform:translateY(18px) scale(.9)}
+  28%{opacity:1;transform:translateY(0) scale(1.06)}
+  72%{opacity:1}
+  100%{opacity:0;transform:translateY(-14px) scale(.95)}
+}
+@media(max-width:520px){
+  .roulette-table{transform:rotateX(54deg) scale(.96)}
+  .roulette-casino-stage{min-height:560px}
+  .roulette-ball{
+    transform:rotate(0deg) translateY(calc(-1 * min(270px, 40vw))) translateZ(78px) rotateX(-54deg);
+  }
+}
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -1403,7 +1547,8 @@ function fitBrushText(text){
           </div>
         </div>
 
-        <div class="roulette-result-panel" id="rouletteResult">READY</div>
+        <div class="roulette-cutin" id="rouletteCutin"><div class="cutin-ball"></div><div class="cutin-text">LAST BET...</div></div>
+            <div class="roulette-result-panel" id="rouletteResult">READY</div>
       </div>
 
       <aside class="roulette-control-card">
@@ -4165,11 +4310,12 @@ const firebaseConfig = { ... }
 </div>
 
 
+
 <script>
-/* v62 fullscreen luxury roulette */
+/* v63 perspective roulette + dramatic ball cut-in */
 (function(){
-  let rouletteRotationV62 = 0;
-  let rouletteSpinningV62 = false;
+  let rouletteRotationV63 = 0;
+  let rouletteSpinningV63 = false;
   const rouletteNumbers = ["0","32","15","19","4","21","2","25","17","34","6","27","13","36","11","30","8","23","10","5","24","16","33","1","20","14","31","9","22","18","29","7","28","12","35","3","26"];
 
   function ensureRouletteState(){
@@ -4227,14 +4373,14 @@ const firebaseConfig = { ... }
 
   function countdownThenSpin(){
     ensureRouletteState();
-    if(rouletteSpinningV62) return;
+    if(rouletteSpinningV63) return;
     if(state.roulette.items.length < 2){
       alert("ルーレット項目は2個以上ほしいｗ");
       return;
     }
 
     const countdown = document.getElementById("rouletteCountdown");
-    rouletteSpinningV62 = true;
+    rouletteSpinningV63 = true;
     let n = 3;
 
     if(countdown){
@@ -4249,22 +4395,31 @@ const firebaseConfig = { ... }
           countdown.textContent = "GO!";
           setTimeout(()=>{
             countdown.classList.remove("show");
-            spinRoulette(true);
+            spinRoulette();
           },360);
         }
       },1000);
     }else{
-      spinRoulette(true);
+      spinRoulette();
     }
   }
 
-  function spinRoulette(fromCountdown){
+  function showCutin(){
+    const cutin = document.getElementById("rouletteCutin");
+    if(!cutin) return;
+    cutin.classList.remove("show");
+    void cutin.offsetWidth;
+    cutin.classList.add("show");
+    setTimeout(()=>cutin.classList.remove("show"), 1400);
+  }
+
+  function spinRoulette(){
     const stage = document.getElementById("rouletteStage");
     const wheel = document.getElementById("rouletteWheel");
     const ball = document.getElementById("rouletteBall");
     const resultEl = document.getElementById("rouletteResult");
     if(!stage || !wheel || !resultEl){
-      rouletteSpinningV62 = false;
+      rouletteSpinningV63 = false;
       alert("ルーレット表示が見つからないｗ");
       return;
     }
@@ -4279,20 +4434,25 @@ const firebaseConfig = { ... }
 
     const slice = 360 / items.length;
     const targetAngle = 360 - (winnerIndex * slice) - slice / 2;
-    const currentMod = ((rouletteRotationV62 % 360) + 360) % 360;
+    const currentMod = ((rouletteRotationV63 % 360) + 360) % 360;
 
-    rouletteRotationV62 = rouletteRotationV62 + 360 * 8 + targetAngle - currentMod;
-    wheel.style.transform = `rotate(${rouletteRotationV62}deg)`;
+    rouletteRotationV63 = rouletteRotationV63 + 360 * 8 + targetAngle - currentMod;
+    wheel.style.transform = `rotate(${rouletteRotationV63}deg)`;
 
     if(ball){
       ball.classList.remove("spin");
       void ball.offsetWidth;
-      const bounce = -2940 - targetAngle - Math.floor(Math.random()*120);
+      const slow = -2860 - targetAngle - Math.floor(Math.random()*80);
+      const bounce = -3060 - targetAngle - Math.floor(Math.random()*70);
       const end = -3240 - targetAngle;
+      ball.style.setProperty("--ball-slow", `${slow}deg`);
       ball.style.setProperty("--ball-bounce", `${bounce}deg`);
       ball.style.setProperty("--ball-end", `${end}deg`);
       ball.classList.add("spin");
     }
+
+    // ギャンブラー精神くすぐる、止まる直前の玉カットイン
+    setTimeout(showCutin, 4300);
 
     setTimeout(()=>{
       resultEl.textContent = "🎉 " + winner + " 🎉";
@@ -4306,8 +4466,8 @@ const firebaseConfig = { ... }
       state.roulette.history = state.roulette.history.slice(0,30);
       safeSave();
       window.renderRoulette();
-      rouletteSpinningV62 = false;
-    },6000);
+      rouletteSpinningV63 = false;
+    },6250);
   }
 
   document.addEventListener("click", function(e){
@@ -4318,15 +4478,13 @@ const firebaseConfig = { ... }
       openRoulette();
       return;
     }
-
     if(t.id === "backRouletteToGames"){
       if(typeof showScreen === "function") showScreen("games");
       return;
     }
-
     if(t.id === "addRouletteItem"){
       ensureRouletteState();
-      if(rouletteSpinningV62) return;
+      if(rouletteSpinningV63) return;
       const input = document.getElementById("newRouletteItem");
       const v = input && input.value ? input.value.trim() : "";
       if(!v) return;
@@ -4336,15 +4494,13 @@ const firebaseConfig = { ... }
       window.renderRoulette();
       return;
     }
-
     if(t.id === "spinRoulette"){
       countdownThenSpin();
       return;
     }
-
     if(t.id === "shuffleRoulette"){
       ensureRouletteState();
-      if(rouletteSpinningV62) return;
+      if(rouletteSpinningV63) return;
       const arr = state.roulette.items;
       for(let i=arr.length-1;i>0;i--){
         const j = Math.floor(Math.random()*(i+1));
@@ -4354,7 +4510,6 @@ const firebaseConfig = { ... }
       window.renderRoulette();
       return;
     }
-
     if(t.id === "clearRouletteHistory"){
       ensureRouletteState();
       if(!confirm("ルーレット履歴を削除する？")) return;
@@ -4363,10 +4518,9 @@ const firebaseConfig = { ... }
       window.renderRoulette();
       return;
     }
-
     if(t.dataset && t.dataset.delRoulette !== undefined){
       ensureRouletteState();
-      if(rouletteSpinningV62) return;
+      if(rouletteSpinningV63) return;
       const i = Number(t.dataset.delRoulette);
       if(state.roulette.items.length <= 2){
         alert("項目は2個以上必要！");
