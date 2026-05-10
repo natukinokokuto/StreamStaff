@@ -91,9 +91,9 @@ function fitBrushText(text){
     .ch-stage.hot{animation:hotFlash .35s ease 2;background:radial-gradient(circle,#5a130f 0,#19080a 54%,#050303 100%)}
     .ch-stage.cold{background:radial-gradient(circle,#08263b 0,#05131f 55%,#02070d 100%)}
     @keyframes hotFlash{0%,100%{filter:brightness(1)}50%{filter:brightness(1.9)}}
-    .dice-area{display:flex;gap:16px;justify-content:center;align-items:center;margin:8px 0 22px;perspective:700px}
+    .dice-area{display:flex;gap:12px;justify-content:center;align-items:center;margin:8px 0 22px;perspective:700px;flex-wrap:wrap;max-width:100%}
     .dice{
-      width:clamp(68px,13vw,112px);height:clamp(68px,13vw,112px);background:linear-gradient(145deg,#fff,#d8d8d8);
+      width:var(--dice-size,clamp(68px,13vw,112px));height:var(--dice-size,clamp(68px,13vw,112px));background:linear-gradient(145deg,#fff,#d8d8d8);
       color:#0b0b0b;border-radius:22px;position:relative;
       box-shadow:inset -10px -10px 22px #0002,0 18px 35px #0009;
       transform-style:preserve-3d;
@@ -253,11 +253,7 @@ function fitBrushText(text){
         <div class="ch-stage" id="chStage">
           <div class="ink" id="ink"></div>
           <div class="brush" id="brush">── 通常目 ──</div>
-          <div class="dice-area">
-            <div class="dice" id="d1"></div>
-            <div class="dice" id="d2"></div>
-            <div class="dice" id="d3"></div>
-          </div>
+          <div class="dice-area" id="diceArea"></div>
           <button class="roll-btn" id="rollChin">回す</button>
           <p class="muted" style="margin-top:16px;text-align:center">回す：グラス音 → サイコロ回転 → 小鼓 → 役表示。最強はほら貝、最弱はチーン。</p>
         </div>
@@ -283,8 +279,17 @@ function fitBrushText(text){
 
           <div id="customPanel" class="mode-panel" style="margin-top:14px">
             <h3>カスタムモード設定</h3>
-            <p class="muted">サイコロ1個ごとに1〜6の項目を設定。3つ揃ったら、その項目を表示。</p>
-            <div class="row">
+            <p class="muted">サイコロの個数を1〜6個で選べる。各サイコロに1〜6の項目を設定して、出た結果を表示。</p>
+            <label>サイコロ個数</label>
+            <select id="customDiceCount">
+              <option value="1">1個</option>
+              <option value="2">2個</option>
+              <option value="3">3個</option>
+              <option value="4">4個</option>
+              <option value="5">5個</option>
+              <option value="6">6個</option>
+            </select>
+            <div class="row" style="margin-top:8px">
               <select id="customDiceSelect"></select>
               <input id="customDiceName" placeholder="サイコロ名">
             </div>
@@ -319,6 +324,7 @@ function fitBrushText(text){
           <div class="listener-list" id="listenerTabs"></div>
           <div class="row" style="margin:10px 0">
             <button class="btn" id="addListener">常連追加</button>
+            <button class="btn danger" id="deleteSelectedListener">選択中の常連を削除</button>
           </div>
           <div id="selectedListenerBox"></div>
         </div></div>
@@ -412,11 +418,15 @@ const defaultState={
   settings:{bgmVolume:45,seVolume:80},
   chin:{
     mode:"normal",
-    diceNames:["サイコロ1","サイコロ2","サイコロ3"],
+    diceCount:3,
+    diceNames:["サイコロ1","サイコロ2","サイコロ3","サイコロ4","サイコロ5","サイコロ6"],
     customDice:[
       {1:"罰ゲーム",2:"一発ギャグ",3:"水を飲む",4:"英語で一言",5:"自慢話",6:"歌う"},
       {1:"罰ゲーム",2:"一発ギャグ",3:"水を飲む",4:"英語で一言",5:"自慢話",6:"歌う"},
-      {1:"罰ゲーム",2:"一発ギャグ",3:"水を飲む",4:"英語で一言",5:"自慢話",6:"歌う"}
+      {1:"罰ゲーム",2:"一発ギャグ",3:"水を飲む",4:"英語で一言",5:"自慢話",6:"歌う"},
+      {1:"小話",2:"質問",3:"モノマネ",4:"昔話",5:"暴露",6:"褒める"},
+      {1:"右の人",2:"左の人",3:"初見",4:"常連",5:"自分",6:"全員"},
+      {1:"10秒",2:"30秒",3:"1分",4:"3分",5:"次の枠",6:"今日は封印"}
     ],
     localMap:{}
   },
@@ -436,8 +446,11 @@ const defaultState={
 let state=load();
 state.settings = state.settings || structuredClone(defaultState.settings);
 state.chin = state.chin || structuredClone(defaultState.chin);
+state.chin.diceCount = state.chin.diceCount || 3;
 state.chin.diceNames = state.chin.diceNames || structuredClone(defaultState.chin.diceNames);
 state.chin.customDice = state.chin.customDice || structuredClone(defaultState.chin.customDice);
+while(state.chin.diceNames.length<6) state.chin.diceNames.push(`サイコロ${state.chin.diceNames.length+1}`);
+while(state.chin.customDice.length<6) state.chin.customDice.push(structuredClone(defaultState.chin.customDice[state.chin.customDice.length] || defaultState.chin.customDice[0]));
 state.chin.localMap = state.chin.localMap || {};
 state.customGames = state.customGames || structuredClone(defaultState.customGames);
 for (const k in defaultState.customGames) state.customGames[k] = state.customGames[k] || structuredClone(defaultState.customGames[k]);
@@ -598,6 +611,21 @@ function renderRewards(){
 }
 addReward.onclick=()=>{state.rewards.push({days:1,name:"新しい達成品"});state.rewards.sort((a,b)=>a.days-b.days);save();renderBonus()}
 addListener.onclick=()=>{const name=prompt("常連名");if(!name)return;state.listeners.push({name,days:[],memo:""});selectedListener=state.listeners.length-1;save();renderBonus();renderMemo()}
+function deleteListener(index){
+  const l=state.listeners[index];
+  if(!l)return;
+  if(!confirm(`${l.name} を削除する？\nログボ記録と常連メモも消えるよ。`)) return;
+  state.listeners.splice(index,1);
+  if(state.listeners.length===0){
+    state.listeners.push({name:"新しい常連",days:[],memo:""});
+  }
+  selectedListener=Math.min(selectedListener,state.listeners.length-1);
+  if(selectedListener<0) selectedListener=0;
+  save();
+  renderBonus();
+  renderMemo();
+}
+if(window.deleteSelectedListener) deleteSelectedListener.onclick=()=>deleteListener(selectedListener);
 
 function achievedList(l){
   const items=state.rewards.filter(r=>l.days.length>=r.days).map(r=>`<li>${r.days}日：${escapeHtml(r.name)}</li>`).join("");
@@ -606,7 +634,10 @@ function achievedList(l){
 function renderMemo(){
   memoGrid.innerHTML=state.listeners.map((l,i)=>`
     <div class="card"><div class="inner">
-      <h2>${escapeHtml(l.name)}</h2>
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">${escapeHtml(l.name)}</h2>
+        <button class="btn danger" data-delete-memo-listener="${i}" style="min-height:36px;padding:6px 10px">削除</button>
+      </div>
       <p class="muted">ログボ ${l.days.length}/31日</p>
       <h3>達成依頼 / 達成品</h3>
       ${achievedList(l)}
@@ -614,6 +645,7 @@ function renderMemo(){
       <textarea data-memo="${i}">${escapeHtml(l.memo||"")}</textarea>
     </div></div>`).join("");
   memoGrid.querySelectorAll("textarea").forEach(t=>t.onchange=()=>{state.listeners[Number(t.dataset.memo)].memo=t.value;save()});
+  memoGrid.querySelectorAll("[data-delete-memo-listener]").forEach(btn=>btn.onclick=()=>deleteListener(Number(btn.dataset.deleteMemoListener)));
 }
 
 
@@ -626,8 +658,16 @@ function fitBrushText(text){
 
 /* Chinchiro */
 let rolling=false;
-const diceEls=[d1,d2,d3];
-diceEls.forEach(d=>setDice(d,1));
+let diceEls=[];
+function renderDiceArea(count){
+  const c=Math.max(1,Math.min(6,Number(count)||3));
+  const size = c<=3 ? "clamp(68px,13vw,112px)" : c<=4 ? "clamp(58px,11vw,92px)" : "clamp(48px,9vw,76px)";
+  diceArea.style.setProperty("--dice-size", size);
+  diceArea.innerHTML=Array.from({length:c},(_,i)=>`<div class="dice" id="d${i+1}"></div>`).join("");
+  diceEls=Array.from(diceArea.querySelectorAll(".dice"));
+  diceEls.forEach(d=>setDice(d,1));
+}
+renderDiceArea(3);
 function play(id){const a=document.getElementById(id); if(!a) return; try{a.volume=(state.settings?.seVolume ?? 80)/100; a.currentTime=0; a.play().catch(()=>{})}catch(e){}}
 function rand(){return Math.floor(Math.random()*6)+1}
 function judge(arr){
@@ -652,10 +692,13 @@ rollChin.onclick=()=>{
   let spin=setInterval(()=>diceEls.forEach(d=>setDice(d,rand())),75);
   setTimeout(()=>{
     clearInterval(spin);
-    let final=[rand(),rand(),rand()];
+    const diceCount = state.chin.mode==="custom" ? state.chin.diceCount : 3;
+    let final=Array.from({length:diceCount},()=>rand());
     const p=Math.random();
-    if(p<0.08) final=[1,1,1];
-    else if(p<0.17) final=[1,2,3];
+    if(state.chin.mode!=="custom"){
+      if(p<0.08) final=[1,1,1];
+      else if(p<0.17) final=[1,2,3];
+    }
     diceEls.forEach((d,i)=>{d.classList.remove("rolling");setDice(d,final[i])});
     let res=judge(final);
     let displayText=res.brush;
@@ -663,14 +706,15 @@ rollChin.onclick=()=>{
 
     if(state.chin.mode==="custom"){
       const items=final.map((num,i)=>state.chin.customDice[i]?.[num] || `${num}の目`);
-      const allSame=items.every(x=>x===items[0]);
+      const namedItems=items.map((item,i)=>`${state.chin.diceNames[i]||`サイコロ${i+1}`}：${item}`);
+      const allSame=items.length>1 && items.every(x=>x===items[0]);
       if(allSame){
         displayText=`── ${items[0]} ──`;
         logName=`カスタム一致：${items[0]}`;
         res={...res,type:"customHit"};
       }else{
-        displayText=`── ${items.join(" / ")} ──`;
-        logName=`カスタム：${items.join(" / ")}`;
+        displayText=`── ${namedItems.join(" / ")} ──`;
+        logName=`カスタム：${namedItems.join(" / ")}`;
         res={...res,type:"custom"};
       }
     }
@@ -799,22 +843,26 @@ function renderChinMode(){
   renderLocalRuleView();
   renderCustomDiceEditor();
   renderLocalComboEditor();
+  renderDiceArea(state.chin.mode==="custom" ? state.chin.diceCount : 3);
 }
 function renderCustomDiceSelect(){
   if(!window.customDiceSelect) return;
-  const current=customDiceSelect.value || "0";
-  customDiceSelect.innerHTML=state.chin.diceNames.map((name,i)=>`<option value="${i}" ${String(i)===String(current)?"selected":""}>${escapeHtml(name)}</option>`).join("");
+  customDiceCount.value=state.chin.diceCount;
+  const current=Math.min(Number(customDiceSelect.value || 0), state.chin.diceCount-1);
+  customDiceSelect.innerHTML=state.chin.diceNames.slice(0,state.chin.diceCount).map((name,i)=>`<option value="${i}" ${i===current?"selected":""}>${escapeHtml(name)}</option>`).join("");
+  customDiceSelect.value=String(current);
   const idx=Number(customDiceSelect.value||0);
   customDiceName.value=state.chin.diceNames[idx] || `サイコロ${idx+1}`;
 }
 function renderCustomRuleView(){
   if(!window.customRuleView) return;
-  customRuleView.innerHTML=state.chin.customDice.map((diceMap,i)=>`
-    <div class="registered-item">
-      <b>${escapeHtml(state.chin.diceNames[i] || `サイコロ${i+1}`)}</b>
-      ${Array.from({length:6},(_,n)=>`${n+1}：${escapeHtml(diceMap[n+1]||"")}`).join("<br>")}
-    </div>
-  `).join("");
+  customRuleView.innerHTML=`<div class="registered-item"><b>使用サイコロ</b>${state.chin.diceCount}個</div>`+
+    state.chin.customDice.slice(0,state.chin.diceCount).map((diceMap,i)=>`
+      <div class="registered-item">
+        <b>${escapeHtml(state.chin.diceNames[i] || `サイコロ${i+1}`)}</b>
+        ${Array.from({length:6},(_,n)=>`${n+1}：${escapeHtml(diceMap[n+1]||"")}`).join("<br>")}
+      </div>
+    `).join("");
 }
 function renderLocalRuleView(){
   if(!window.localRuleView) return;
@@ -880,6 +928,11 @@ function renderLocalComboEditor(){
   const key=localComboSelect.value || keys[0];
   localComboText.value=state.chin.localMap[key] || defaultLocalText(key);
 }
+if(window.customDiceCount) customDiceCount.onchange=()=>{
+  state.chin.diceCount=Math.max(1,Math.min(6,Number(customDiceCount.value)||3));
+  if(Number(customDiceSelect.value||0)>=state.chin.diceCount) customDiceSelect.value=String(state.chin.diceCount-1);
+  save(); renderChinMode();
+};
 if(window.customDiceSelect) customDiceSelect.onchange=()=>{renderCustomDiceSelect();renderCustomDiceEditor();};
 if(window.customDiceName) customDiceName.oninput=()=>{
   const idx=Number(customDiceSelect.value||0);
