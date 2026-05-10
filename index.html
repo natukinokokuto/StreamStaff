@@ -49,7 +49,17 @@
     .tree-box{display:grid;gap:10px}
     .tree-item{padding:14px;border-radius:16px;background:#0b0d13;border:1px solid var(--line)}
     .tree-item b{display:block;color:#fff;font-size:14px;margin-bottom:6px}
-    .tree-item span{font-size:18px;font-weight:800;white-space:pre-line;display:block;line-height:1.45}
+    .tree-item span{font-size:18px;font-weight:800;display:block;line-height:1.45}
+    .branch-list{margin:0;padding-left:20px}
+    .branch-list li{margin:4px 0}
+    .mode-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+    .mode-tabs button{border:1px solid var(--line);background:#0b0d13;color:var(--text);border-radius:14px;padding:12px 8px;font-weight:900}
+    .mode-tabs button.active{background:#fff;color:#05070a}
+    .mode-panel{display:none}
+    .mode-panel.active{display:block}
+    .map-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    .map-row{background:#0b0d13;border:1px solid var(--line);border-radius:12px;padding:8px}
+    .map-row label{margin-top:0}
     .big-output{font-size:clamp(22px,4.5vw,38px);font-weight:950;line-height:1.35;background:#080a10;border:1px solid var(--line);border-radius:18px;padding:18px;min-height:128px;display:flex;align-items:center}
 
     /* Game */
@@ -178,7 +188,7 @@
           <p class="muted">幹はメイン話題、枝は脱線先、葉はリスナーが食いついたポイント。ボタンで半自動生成。</p>
           <div class="tree-box">
             <div class="tree-item"><b>幹</b><span id="treeTrunk">今日のメインテーマを決める</span></div>
-            <div class="tree-item"><b>枝</b><span id="treeBranch">話が止まった時の逃げ道</span></div>
+            <div class="tree-item"><b>枝</b><div id="treeBranch">話が止まった時の逃げ道</div></div>
             <div class="tree-item"><b>葉</b><span id="treeLeaf">コメントが増えたポイント</span></div>
           </div>
           <div class="row" style="margin-top:12px">
@@ -220,6 +230,12 @@
     </section>
 
     <section id="chinchiro" class="screen">
+      <div class="mode-tabs" id="chinModeTabs">
+        <button class="active" data-mode="normal">通常</button>
+        <button data-mode="custom">カスタム</button>
+        <button data-mode="local">ローカル</button>
+      </div>
+
       <div class="chinchiro-wrap">
         <div class="ch-stage" id="chStage">
           <div class="ink" id="ink"></div>
@@ -245,6 +261,30 @@
               <tr><td>ヒフミ</td><td>1・2・3</td><td>最弱 / チーン</td></tr>
             </tbody>
           </table>
+
+          <div id="customPanel" class="mode-panel" style="margin-top:14px">
+            <h3>カスタムモード設定</h3>
+            <p class="muted">サイコロ1個ごとに1〜6の項目を設定。3つ揃ったら、その項目を表示。</p>
+            <div class="row">
+              <select id="customDiceSelect">
+                <option value="0">サイコロ1</option>
+                <option value="1">サイコロ2</option>
+                <option value="2">サイコロ3</option>
+              </select>
+            </div>
+            <div id="customDiceEditor" class="map-grid" style="margin-top:8px"></div>
+          </div>
+
+          <div id="localPanel" class="mode-panel" style="margin-top:14px">
+            <h3>ローカルモード設定</h3>
+            <p class="muted">出目の組み合わせごとに表示文を設定。出た組み合わせの項目を表示。</p>
+            <div class="row">
+              <select id="localComboSelect"></select>
+              <input id="localComboText" placeholder="この出目で表示する内容">
+              <button class="btn primary" id="saveLocalCombo">保存</button>
+            </div>
+          </div>
+
           <h3>出目履歴</h3>
           <div id="chLog" class="ch-log"></div>
         </div></div>
@@ -354,6 +394,15 @@ const defaultState={
   gameHistory:[],
   chLog:[],
   settings:{bgmVolume:45,seVolume:80},
+  chin:{
+    mode:"normal",
+    customDice:[
+      {1:"罰ゲーム",2:"一発ギャグ",3:"水を飲む",4:"英語で一言",5:"自慢話",6:"歌う"},
+      {1:"罰ゲーム",2:"一発ギャグ",3:"水を飲む",4:"英語で一言",5:"自慢話",6:"歌う"},
+      {1:"罰ゲーム",2:"一発ギャグ",3:"水を飲む",4:"英語で一言",5:"自慢話",6:"歌う"}
+    ],
+    localMap:{}
+  },
   customGames:{
     animalAnimals:["猫","犬","ゾウ","牛","キツネ","ハト","ゴリラ","サル","馬","深夜のコンビニ店員"],
     animalTopics:["簡単にできる料理","昔流行ったもの","身につけるもの","虫の名前","冬に使うもの","配信で起きがちなこと"],
@@ -369,6 +418,9 @@ const defaultState={
 };
 let state=load();
 state.settings = state.settings || structuredClone(defaultState.settings);
+state.chin = state.chin || structuredClone(defaultState.chin);
+state.chin.customDice = state.chin.customDice || structuredClone(defaultState.chin.customDice);
+state.chin.localMap = state.chin.localMap || {};
 state.customGames = state.customGames || structuredClone(defaultState.customGames);
 for (const k in defaultState.customGames) state.customGames[k] = state.customGames[k] || structuredClone(defaultState.customGames[k]);
 let selectedListener=0;
@@ -462,7 +514,7 @@ function makeBranchPack(){
     const idx=Math.floor(Math.random()*pool.length);
     picked.push(`・${pool.splice(idx,1)[0]}`);
   }
-  return picked.join("\\n");
+  return picked.join("\n");
 }
 
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||defaultState}catch(e){return structuredClone(defaultState)}}
@@ -476,12 +528,17 @@ function showScreen(id){
   if(id==="bonus") renderBonus();
   if(id==="memo") renderMemo();
   if(id==="settings") renderSettings();
-  if(id==="chinchiro") startChinBgm();
+  if(id==="chinchiro"){ renderChinMode(); startChinBgm(); }
 }
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>showScreen(b.dataset.screen)));
 
 function renderHome(){
-  treeTrunk.textContent=state.tree.trunk; treeBranch.textContent=state.tree.branch; treeLeaf.textContent=state.tree.leaf;
+  treeTrunk.textContent=state.tree.trunk;
+  const branchesText=String(state.tree.branch||"").split(/\n+/).map(x=>x.replace(/^・/,"").trim()).filter(Boolean);
+  treeBranch.innerHTML=branchesText.length
+    ? `<ul class="branch-list">${branchesText.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>`
+    : "話が止まった時の逃げ道";
+  treeLeaf.textContent=state.tree.leaf;
   homeLogs.innerHTML=state.logs.slice(0,8).map(l=>`<div><b>${escapeHtml(l.title||"ログ")}</b><br><span class="muted">${escapeHtml(l.date)}</span><br>${escapeHtml(l.text)}</div>`).join("")||`<div>まだログなし</div>`;
 }
 autoTree.onclick=()=>{state.tree={trunk:pick(trunks),branch:makeBranchPack(),leaf:pick(leaves)};save();renderHome()}
@@ -574,19 +631,44 @@ rollChin.onclick=()=>{
     if(p<0.08) final=[1,1,1];
     else if(p<0.17) final=[1,2,3];
     diceEls.forEach((d,i)=>{d.classList.remove("rolling");setDice(d,final[i])});
-    const res=judge(final);
-    const hasSpecialSound = ["best","worst","zoro"].includes(res.type);
+    let res=judge(final);
+    let displayText=res.brush;
+    let logName=res.name;
+
+    if(state.chin.mode==="custom"){
+      const items=final.map((num,i)=>state.chin.customDice[i]?.[num] || `${num}の目`);
+      const allSame=items.every(x=>x===items[0]);
+      if(allSame){
+        displayText=`── ${items[0]} ──`;
+        logName=`カスタム一致：${items[0]}`;
+        res={...res,type:"customHit"};
+      }else{
+        displayText=`── ${items.join(" / ")} ──`;
+        logName=`カスタム：${items.join(" / ")}`;
+        res={...res,type:"custom"};
+      }
+    }
+
+    if(state.chin.mode==="local"){
+      const key=comboKey(final);
+      const text=state.chin.localMap[key] || defaultLocalText(key);
+      displayText=`── ${text} ──`;
+      logName=`ローカル：${text}`;
+      res={...res,type:res.type};
+    }
+
+    const hasSpecialSound = ["best","worst","zoro","customHit"].includes(res.type);
     if(!hasSpecialSound) play("seKoduzumi");
     setTimeout(()=>{
       ink.className="ink show";
-      brush.textContent=res.brush;
+      brush.textContent=displayText;
       brush.className="brush show";
       if(res.type==="best"){chStage.className="ch-stage hot shake";brush.className="brush gold show";play("seHorn")}
       else if(res.type==="worst"){chStage.className="ch-stage cold shake";brush.className="brush blue show";play("seChime")}
-      else if(res.type==="zoro"){chStage.className="ch-stage hot shake";brush.className="brush gold show";play("seSword")}
+      else if(res.type==="zoro" || res.type==="customHit"){chStage.className="ch-stage hot shake";brush.className="brush gold show";play("seSword")}
       else if(res.type==="win"){chStage.className="ch-stage hot";brush.className="brush gold show"}
       else {chStage.className="ch-stage"}
-      state.chLog.unshift(`${new Date().toLocaleTimeString("ja-JP")}　${final.join("・")}　${res.name}`);
+      state.chLog.unshift(`${new Date().toLocaleTimeString("ja-JP")}　${final.join("・")}　${logName}`);
       state.chLog=state.chLog.slice(0,20); save(); renderChLog();
       rolling=false;
     },420);
@@ -665,10 +747,71 @@ addGameItem.onclick=()=>{
   save(); renderGameItemList(); renderGames();
 }
 
+
+function renderChinMode(){
+  if(!window.chinModeTabs) return;
+  document.querySelectorAll("#chinModeTabs button").forEach(btn=>{
+    btn.classList.toggle("active",btn.dataset.mode===state.chin.mode);
+    btn.onclick=()=>{state.chin.mode=btn.dataset.mode;save();renderChinMode();}
+  });
+  customPanel.classList.toggle("active",state.chin.mode==="custom");
+  localPanel.classList.toggle("active",state.chin.mode==="local");
+  renderCustomDiceEditor();
+  renderLocalComboEditor();
+}
+function renderCustomDiceEditor(){
+  if(!window.customDiceEditor) return;
+  const diceIndex=Number(customDiceSelect.value||0);
+  const diceMap=state.chin.customDice[diceIndex];
+  customDiceEditor.innerHTML=Array.from({length:6},(_,i)=>{
+    const n=i+1;
+    return `<div class="map-row"><label>${n}の目</label><input data-custom-face="${n}" value="${escapeAttr(diceMap[n]||"")}"></div>`;
+  }).join("");
+  customDiceEditor.querySelectorAll("[data-custom-face]").forEach(inp=>{
+    inp.onchange=()=>{state.chin.customDice[diceIndex][inp.dataset.customFace]=inp.value;save();}
+  });
+}
+function comboKey(arr){return [...arr].sort((a,b)=>a-b).join("-")}
+function comboLabelFromKey(key){return key.split("-").join("・")}
+function makeAllCombos(){
+  const keys=[];
+  for(let a=1;a<=6;a++){
+    for(let b=a;b<=6;b++){
+      for(let c=b;c<=6;c++){
+        keys.push(`${a}-${b}-${c}`);
+      }
+    }
+  }
+  return keys;
+}
+function defaultLocalText(key){
+  const arr=key.split("-").map(Number);
+  const res=judge(arr);
+  return res.name;
+}
+function renderLocalComboEditor(){
+  if(!window.localComboSelect) return;
+  const keys=makeAllCombos();
+  localComboSelect.innerHTML=keys.map(k=>`<option value="${k}">${comboLabelFromKey(k)}</option>`).join("");
+  const key=localComboSelect.value || keys[0];
+  localComboText.value=state.chin.localMap[key] || defaultLocalText(key);
+}
+if(window.customDiceSelect) customDiceSelect.onchange=()=>renderCustomDiceEditor();
+if(window.localComboSelect) localComboSelect.onchange=()=>{
+  const key=localComboSelect.value;
+  localComboText.value=state.chin.localMap[key] || defaultLocalText(key);
+};
+if(window.saveLocalCombo) saveLocalCombo.onclick=()=>{
+  const key=localComboSelect.value;
+  state.chin.localMap[key]=localComboText.value.trim() || defaultLocalText(key);
+  save();
+  alert("保存した！");
+};
+
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
 function escapeAttr(s){return escapeHtml(s).replace(/"/g,"&quot;")}
 
-renderHome();renderGames();renderBonus();renderMemo();renderChLog();renderSettings();applyVolumes();
+renderHome();renderGames();renderBonus();renderMemo();renderChLog();renderChinMode();renderSettings();applyVolumes();
 </script>
 </body>
 </html>
