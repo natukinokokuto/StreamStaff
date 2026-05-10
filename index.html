@@ -4632,13 +4632,13 @@ const firebaseConfig = { ... }
 
 
 
+
 <script>
-/* v65 zoom hype window roulette */
+/* v66 fixed zoom hype roulette */
 (function(){
-  let rouletteRotationV65 = 0;
-  let rouletteSpinningV65 = false;
-  let tickTimerV65 = null;
-  let zoomTimerV65 = null;
+  let rouletteRotationV66 = 0;
+  let rouletteSpinningV66 = false;
+  let tickTimerV66 = null;
 
   const casinoNumbers = ["0","32","15","19","4","21","2","25","17","34","6","27","13","36","11","30","8","23","10","5","24","16","33","1","20","14","31","9","22","18","29","7","28","12","35","3","26"];
 
@@ -4651,41 +4651,63 @@ const firebaseConfig = { ... }
     }
     if(!Array.isArray(state.roulette.history)) state.roulette.history = [];
   }
-  function safeSave(){ try{ if(typeof save === "function") save(); }catch(e){} }
-  function esc(s){ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+  function safeSave(){
+    try{
+      if(typeof save === "function") save();
+    }catch(e){}
+  }
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g,function(m){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m];
+    });
+  }
 
   function currentSlots(){
     ensureRouletteState();
+
     if(state.roulette.mode === "casino"){
-      return casinoNumbers.map((n,i)=>({
-        label:n,
-        value:n,
-        color:i===0 ? "#047857" : (i%2 ? "#7f1d1d" : "#030712"),
-      }));
+      return casinoNumbers.map(function(n,i){
+        return {
+          label:n,
+          value:n,
+          color:i===0 ? "#047857" : (i%2 ? "#b91c1c" : "#030712")
+        };
+      });
     }
-    const colors = ["#7c3aed","#22d3ee","#f59e0b","#ef4444","#10b981","#ec4899","#a3e635","#6366f1","#fb7185","#14b8a6"];
-    return state.roulette.items.map((item,i)=>({
-      label:item,
-      value:item,
-      color:colors[i % colors.length],
-    }));
+
+    // カスタム盤面：赤 → 黒 → 緑 の順番
+    const colors = ["#b91c1c", "#030712", "#047857"];
+
+    return state.roulette.items.map(function(item,i){
+      return {
+        label:item,
+        value:item,
+        color:colors[i % colors.length]
+      };
+    });
   }
 
   function renderWheel(){
     const segments = document.getElementById("rouletteSegments");
     const labels = document.getElementById("rouletteLabelLayer");
     const slots = currentSlots();
+
     if(!segments || !labels || !slots.length) return;
 
     const slice = 360 / slots.length;
-    const gradient = slots.map((s,i)=>`${s.color} ${i*slice}deg ${(i+1)*slice}deg`).join(",");
-    segments.style.background = `conic-gradient(${gradient})`;
 
-    labels.innerHTML = slots.map((s,i)=>{
+    segments.style.background = "conic-gradient(" + slots.map(function(s,i){
+      return s.color + " " + (i*slice) + "deg " + ((i+1)*slice) + "deg";
+    }).join(",") + ")";
+
+    labels.innerHTML = slots.map(function(s,i){
       const a = i * slice + slice / 2;
       const cls = state.roulette.mode === "casino" ? "roulette-label casino-label" : "roulette-label";
-      const text = esc(String(s.label).length > 10 ? String(s.label).slice(0,10) + "…" : s.label);
-      return `<span class="${cls}" style="--a:${a}deg">${text}</span>`;
+      const raw = String(s.label);
+      const text = esc(raw.length > 10 ? raw.slice(0,10) + "…" : raw);
+      return '<span class="' + cls + '" style="--a:' + a + 'deg">' + text + '</span>';
     }).join("");
   }
 
@@ -4700,6 +4722,7 @@ const firebaseConfig = { ... }
       void zMain.offsetWidth;
       zMain.classList.add("tick");
     }
+
     if(zSub) zSub.textContent = sub || "";
     if(box) box.classList.toggle("hot", !!hot);
   }
@@ -4715,52 +4738,66 @@ const firebaseConfig = { ... }
     const modeNote = document.getElementById("rouletteModeNote");
     const center = document.getElementById("rouletteCenterText");
     const itemsTitle = document.getElementById("rouletteItemsTitle");
+    const customBtn = document.getElementById("rouletteCustomMode");
+    const casinoBtn = document.getElementById("rouletteCasinoMode");
 
     if(resultEl && !resultEl.classList.contains("show")) resultEl.textContent = "READY";
 
     const isCasino = state.roulette.mode === "casino";
+
     if(modeLabel) modeLabel.textContent = isCasino ? "CASINO MODE" : "CUSTOM MODE";
-    if(modeNote) modeNote.textContent = isCasino
-      ? "0〜36のカジノ盤面。数字のギリギリ感を楽しむモード。"
-      : "項目数に合わせて盤面のマス目が変わるモード。";
+    if(modeNote){
+      modeNote.textContent = isCasino
+        ? "0〜36のカジノ盤面。数字のギリギリ感を楽しむモード。"
+        : "項目数に合わせて盤面のマス目が変わるモード。赤→黒→緑の順で配置。";
+    }
     if(center) center.textContent = isCasino ? "37" : "SS";
     if(itemsTitle) itemsTitle.textContent = isCasino ? "カジノ数字" : "カスタム項目";
 
+    if(customBtn && casinoBtn){
+      customBtn.classList.toggle("primary", !isCasino);
+      casinoBtn.classList.toggle("primary", isCasino);
+    }
+
     if(itemsBox){
       if(isCasino){
-        itemsBox.innerHTML = casinoNumbers.map(n=>`
-          <div class="roulette-full-item locked">
-            <span>${esc(n)}</span>
-            <span class="roulette-tag">CASINO</span>
-          </div>
-        `).join("");
+        itemsBox.innerHTML = casinoNumbers.map(function(n){
+          return '<div class="roulette-full-item locked"><span>' + esc(n) + '</span><span class="roulette-tag">CASINO</span></div>';
+        }).join("");
       }else{
-        itemsBox.innerHTML = state.roulette.items.map((item,i)=>`
-          <div class="roulette-full-item">
-            <span>${esc(item)}</span>
-            <button class="btn danger mini-btn" type="button" data-del-roulette="${i}">削除</button>
-          </div>
-        `).join("") || `<div class="muted">項目なし</div>`;
+        itemsBox.innerHTML = state.roulette.items.map(function(item,i){
+          return '<div class="roulette-full-item"><span>' + esc(item) + '</span><button class="btn danger mini-btn" type="button" data-del-roulette="' + i + '">削除</button></div>';
+        }).join("") || '<div class="muted">項目なし</div>';
       }
     }
 
     if(historyBox){
-      historyBox.innerHTML = state.roulette.history.map(h=>`
-        <div>${esc(h.time || "")}　<span class="muted">${esc(h.mode || "")}</span>　<b>${esc(h.result || h)}</b></div>
-      `).join("") || `<div>まだ履歴なし</div>`;
+      historyBox.innerHTML = state.roulette.history.map(function(h){
+        return '<div>' + esc(h.time || "") + '　<span class="muted">' + esc(h.mode || "") + '</span>　<b>' + esc(h.result || h) + '</b></div>';
+      }).join("") || '<div>まだ履歴なし</div>';
     }
   };
 
   function openRoulette(){
     ensureRouletteState();
-    if(typeof showScreen === "function") showScreen("roulette");
-    setTimeout(()=>window.renderRoulette(), 0);
+
+    if(typeof showScreen === "function"){
+      showScreen("roulette");
+    }else{
+      document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+      const target = document.getElementById("roulette");
+      if(target) target.classList.add("active");
+    }
+
+    setTimeout(function(){
+      window.renderRoulette();
+      renderZoom("READY", "赤 → 黒 → 緑", false);
+    }, 0);
   }
 
   function startTicking(duration, slots, winnerIndex){
     const arrow = document.getElementById("rouletteArrow");
-    clearInterval(tickTimerV65);
-    clearInterval(zoomTimerV65);
+    clearInterval(tickTimerV66);
 
     let interval = 70;
     const start = Date.now();
@@ -4779,53 +4816,40 @@ const firebaseConfig = { ... }
 
       const elapsed = Date.now() - start;
       const progress = Math.min(1, elapsed / duration);
-      const hot = progress > .72;
+      const hot = progress > 0.72;
 
-      renderZoom(
-        current.value,
-        `${next.value} → ${next2.value}`,
-        hot
-      );
+      renderZoom(current.value, String(next.value) + " → " + String(next2.value), hot);
 
       currentIndex++;
-
       interval = 70 + progress * progress * 520;
 
-      clearInterval(tickTimerV65);
+      clearInterval(tickTimerV66);
       if(progress < 1){
-        tickTimerV65 = setInterval(tick, interval);
+        tickTimerV66 = setInterval(tick, interval);
       }
     }
 
-    tickTimerV65 = setInterval(tick, interval);
+    tickTimerV66 = setInterval(tick, interval);
 
-    // 止まる寸前のフェイク煽り
-    setTimeout(()=>{
+    setTimeout(function(){
       const before = slots[(winnerIndex - 1 + slots.length) % slots.length];
-      renderZoom(
-        before.value,
-        "止まるか！？ → まだ滑る！？",
-        True if False else True
-      );
+      renderZoom(before.value, "止まるか！？ → まだ滑る！？", true);
     }, duration - 1050);
 
-    setTimeout(()=>{
-      renderZoom(
-        slots[winnerIndex].value,
-        "ここだぁぁ！！",
-        True if False else True
-      );
+    setTimeout(function(){
+      renderZoom(slots[winnerIndex].value, "ここだぁぁ！！", true);
     }, duration - 360);
   }
 
   function stopTicking(){
-    clearInterval(tickTimerV65);
-    clearInterval(zoomTimerV65);
+    clearInterval(tickTimerV66);
+    tickTimerV66 = null;
   }
 
   function countdownThenSpin(){
     ensureRouletteState();
-    if(rouletteSpinningV65) return;
+
+    if(rouletteSpinningV66) return;
 
     const slots = currentSlots();
     if(slots.length < 2){
@@ -4834,25 +4858,28 @@ const firebaseConfig = { ... }
     }
 
     const countdown = document.getElementById("rouletteCountdown");
-    rouletteSpinningV65 = true;
+    rouletteSpinningV66 = true;
     let n = 3;
 
     if(countdown){
       countdown.textContent = n;
       countdown.classList.add("show");
-      const timer = setInterval(()=>{
+
+      const timer = setInterval(function(){
         n--;
+
         if(n > 0){
           countdown.textContent = n;
         }else{
           clearInterval(timer);
           countdown.textContent = "GO!";
-          setTimeout(()=>{
+
+          setTimeout(function(){
             countdown.classList.remove("show");
             spinRoulette();
-          },350);
+          }, 350);
         }
-      },1000);
+      }, 1000);
     }else{
       spinRoulette();
     }
@@ -4861,18 +4888,23 @@ const firebaseConfig = { ... }
   function showCutin(){
     const cutin = document.getElementById("rouletteCutin");
     if(!cutin) return;
+
     cutin.classList.remove("show");
     void cutin.offsetWidth;
     cutin.classList.add("show");
-    setTimeout(()=>cutin.classList.remove("show"), 1300);
+
+    setTimeout(function(){
+      cutin.classList.remove("show");
+    }, 1300);
   }
 
   function spinRoulette(){
     const stage = document.getElementById("rouletteStage");
     const wheel = document.getElementById("rouletteWheel");
     const resultEl = document.getElementById("rouletteResult");
+
     if(!stage || !wheel || !resultEl){
-      rouletteSpinningV65 = false;
+      rouletteSpinningV66 = false;
       alert("ルーレット表示が見つからないｗ");
       return;
     }
@@ -4887,23 +4919,18 @@ const firebaseConfig = { ... }
 
     const slice = 360 / slots.length;
     const targetAngle = 360 - (winnerIndex * slice) - slice / 2;
-    const currentMod = ((rouletteRotationV65 % 360) + 360) % 360;
+    const currentMod = ((rouletteRotationV66 % 360) + 360) % 360;
 
-    rouletteRotationV65 = rouletteRotationV65 + 360 * 9 + targetAngle - currentMod;
-    wheel.style.transform = `rotate(${rouletteRotationV65}deg)`;
+    rouletteRotationV66 = rouletteRotationV66 + 360 * 9 + targetAngle - currentMod;
+    wheel.style.transform = "rotate(" + rouletteRotationV66 + "deg)";
 
     startTicking(5600, slots, winnerIndex);
-
     setTimeout(showCutin, 4300);
 
-    setTimeout(()=>{
+    setTimeout(function(){
       stopTicking();
 
-      renderZoom(
-        winner.value,
-        "WINNER",
-        true
-      );
+      renderZoom(winner.value, "WINNER", true);
 
       resultEl.textContent = state.roulette.mode === "casino"
         ? "🎲 " + winner.value + " 🎲"
@@ -4917,12 +4944,13 @@ const firebaseConfig = { ... }
         mode:state.roulette.mode === "casino" ? "CASINO" : "CUSTOM",
         result:winner.value
       });
+
       state.roulette.history = state.roulette.history.slice(0,30);
 
       safeSave();
       window.renderRoulette();
-      rouletteSpinningV65 = false;
-    },5900);
+      rouletteSpinningV66 = false;
+    }, 5900);
   }
 
   document.addEventListener("click", function(e){
@@ -4933,70 +4961,96 @@ const firebaseConfig = { ... }
       openRoulette();
       return;
     }
+
     if(t.id === "backRouletteToGames"){
-      if(typeof showScreen === "function") showScreen("games");
+      if(typeof showScreen === "function"){
+        showScreen("games");
+      }
       return;
     }
+
     if(t.id === "rouletteCustomMode"){
       ensureRouletteState();
       state.roulette.mode = "custom";
       safeSave();
       window.renderRoulette();
+      renderZoom("CUSTOM", "赤 → 黒 → 緑", false);
       return;
     }
+
     if(t.id === "rouletteCasinoMode"){
       ensureRouletteState();
       state.roulette.mode = "casino";
       safeSave();
       window.renderRoulette();
+      renderZoom("CASINO", "0〜36", false);
       return;
     }
+
     if(t.id === "addRouletteItem"){
       ensureRouletteState();
-      if(rouletteSpinningV65) return;
+      if(rouletteSpinningV66) return;
+
       const input = document.getElementById("newRouletteItem");
       const v = input && input.value ? input.value.trim() : "";
+
       if(!v) return;
+
       state.roulette.items.push(v);
       input.value = "";
       state.roulette.mode = "custom";
+
       safeSave();
       window.renderRoulette();
       return;
     }
+
     if(t.id === "spinRoulette"){
       countdownThenSpin();
       return;
     }
+
     if(t.id === "shuffleRoulette"){
       ensureRouletteState();
-      if(rouletteSpinningV65) return;
+      if(rouletteSpinningV66) return;
+
       const arr = state.roulette.items;
       for(let i=arr.length-1;i>0;i--){
         const j = Math.floor(Math.random()*(i+1));
-        [arr[i],arr[j]]=[arr[j],arr[i]];
+        const tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
       }
+
       safeSave();
       window.renderRoulette();
       return;
     }
+
     if(t.id === "clearRouletteHistory"){
       ensureRouletteState();
+
       if(!confirm("ルーレット履歴を削除する？")) return;
+
       state.roulette.history = [];
       safeSave();
       window.renderRoulette();
       return;
     }
+
     if(t.dataset && t.dataset.delRoulette !== undefined){
       ensureRouletteState();
-      if(rouletteSpinningV65) return;
+
+      if(rouletteSpinningV66) return;
       if(state.roulette.mode === "casino") return;
+
       const i = Number(t.dataset.delRoulette);
+
       if(state.roulette.items.length <= 2){
         alert("項目は2個以上必要！");
         return;
       }
+
       state.roulette.items.splice(i,1);
       safeSave();
       window.renderRoulette();
@@ -5013,12 +5067,13 @@ const firebaseConfig = { ... }
 
   document.addEventListener("DOMContentLoaded", function(){
     ensureRouletteState();
-    renderZoom("17","31 → 9 → 22",false);
+    renderZoom("READY", "赤 → 黒 → 緑", false);
     window.renderRoulette();
   });
+
   if(document.readyState !== "loading"){
     ensureRouletteState();
-    renderZoom("17","31 → 9 → 22",false);
+    renderZoom("READY", "赤 → 黒 → 緑", false);
     window.renderRoulette();
   }
 })();
