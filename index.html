@@ -432,6 +432,16 @@ function fitBrushText(text){
   gap:10px;
 }
 
+
+.birthday-row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.birthday-row input{
+  max-width:90px;
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -649,7 +659,12 @@ function fitBrushText(text){
             <label>あだ名</label>
             <input id="detailNickname" placeholder="例：○○ニキ / ○○ネキ / ○○先生">
             <label>誕生日（月 / 日）</label>
-            <input id="detailBirthday" type="text" placeholder="例：09/05" maxlength="5">
+            <div class="birthday-row">
+              <input id="detailBirthMonth" type="number" min="1" max="12" placeholder="月">
+              <span>月</span>
+              <input id="detailBirthDay" type="number" min="1" max="31" placeholder="日">
+              <span>日</span>
+            </div>
             <label>生まれ年（任意）</label>
             <input id="detailBirthYear" type="number" placeholder="未入力なら年齢不詳" min="1900" max="2100">
             <label>血液型</label>
@@ -1374,6 +1389,19 @@ function calcAge(birthday){
   return age>=0 ? `${age}歳` : "-";
 }
 
+
+function splitBirthday(birthday){
+  if(!birthday) return {month:"",day:""};
+  const parts=String(birthday).split("/");
+  return {month:parts[0]||"",day:parts[1]||""};
+}
+function formatBirthday(month, day){
+  const m=Number(month);
+  const d=Number(day);
+  if(!m || !d) return "";
+  return `${String(m).padStart(2,"0")}/${String(d).padStart(2,"0")}`;
+}
+
 function isBirthdayToday(birthday){
   if(!birthday) return false;
   const now=new Date();
@@ -1458,7 +1486,9 @@ function renderListenerDetail(){
   detailName.textContent=`${l.name} の詳細設定`;
   detailInputName.value=l.name || "";
   detailNickname.value=l.nickname || "";
-  detailBirthday.value=l.birthday || "";
+  const bd=splitBirthday(l.birthday || "");
+  detailBirthMonth.value=bd.month ? Number(bd.month) : "";
+  detailBirthDay.value=bd.day ? Number(bd.day) : "";
   detailBirthYear.value=l.birthYear || "";
   detailBlood.value=l.bloodType || "";
   detailFirstVisit.value=l.firstVisitDate || l.registeredDate || "";
@@ -1505,7 +1535,7 @@ if(window.saveListenerDetail) saveListenerDetail.onclick=()=>{
   const newName=detailInputName.value.trim() || oldName;
   l.name=newName;
   l.nickname=detailNickname.value.trim();
-  l.birthday=detailBirthday.value;
+  l.birthday=formatBirthday(detailBirthMonth.value, detailBirthDay.value);
   l.birthYear=detailBirthYear.value.trim();
   l.bloodType=detailBlood.value;
   l.firstVisitDate=detailFirstVisit.value;
@@ -1564,7 +1594,7 @@ function renderMemo(){
         </div>
       </div>
       <p class="muted">${l.nickname ? "@" + escapeHtml(l.nickname) + " / " : ""}ログボ ${currentLogboCount(l)}日 / ${state.logboMonth}</p>
-      ${l.birthday ? `<p class="muted">🎂 誕生日 ${escapeHtml(l.birthday)} / ${displayAge(l)}</p>` : ""}
+      ${l.birthday ? `<p class="muted">🎂 誕生日 ${escapeHtml(l.birthday)}</p>` : ""}
       <p class="muted">年齢 ${displayAge(l)} / 初来枠から ${dateDiffText(l.firstVisitDate || l.registeredDate)}</p>
       ${renderSeedList(l,i)}
       <div class="penalty-box">
