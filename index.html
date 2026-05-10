@@ -365,6 +365,20 @@ function fitBrushText(text){
         </div></div>
       </div>
 
+
+      <div class="card" style="margin-top:14px"><div class="inner">
+        <h2>データ保存 / 読み込み</h2>
+        <p class="muted">ドラクエの復活の呪文みたいに、全データを文字列で保存できる。別端末へ移す時もコピペでOK。</p>
+        <div class="row">
+          <button class="btn primary" id="exportDataCode">保存文字列を作る</button>
+          <button class="btn" id="copyDataCode">コピー</button>
+          <button class="btn danger" id="importDataCode">読み込む</button>
+        </div>
+        <label>保存文字列</label>
+        <textarea id="dataCodeBox" placeholder="ここに保存文字列が出る / 読み込む時はここに貼る" style="min-height:160px"></textarea>
+        <p class="muted">※読み込みすると現在のデータは上書きされる。保存文字列はメモ帳やLINEの自分宛てに置いとくと安心。</p>
+      </div></div>
+
       <div class="card" style="margin-top:14px"><div class="inner">
         <h2>ゲームのお題編集</h2>
         <p class="muted">ゲーム内で出るお題や単語を自分で追加・削除できる。</p>
@@ -949,6 +963,69 @@ if(window.saveLocalCombo) saveLocalCombo.onclick=()=>{
   save();
   renderLocalRuleView();
   alert("保存した！");
+};
+
+
+function encodeSaveData(obj){
+  const json=JSON.stringify(obj);
+  const bytes=new TextEncoder().encode(json);
+  let binary="";
+  bytes.forEach(b=>binary+=String.fromCharCode(b));
+  return "STREAMBASE1:" + btoa(binary);
+}
+function decodeSaveData(code){
+  const raw=String(code||"").trim();
+  if(!raw.startsWith("STREAMBASE1:")) throw new Error("保存文字列の形式が違う");
+  const b64=raw.replace("STREAMBASE1:","");
+  const binary=atob(b64);
+  const bytes=new Uint8Array([...binary].map(ch=>ch.charCodeAt(0)));
+  const json=new TextDecoder().decode(bytes);
+  return JSON.parse(json);
+}
+function refreshAll(){
+  save();
+  renderHome();
+  renderGames();
+  renderBonus();
+  renderMemo();
+  renderChLog();
+  renderChinMode();
+  renderSettings();
+  applyVolumes();
+}
+if(window.exportDataCode) exportDataCode.onclick=()=>{
+  dataCodeBox.value=encodeSaveData(state);
+};
+if(window.copyDataCode) copyDataCode.onclick=async()=>{
+  if(!dataCodeBox.value.trim()) dataCodeBox.value=encodeSaveData(state);
+  try{
+    await navigator.clipboard.writeText(dataCodeBox.value);
+    alert("コピーした！");
+  }catch(e){
+    dataCodeBox.select();
+    document.execCommand("copy");
+    alert("コピーした！ たぶん！");
+  }
+};
+if(window.importDataCode) importDataCode.onclick=()=>{
+  try{
+    const next=decodeSaveData(dataCodeBox.value);
+    if(!confirm("この保存文字列を読み込む？\\n今のデータは上書きされるよ。")) return;
+    state=next;
+    state.settings = state.settings || structuredClone(defaultState.settings);
+    state.chin = state.chin || structuredClone(defaultState.chin);
+    state.chin.diceCount = state.chin.diceCount || 3;
+    state.chin.diceNames = state.chin.diceNames || structuredClone(defaultState.chin.diceNames);
+    state.chin.customDice = state.chin.customDice || structuredClone(defaultState.chin.customDice);
+    state.chin.localMap = state.chin.localMap || {};
+    state.customGames = state.customGames || structuredClone(defaultState.customGames);
+    for (const k in defaultState.customGames) state.customGames[k] = state.customGames[k] || structuredClone(defaultState.customGames[k]);
+    selectedListener=0;
+    refreshAll();
+    alert("読み込んだ！");
+  }catch(e){
+    alert("読み込み失敗：保存文字列が違うか壊れてるかも");
+  }
 };
 
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
