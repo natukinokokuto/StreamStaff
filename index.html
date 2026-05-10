@@ -648,8 +648,8 @@ function fitBrushText(text){
             <input id="detailInputName" placeholder="名前">
             <label>あだ名</label>
             <input id="detailNickname" placeholder="例：○○ニキ / ○○ネキ / ○○先生">
-            <label>誕生日</label>
-            <input id="detailBirthday" type="date">
+            <label>誕生日（月 / 日）</label>
+            <input id="detailBirthday" type="text" placeholder="例：09/05" maxlength="5">
             <label>生まれ年（任意）</label>
             <input id="detailBirthYear" type="number" placeholder="未入力なら年齢不詳" min="1900" max="2100">
             <label>血液型</label>
@@ -1377,8 +1377,8 @@ function displayAge(l){
   if(!l || !l.birthday) return "-";
   if(!l.birthYear) return "年齢不詳";
   const birth=l.birthday || "";
-  if(birth.length>=10){
-    const md=birth.slice(5);
+  if(birth.length>=5){
+    const md=birth.replace("/", "-");
     return calcAge(`${l.birthYear}-${md}`);
   }
   return "年齢不詳";
@@ -1556,7 +1556,7 @@ function renderMemo(){
         </div>
       </div>
       <p class="muted">${l.nickname ? "@" + escapeHtml(l.nickname) + " / " : ""}ログボ ${currentLogboCount(l)}日 / ${state.logboMonth}</p>
-      ${l.birthday ? `<p class="muted">🎂 誕生日 ${escapeHtml(l.birthday.slice(5).replace("-","/"))} / ${displayAge(l)}</p>` : ""}
+      ${l.birthday ? `<p class="muted">🎂 誕生日 ${escapeHtml(l.birthday)} / ${displayAge(l)}</p>` : ""}
       <p class="muted">年齢 ${displayAge(l)} / 初来枠から ${dateDiffText(l.firstVisitDate || l.registeredDate)}</p>
       ${renderSeedList(l,i)}
       <div class="penalty-box">
@@ -1933,8 +1933,9 @@ function eventsForDate(date){
   });
   state.listeners.forEach(l=>{
     if(l.birthday){
-      const md=l.birthday.slice(5);
-      if(date.slice(5)===md && !evs.some(ev=>ev.listener===l.name && ev.type==="誕生日")){
+      const md=l.birthday;
+      const current=date.slice(5).replace("-","/");
+      if(current===md && !evs.some(ev=>ev.listener===l.name && ev.type==="誕生日")){
         evs.push({id:"birthday_"+l.name+"_"+date,date,listener:l.name,type:"誕生日",item:"🎂 誕生日"});
       }
     }
