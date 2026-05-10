@@ -473,6 +473,23 @@ function fitBrushText(text){
   box-shadow:0 0 24px rgba(245,158,11,.35);
 }
 
+
+.tools-layout{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.tools-col{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+@media(max-width:900px){
+  .tools-layout{
+    grid-template-columns:1fr;
+  }
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -810,9 +827,12 @@ function fitBrushText(text){
       </div>
     </section>
 
-    <section id="tools" class="screen">
-      <div class="grid">
-        <div class="card"><div class="inner">
+    
+<section id="tools" class="screen">
+  <div class="tools-layout">
+    <div class="tools-col">
+      <div class="card"><div class="inner">
+        
           <div class="tool-item" style="margin-bottom:12px;background:#0b1320;border-color:#1e3a5f">
           <div class="row" style="justify-content:space-between">
             <div>
@@ -841,7 +861,32 @@ function fitBrushText(text){
         </div>
 
           
-<div class="tool-item" style="margin-bottom:12px;background:#09111d;border-color:#24476f">
+
+
+<div class="tool-item" style="margin-bottom:12px">
+  <div class="row" style="justify-content:space-between">
+    <div>
+      <div class="tool-title">🔢 カウント機能</div>
+      <div class="muted">項目ごとの回数カウント</div>
+    </div>
+    <button class="btn mini-btn" id="toggleCountersPanel">開く</button>
+  </div>
+  <div class="collapsible-body" id="countersPanelBody">
+
+          <p class="muted">項目を何個でも追加して、配信中に数をポチポチ数えられる。</p>
+          <div class="row">
+            <input id="newCounterName" placeholder="例：ツッコミ回数 / 水飲み回数">
+            <button class="btn primary" id="addCounter">カウンター追加</button>
+          </div>
+          <div id="counterList" class="tool-list" style="margin-top:12px"></div>
+  </div>
+        
+      </div></div>
+    </div>
+
+    <div class="tools-col">
+      <div class="card"><div class="inner">
+        <div class="tool-item" style="margin-bottom:12px;background:#09111d;border-color:#24476f">
   <div class="row" style="justify-content:space-between">
     <div>
       <div class="tool-title">⏳ カウントダウン</div>
@@ -868,27 +913,7 @@ function fitBrushText(text){
     <div id="countdownList"></div>
   </div>
 </div>
-
-<div class="tool-item" style="margin-bottom:12px">
-  <div class="row" style="justify-content:space-between">
-    <div>
-      <div class="tool-title">🔢 カウント機能</div>
-      <div class="muted">項目ごとの回数カウント</div>
-    </div>
-    <button class="btn mini-btn" id="toggleCountersPanel">開く</button>
-  </div>
-  <div class="collapsible-body" id="countersPanelBody">
-
-          <p class="muted">項目を何個でも追加して、配信中に数をポチポチ数えられる。</p>
-          <div class="row">
-            <input id="newCounterName" placeholder="例：ツッコミ回数 / 水飲み回数">
-            <button class="btn primary" id="addCounter">カウンター追加</button>
-          </div>
-          <div id="counterList" class="tool-list" style="margin-top:12px"></div>
-  </div>
-        </div></div>
-
-        <div class="card"><div class="inner">
+        
           <div class="tool-item" style="margin-bottom:12px">
             <div class="row" style="justify-content:space-between">
               <div>
@@ -909,16 +934,18 @@ function fitBrushText(text){
           <div id="timerList" class="tool-list" style="margin-top:12px"></div>
             </div>
           </div>
-        </div></div>
-      </div>
+        
+      </div></div>
+    </div>
+  </div>
 
-      <audio id="alarm_hato1" src="assets/hato1.mp3"></audio>
-      <audio id="alarm_closed" src="assets/closed.mp3"></audio>
-      <audio id="alarm_sponsor" src="assets/sponsor.mp3"></audio>
-      <audio id="alarm_alarm_clock" src="assets/alarm_clock.mp3"></audio>
-      <audio id="alarm_wall_clock" src="assets/wall_clock.mp3"></audio>
-      <audio id="alarm_hato2" src="assets/hato2.mp3"></audio>
-    </section>
+  <audio id="alarm_hato1" src="assets/hato1.mp3"></audio>
+  <audio id="alarm_closed" src="assets/closed.mp3"></audio>
+  <audio id="alarm_sponsor" src="assets/sponsor.mp3"></audio>
+  <audio id="alarm_alarm_clock" src="assets/alarm_clock.mp3"></audio>
+  <audio id="alarm_wall_clock" src="assets/wall_clock.mp3"></audio>
+  <audio id="alarm_hato2" src="assets/hato2.mp3"></audio>
+</section>
 
     <section id="settings" class="screen">
       <div class="grid">
