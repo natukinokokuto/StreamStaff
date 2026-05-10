@@ -390,6 +390,32 @@ function fitBrushText(text){
   font-weight:950;
 }
 
+
+.seed-box{
+  background:#07111f;
+  border:1px solid #1e3a5f;
+  border-radius:14px;
+  padding:10px;
+  margin:10px 0;
+}
+.seed-list{
+  display:grid;
+  gap:6px;
+  margin-top:8px;
+}
+.seed-item{
+  background:#0b1728;
+  border:1px solid #24476f;
+  border-radius:10px;
+  padding:8px;
+  font-size:13px;
+}
+.favorite-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -604,6 +630,8 @@ function fitBrushText(text){
             <h3>基本情報</h3>
             <label>名前</label>
             <input id="detailInputName" placeholder="名前">
+            <label>あだ名</label>
+            <input id="detailNickname" placeholder="例：飴ちゃん / 〇〇ニキ">
             <label>誕生日</label>
             <input id="detailBirthday" type="date">
             <label>血液型</label>
@@ -623,8 +651,27 @@ function fitBrushText(text){
           </div></div>
 
           <div class="card"><div class="inner">
-            <h3>話題の種</h3>
-            <div id="detailTopicSeeds" class="history"></div>
+            <h3>お気に入り / キーワード</h3>
+            <div class="favorite-grid">
+              <div><label>好きな企画</label><input id="favProject" placeholder="例：チンチロ"></div>
+              <div><label>好きなゲーム</label><input id="favGame" placeholder="例：モンハン"></div>
+              <div><label>好きな食べ物</label><input id="favFood" placeholder="例：ラーメン"></div>
+              <div><label>都道府県 / 地域</label><input id="favArea" placeholder="例：神奈川"></div>
+              <div><label>好きな音楽</label><input id="favMusic" placeholder="例：ロック"></div>
+              <div><label>好きなアニメ</label><input id="favAnime" placeholder="例：ワンピース"></div>
+              <div><label>よく来る時間 / 属性</label><input id="favHabit" placeholder="例：深夜勢"></div>
+              <div><label>自由メモ1</label><input id="favFree1" placeholder="例：犬派"></div>
+              <div><label>自由メモ2</label><input id="favFree2" placeholder="例：辛い物好き"></div>
+              <div><label>NG話題</label><input id="favNgTopic" placeholder="例：政治 / 恋愛深掘り"></div>
+            </div>
+          </div></div>
+
+          <div class="card"><div class="inner">
+            <div class="row" style="justify-content:space-between">
+              <h3 style="margin:0">話題の種</h3>
+              <button class="btn mini-btn" id="refreshDetailSeeds">話題更新</button>
+            </div>
+            <div id="detailTopicSeeds" class="history" style="margin-top:10px"></div>
           </div></div>
         </div>
       </div></div>
@@ -925,6 +972,10 @@ state.listeners.forEach(l=>{
   if(typeof l.birthday!=="string") l.birthday="";
   if(typeof l.bloodType!=="string") l.bloodType="";
   if(typeof l.firstVisitDate!=="string") l.firstVisitDate="";
+  if(typeof l.nickname!=="string") l.nickname="";
+  if(!l.favorites) l.favorites={};
+  ["project","game","food","area","music","anime","habit","free1","free2","ngTopic"].forEach(k=>{ if(typeof l.favorites[k]!=="string") l.favorites[k]=""; });
+  if(!Array.isArray(l.topicSeeds)) l.topicSeeds=[];
   l.logboByMonth = l.logboByMonth || {};
   if(Array.isArray(l.days) && !l.logboByMonth[state.logboMonth]){
     l.logboByMonth[state.logboMonth] = [...l.days].sort((a,b)=>a-b);
@@ -1280,6 +1331,50 @@ function calcAge(birthday){
   if(!hadBirthday) age--;
   return age>=0 ? `${age}歳` : "-";
 }
+
+function generateTopicSeeds(l){
+  const f=l.favorites || {};
+  const name=l.nickname || l.name || "この人";
+  const seeds=[];
+
+  if(l.nickname) seeds.push(`あだ名は「${l.nickname}」。呼び方ネタにできる`);
+  if(l.birthday) seeds.push(`誕生日は ${l.birthday}。${calcAge(l.birthday)}の話題にできる`);
+  if(l.bloodType) seeds.push(`${l.bloodType}っぽいところを軽く聞ける`);
+  if(l.firstVisitDate || l.registeredDate) seeds.push(`初来枠から ${dateDiffText(l.firstVisitDate || l.registeredDate)}。記念日トークにできる`);
+  if(f.area) seeds.push(`${f.area}の天気・方言・地元ネタを振れる`);
+  if(f.project) seeds.push(`${name}は「${f.project}」好き。今日やるか聞ける`);
+  if(f.game) seeds.push(`${f.game}最近やってる？で広げられる`);
+  if(f.food) seeds.push(`${f.food}のおすすめ店・食べ方を聞ける`);
+  if(f.music) seeds.push(`${f.music}系の曲やライブ話を振れる`);
+  if(f.anime) seeds.push(`${f.anime}の推しキャラ・名シーンを聞ける`);
+  if(f.habit) seeds.push(`${f.habit}としていじれる/拾える`);
+  if(f.free1) seeds.push(`${f.free1}から一言質問を作る`);
+  if(f.free2) seeds.push(`${f.free2}から近況を聞ける`);
+  if(f.ngTopic) seeds.push(`⚠ NG注意：${f.ngTopic}`);
+  if((l.penalty||0)>0) seeds.push(`ペナルティー${l.penalty}回。内容確認から話を作れる`);
+
+  if(!seeds.length) seeds.push("まだ情報少なめ。好きな企画・地域・NG話題を入れると話題化できる");
+  return seeds.slice(0,10);
+}
+function refreshTopicSeeds(index){
+  const l=state.listeners[index];
+  if(!l)return;
+  l.topicSeeds=generateTopicSeeds(l);
+  save();
+  renderMemo();
+  if(document.getElementById("listenerDetail").classList.contains("active")) renderListenerDetail();
+}
+function renderSeedList(l,i){
+  const seeds=(l.topicSeeds && l.topicSeeds.length) ? l.topicSeeds : generateTopicSeeds(l);
+  return `<div class="seed-box">
+    <div class="row" style="justify-content:space-between">
+      <b>🧠 話題の種</b>
+      <button class="btn mini-btn" data-refresh-seeds="${i}">話題更新</button>
+    </div>
+    <div class="seed-list">${seeds.slice(0,5).map(s=>`<div class="seed-item">${escapeHtml(s)}</div>`).join("")}</div>
+  </div>`;
+}
+
 function openListenerDetail(index){
   detailListenerIndex=index;
   renderListenerDetail();
@@ -1290,30 +1385,53 @@ function renderListenerDetail(){
   if(!l) return;
   detailName.textContent=`${l.name} の詳細設定`;
   detailInputName.value=l.name || "";
+  detailNickname.value=l.nickname || "";
   detailBirthday.value=l.birthday || "";
   detailBlood.value=l.bloodType || "";
   detailFirstVisit.value=l.firstVisitDate || l.registeredDate || "";
   detailAge.textContent=calcAge(l.birthday);
   detailSinceFirst.textContent=dateDiffText(l.firstVisitDate || l.registeredDate);
   detailBloodView.textContent=l.bloodType || "-";
+  const f=l.favorites || {};
+  favProject.value=f.project || "";
+  favGame.value=f.game || "";
+  favFood.value=f.food || "";
+  favArea.value=f.area || "";
+  favMusic.value=f.music || "";
+  favAnime.value=f.anime || "";
+  favHabit.value=f.habit || "";
+  favFree1.value=f.free1 || "";
+  favFree2.value=f.free2 || "";
+  favNgTopic.value=f.ngTopic || "";
 
-  const seeds=[];
-  if(l.birthday) seeds.push(`🎂 誕生日：${l.birthday}（${calcAge(l.birthday)}）`);
-  if(l.bloodType) seeds.push(`🩸 血液型：${l.bloodType}`);
-  if(l.firstVisitDate || l.registeredDate) seeds.push(`📅 初来枠：${l.firstVisitDate || l.registeredDate}（${dateDiffText(l.firstVisitDate || l.registeredDate)}）`);
-  if((l.penalty||0)>0) seeds.push(`⚠️ ペナルティー：${l.penalty}回`);
+  const seeds=l.topicSeeds && l.topicSeeds.length ? l.topicSeeds : generateTopicSeeds(l);
   detailTopicSeeds.innerHTML=seeds.map(s=>`<div>${escapeHtml(s)}</div>`).join("") || `<div class="muted">まだ話題の種なし</div>`;
 }
 if(window.backToMemo) backToMemo.onclick=()=>showScreen("memo");
+if(window.refreshDetailSeeds) refreshDetailSeeds.onclick=()=>refreshTopicSeeds(detailListenerIndex);
 if(window.saveListenerDetail) saveListenerDetail.onclick=()=>{
   const l=state.listeners[detailListenerIndex];
   if(!l) return;
   const oldName=l.name;
   const newName=detailInputName.value.trim() || oldName;
   l.name=newName;
+  l.nickname=detailNickname.value.trim();
   l.birthday=detailBirthday.value;
   l.bloodType=detailBlood.value;
   l.firstVisitDate=detailFirstVisit.value;
+  l.favorites={
+    project:favProject.value.trim(),
+    game:favGame.value.trim(),
+    food:favFood.value.trim(),
+    area:favArea.value.trim(),
+    music:favMusic.value.trim(),
+    anime:favAnime.value.trim(),
+    habit:favHabit.value.trim(),
+    free1:favFree1.value.trim(),
+    free2:favFree2.value.trim(),
+    ngTopic:favNgTopic.value.trim()
+  };
+  l.topicSeeds=generateTopicSeeds(l);
   if(l.firstVisitDate) l.registeredDate=l.firstVisitDate;
 
   if(oldName!==newName){
@@ -1345,6 +1463,7 @@ function renderMemo(){
       </div>
       <p class="muted">ログボ ${currentLogboCount(l)}日 / ${state.logboMonth}</p>
       <p class="muted">年齢 ${calcAge(l.birthday)} / 初来枠から ${dateDiffText(l.firstVisitDate || l.registeredDate)}</p>
+      ${renderSeedList(l,i)}
       <div class="penalty-box">
         <div class="row" style="justify-content:space-between">
           <div>
@@ -1383,6 +1502,7 @@ function renderMemo(){
     }
     save();renderMemo();renderCalendar();
   });
+  memoGrid.querySelectorAll("[data-refresh-seeds]").forEach(btn=>btn.onclick=()=>refreshTopicSeeds(Number(btn.dataset.refreshSeeds)));
   memoGrid.querySelectorAll("[data-open-detail]").forEach(btn=>btn.onclick=()=>openListenerDetail(Number(btn.dataset.openDetail)));
   memoGrid.querySelectorAll("[data-delete-memo-listener]").forEach(btn=>btn.onclick=()=>deleteListener(Number(btn.dataset.deleteMemoListener)));
   bindPenaltyButtons(memoGrid);
@@ -2204,7 +2324,11 @@ state.tools = state.tools || structuredClone(defaultState.tools);
     state.listeners.forEach(l=>{ if(typeof l.penalty!=="number") l.penalty=0; if(typeof l.registeredDate!=="string") l.registeredDate="";
   if(typeof l.birthday!=="string") l.birthday="";
   if(typeof l.bloodType!=="string") l.bloodType="";
-  if(typeof l.firstVisitDate!=="string") l.firstVisitDate=""; });
+  if(typeof l.firstVisitDate!=="string") l.firstVisitDate="";
+  if(typeof l.nickname!=="string") l.nickname="";
+  if(!l.favorites) l.favorites={};
+  ["project","game","food","area","music","anime","habit","free1","free2","ngTopic"].forEach(k=>{ if(typeof l.favorites[k]!=="string") l.favorites[k]=""; });
+  if(!Array.isArray(l.topicSeeds)) l.topicSeeds=[]; });
     selectedListener=0;
     refreshAll();
     alert("読み込んだ！");
