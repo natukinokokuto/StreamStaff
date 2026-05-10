@@ -367,6 +367,29 @@ function fitBrushText(text){
   border:1px solid #fb7185 !important;
 }
 
+
+.detail-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:12px;
+}
+.detail-stat{
+  background:#0b0d13;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px;
+}
+.detail-stat b{
+  display:block;
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+.detail-stat span{
+  font-size:22px;
+  font-weight:950;
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -557,6 +580,54 @@ function fitBrushText(text){
           <button class="btn primary" id="addReward" style="margin-top:10px">報酬を追加</button>
         </div></div>
       </div>
+    </section>
+
+
+    <section id="listenerDetail" class="screen">
+      <div class="card"><div class="inner">
+        <div class="row" style="justify-content:space-between">
+          <div>
+            <h2 id="detailName">登録者詳細</h2>
+            <p class="muted">誕生日・血液型・初来枠日など、話題の種になる情報</p>
+          </div>
+          <button class="btn" id="backToMemo">常連メモへ戻る</button>
+        </div>
+
+        <div class="detail-grid" style="margin-top:12px">
+          <div class="detail-stat"><b>年齢</b><span id="detailAge">-</span></div>
+          <div class="detail-stat"><b>初来枠から</b><span id="detailSinceFirst">-</span></div>
+          <div class="detail-stat"><b>血液型</b><span id="detailBloodView">-</span></div>
+        </div>
+
+        <div class="grid" style="margin-top:14px">
+          <div class="card"><div class="inner">
+            <h3>基本情報</h3>
+            <label>名前</label>
+            <input id="detailInputName" placeholder="名前">
+            <label>誕生日</label>
+            <input id="detailBirthday" type="date">
+            <label>血液型</label>
+            <select id="detailBlood">
+              <option value="">未設定</option>
+              <option value="A型">A型</option>
+              <option value="B型">B型</option>
+              <option value="O型">O型</option>
+              <option value="AB型">AB型</option>
+              <option value="不明">不明</option>
+            </select>
+            <label>初めて枠に来た日</label>
+            <input id="detailFirstVisit" type="date">
+            <div class="row" style="margin-top:12px">
+              <button class="btn primary" id="saveListenerDetail">詳細を保存</button>
+            </div>
+          </div></div>
+
+          <div class="card"><div class="inner">
+            <h3>話題の種</h3>
+            <div id="detailTopicSeeds" class="history"></div>
+          </div></div>
+        </div>
+      </div></div>
     </section>
 
     <section id="memo" class="screen">
@@ -852,6 +923,8 @@ state.listeners.forEach(l=>{
   if(typeof l.penalty!=="number") l.penalty=0;
   if(typeof l.registeredDate!=="string") l.registeredDate="";
   if(typeof l.birthday!=="string") l.birthday="";
+  if(typeof l.bloodType!=="string") l.bloodType="";
+  if(typeof l.firstVisitDate!=="string") l.firstVisitDate="";
   l.logboByMonth = l.logboByMonth || {};
   if(Array.isArray(l.days) && !l.logboByMonth[state.logboMonth]){
     l.logboByMonth[state.logboMonth] = [...l.days].sort((a,b)=>a-b);
@@ -1181,14 +1254,97 @@ function achievedList(l){
   const items=state.rewards.filter(r=>count>=r.days).map(r=>`<li>${r.days}日：${escapeHtml(r.name)}</li>`).join("");
   return `<ul class="clean">${items||"<li>まだ達成品なし</li>"}</ul>`;
 }
+
+let detailListenerIndex=0;
+
+function dateDiffText(dateStr){
+  if(!dateStr) return "-";
+  const start=new Date(dateStr+"T00:00:00");
+  const now=new Date();
+  if(isNaN(start.getTime())) return "-";
+  let days=Math.floor((now-start)/(1000*60*60*24));
+  if(days<0) return "未来の日付";
+  const years=Math.floor(days/365.2425);
+  const months=Math.floor(days/30.4375);
+  if(years>=1) return `${years}年くらい / ${days}日`;
+  if(months>=1) return `${months}ヶ月くらい / ${days}日`;
+  return `${days}日`;
+}
+function calcAge(birthday){
+  if(!birthday) return "-";
+  const b=new Date(birthday+"T00:00:00");
+  const now=new Date();
+  if(isNaN(b.getTime())) return "-";
+  let age=now.getFullYear()-b.getFullYear();
+  const hadBirthday=(now.getMonth()>b.getMonth()) || (now.getMonth()===b.getMonth() && now.getDate()>=b.getDate());
+  if(!hadBirthday) age--;
+  return age>=0 ? `${age}歳` : "-";
+}
+function openListenerDetail(index){
+  detailListenerIndex=index;
+  renderListenerDetail();
+  showScreen("listenerDetail");
+}
+function renderListenerDetail(){
+  const l=state.listeners[detailListenerIndex];
+  if(!l) return;
+  detailName.textContent=`${l.name} の詳細設定`;
+  detailInputName.value=l.name || "";
+  detailBirthday.value=l.birthday || "";
+  detailBlood.value=l.bloodType || "";
+  detailFirstVisit.value=l.firstVisitDate || l.registeredDate || "";
+  detailAge.textContent=calcAge(l.birthday);
+  detailSinceFirst.textContent=dateDiffText(l.firstVisitDate || l.registeredDate);
+  detailBloodView.textContent=l.bloodType || "-";
+
+  const seeds=[];
+  if(l.birthday) seeds.push(`🎂 誕生日：${l.birthday}（${calcAge(l.birthday)}）`);
+  if(l.bloodType) seeds.push(`🩸 血液型：${l.bloodType}`);
+  if(l.firstVisitDate || l.registeredDate) seeds.push(`📅 初来枠：${l.firstVisitDate || l.registeredDate}（${dateDiffText(l.firstVisitDate || l.registeredDate)}）`);
+  if((l.penalty||0)>0) seeds.push(`⚠️ ペナルティー：${l.penalty}回`);
+  detailTopicSeeds.innerHTML=seeds.map(s=>`<div>${escapeHtml(s)}</div>`).join("") || `<div class="muted">まだ話題の種なし</div>`;
+}
+if(window.backToMemo) backToMemo.onclick=()=>showScreen("memo");
+if(window.saveListenerDetail) saveListenerDetail.onclick=()=>{
+  const l=state.listeners[detailListenerIndex];
+  if(!l) return;
+  const oldName=l.name;
+  const newName=detailInputName.value.trim() || oldName;
+  l.name=newName;
+  l.birthday=detailBirthday.value;
+  l.bloodType=detailBlood.value;
+  l.firstVisitDate=detailFirstVisit.value;
+  if(l.firstVisitDate) l.registeredDate=l.firstVisitDate;
+
+  if(oldName!==newName){
+    (state.calendarEvents||[]).forEach(ev=>{ if(ev.listener===oldName) ev.listener=newName; });
+  }
+
+  if(l.registeredDate){
+    const exists=(state.calendarEvents||[]).some(ev=>ev.listener===l.name && ev.type==="登録日" && ev.date===l.registeredDate);
+    if(!exists) state.calendarEvents.push({id:uid("cal"),date:l.registeredDate,listener:l.name,type:"登録日",item:"初来枠 / 常連登録"});
+  }
+
+  save();
+  renderListenerDetail();
+  renderMemo();
+  renderBonus();
+  renderCalendar();
+  alert("保存した！");
+};
+
 function renderMemo(){
   memoGrid.innerHTML=state.listeners.map((l,i)=>`
     <div class="card"><div class="inner">
       <div class="row" style="justify-content:space-between">
         <h2 style="margin:0">${escapeHtml(l.name)}</h2>
-        <button class="btn danger" data-delete-memo-listener="${i}" style="min-height:36px;padding:6px 10px">削除</button>
+        <div class="row">
+          <button class="btn mini-btn" data-open-detail="${i}">詳細設定</button>
+          <button class="btn danger" data-delete-memo-listener="${i}" style="min-height:36px;padding:6px 10px">削除</button>
+        </div>
       </div>
       <p class="muted">ログボ ${currentLogboCount(l)}日 / ${state.logboMonth}</p>
+      <p class="muted">年齢 ${calcAge(l.birthday)} / 初来枠から ${dateDiffText(l.firstVisitDate || l.registeredDate)}</p>
       <div class="penalty-box">
         <div class="row" style="justify-content:space-between">
           <div>
@@ -1205,13 +1361,6 @@ function renderMemo(){
         <div class="penalty-details" data-penalty-detail-box="${i}">
           ${penaltyDetailList(l.name)}
         </div>
-      </div>
-      <div class="profile-box">
-        <h3 style="margin-top:0">登録者情報</h3>
-        <label>誕生日</label>
-        <input type="date" value="${escapeAttr(l.birthday || "")}" data-birthday="${i}">
-        <label>登録日</label>
-        <input type="date" value="${escapeAttr(l.registeredDate || "")}" data-registered-date="${i}">
       </div>
       <h3>達成依頼 / 達成品</h3>
       ${achievedList(l)}
@@ -1234,6 +1383,7 @@ function renderMemo(){
     }
     save();renderMemo();renderCalendar();
   });
+  memoGrid.querySelectorAll("[data-open-detail]").forEach(btn=>btn.onclick=()=>openListenerDetail(Number(btn.dataset.openDetail)));
   memoGrid.querySelectorAll("[data-delete-memo-listener]").forEach(btn=>btn.onclick=()=>deleteListener(Number(btn.dataset.deleteMemoListener)));
   bindPenaltyButtons(memoGrid);
 }
@@ -2052,7 +2202,9 @@ state.tools = state.tools || structuredClone(defaultState.tools);
     for (const k in defaultState.customGames) state.customGames[k] = state.customGames[k] || structuredClone(defaultState.customGames[k]);
     state.listeners = state.listeners || [];
     state.listeners.forEach(l=>{ if(typeof l.penalty!=="number") l.penalty=0; if(typeof l.registeredDate!=="string") l.registeredDate="";
-  if(typeof l.birthday!=="string") l.birthday=""; });
+  if(typeof l.birthday!=="string") l.birthday="";
+  if(typeof l.bloodType!=="string") l.bloodType="";
+  if(typeof l.firstVisitDate!=="string") l.firstVisitDate=""; });
     selectedListener=0;
     refreshAll();
     alert("読み込んだ！");
