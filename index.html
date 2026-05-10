@@ -812,15 +812,19 @@ function renderLogboCalendar(listener, listenerIndex){
   const firstDow=new Date(y,m,1).getDay();
   const checked=getLogboDays(listener);
   const weeks=["日","月","火","水","木","金","土"];
-  let html=weeks.map((w,i)=>`<div class="logbo-week ${i===0?"sun":i===6?"sat":""}">${w}</div>`).join("");
-  for(let i=0;i<firstDow;i++) html+=`<button class="day blank"></button>`;
+  let daysHtml="";
+  for(let i=0;i<firstDow;i++) daysHtml+=`<div class="day blank"></div>`;
   for(let day=1;day<=daysInMonth;day++){
     const dow=new Date(y,m,day).getDay();
-    html+=`<button class="day ${checked.includes(day)?"on":""} ${dow===0?"sun":dow===6?"sat":""}" data-day="${day}">
+    daysHtml+=`<button class="day ${checked.includes(day)?"on":""} ${dow===0?"sun":dow===6?"sat":""}" data-day="${day}">
       <span>${day}</span><small>${weeks[dow]}</small>
     </button>`;
   }
-  return html;
+  const weekHtml=weeks.map((w,i)=>`<div class="logbo-week ${i===0?"sun":i===6?"sat":""}">${w}</div>`).join("");
+  return `<div class="logbo-calendar">
+    <div class="logbo-week-row">${weekHtml}</div>
+    <div class="calendar">${daysHtml}</div>
+  </div>`;
 }
 function currentLogboCount(listener){
   return getLogboDays(listener).length;
@@ -857,7 +861,7 @@ function renderBonus(){
       <b>${state.logboMonth}</b>
       <button class="btn mini-btn" onclick="shiftLogboMonth(1)">次月 →</button>
     </div>
-    <div class="calendar">${renderLogboCalendar(l, selectedListener)}</div>
+    ${renderLogboCalendar(l, selectedListener)}
     <h3 style="margin-top:14px">達成済み</h3>
     ${achievedList(l)}
   `;
