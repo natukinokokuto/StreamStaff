@@ -2,32 +2,131 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#09090b" />
-  <title>配信管制室 START</title>
-  <link rel="stylesheet" href="./style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>配信管制室</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app">
-    <header class="header">
-      <div>
-        <p class="eyebrow">STREAM CONTROL</p>
-        <h1>配信管制室</h1>
-        <p class="sub">まずは起動確認用。選択メニューだけ確実に動く版。</p>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">🎙️</div>
+        <div>
+          <h1>配信管制室</h1>
+          <p>PC / スマホ対応</p>
+        </div>
       </div>
-      <div class="badge">🎙️</div>
-    </header>
 
-    <main id="screen" class="screen"></main>
+      <nav class="menu">
+        <button class="menu-btn active" data-page="home">🏠 ホーム</button>
+        <button class="menu-btn" data-page="games">🎲 ゲーム</button>
+        <button class="menu-btn" data-page="logbo">🎁 ログボ</button>
+        <button class="menu-btn" data-page="listeners">👥 常連メモ</button>
+        <button class="menu-btn" data-page="logs">📒 配信ログ</button>
+        <button class="menu-btn" data-page="settings">⚙️ 設定</button>
+      </nav>
+    </aside>
 
-    <nav class="bottom-nav" aria-label="メインメニュー">
-      <button data-page="home" class="active">🏠<span>ホーム</span></button>
-      <button data-page="games">🎲<span>ゲーム</span></button>
-      <button data-page="bonus">🎁<span>ログボ</span></button>
-      <button data-page="listeners">👥<span>常連</span></button>
-      <button data-page="logs">📝<span>ログ</span></button>
-    </nav>
+    <main class="main">
+      <section id="home" class="page active">
+        <div class="hero">
+          <h2>配信の樹</h2>
+          <p>幹・枝・葉を見ながら、話が止まったらゲームへ。</p>
+        </div>
+
+        <div class="grid three">
+          <div class="card stat"><span>今日の幹</span><strong id="homeTrunk">未設定</strong></div>
+          <div class="card stat"><span>保存ログ</span><strong id="logCount">0</strong></div>
+          <div class="card stat"><span>登録常連</span><strong id="listenerCount">0</strong></div>
+        </div>
+
+        <div class="card">
+          <label>幹：今日のメインテーマ</label>
+          <input id="trunk" placeholder="例：最近買ってよかったもの" />
+          <label>枝：脱線できる話題</label>
+          <input id="branch" placeholder="例：服、飯、仕事、英語、ダーツ" />
+          <label>葉：リスナーが食いついたポイント</label>
+          <input id="leaf" placeholder="例：コメントが増えた話題" />
+          <button class="primary" id="saveTree">保存</button>
+        </div>
+      </section>
+
+      <section id="games" class="page">
+        <div class="hero">
+          <h2>話の肴ゲーム</h2>
+          <p>配信中に押すだけ。コメントが止まった時の緊急ボタン。</p>
+        </div>
+
+        <div class="game-layout">
+          <div class="card">
+            <div class="game-buttons">
+              <button data-game="animal">動物ゲーム</button>
+              <button data-game="ogiri">大喜利</button>
+              <button data-game="line">セリフ</button>
+              <button data-game="itsu">いつ誰どこ何</button>
+              <button data-game="bob">ボブジテン</button>
+              <button data-game="relo">レロレロ酒場</button>
+              <button data-game="chin">チンチロ</button>
+            </div>
+          </div>
+
+          <div class="card result-card">
+            <p class="small">現在のお題</p>
+            <div id="gameResult" class="result">左からゲームを選んでね</div>
+            <button class="primary big" id="rollBtn">回す</button>
+            <button class="secondary" id="saveGameLog">この結果をログに保存</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="logbo" class="page">
+        <div class="hero">
+          <h2>ログボ管理</h2>
+          <p>31日分のチェック。スマホでもPCでも押せる。</p>
+        </div>
+        <div class="card">
+          <div class="row">
+            <select id="listenerSelect"></select>
+            <button id="addListenerBtn" class="secondary">常連追加</button>
+          </div>
+          <h3 id="selectedListenerName">-</h3>
+          <p id="rewardText" class="reward">-</p>
+          <div id="dayGrid" class="day-grid"></div>
+        </div>
+      </section>
+
+      <section id="listeners" class="page">
+        <div class="hero">
+          <h2>常連メモ</h2>
+          <p>好きな話題、いじっていいライン、前回の話を残す。</p>
+        </div>
+        <div id="listenerCards" class="listener-cards"></div>
+      </section>
+
+      <section id="logs" class="page">
+        <div class="hero">
+          <h2>配信ログ</h2>
+          <p>盛り上がった話題・次回の伏線を保存。</p>
+        </div>
+        <div class="card">
+          <textarea id="manualLog" placeholder="手動でログを書く"></textarea>
+          <button id="saveManualLog" class="primary">ログ保存</button>
+        </div>
+        <div id="logList" class="log-list"></div>
+      </section>
+
+      <section id="settings" class="page">
+        <div class="hero">
+          <h2>設定</h2>
+          <p>まずは起動安定優先。データはこのブラウザ内に保存。</p>
+        </div>
+        <div class="card">
+          <button id="resetData" class="danger">データ初期化</button>
+        </div>
+      </section>
+    </main>
   </div>
-  <script src="./app.js"></script>
+
+  <script src="app.js"></script>
 </body>
 </html>
