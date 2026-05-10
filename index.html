@@ -416,6 +416,22 @@ function fitBrushText(text){
   gap:10px;
 }
 
+
+.more-detail-panel{
+  display:none;
+  margin-top:12px;
+  background:#080d16;
+  border:1px solid #26364f;
+  border-radius:14px;
+  padding:12px;
+}
+.more-detail-panel.open{display:block}
+.question-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:10px;
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -631,7 +647,7 @@ function fitBrushText(text){
             <label>名前</label>
             <input id="detailInputName" placeholder="名前">
             <label>あだ名</label>
-            <input id="detailNickname" placeholder="例：飴ちゃん / 〇〇ニキ">
+            <input id="detailNickname" placeholder="例：○○ニキ / ○○ネキ / ○○先生">
             <label>誕生日</label>
             <input id="detailBirthday" type="date">
             <label>血液型</label>
@@ -663,6 +679,29 @@ function fitBrushText(text){
               <div><label>自由メモ1</label><input id="favFree1" placeholder="例：犬派"></div>
               <div><label>自由メモ2</label><input id="favFree2" placeholder="例：辛い物好き"></div>
               <div><label>NG話題</label><input id="favNgTopic" placeholder="例：政治 / 恋愛深掘り"></div>
+            </div>
+
+            <div class="row" style="margin-top:12px">
+              <button class="btn" id="toggleMoreDetail">お気に入りをもっと詳しく</button>
+            </div>
+
+            <div class="more-detail-panel" id="moreDetailPanel">
+              <h3 style="margin-top:0">質問攻めメモ</h3>
+              <p class="muted">分かる範囲だけ入れればOK。話題の種に自動で混ざる。</p>
+              <div class="question-grid">
+                <div><label>嫌いな食べ物</label><input id="favDislikeFood" placeholder="例：パクチー"></div>
+                <div><label>初めてやったゲーム</label><input id="favFirstGame" placeholder="例：ポケモン"></div>
+                <div><label>よく使う武器/キャラ</label><input id="favMainWeapon" placeholder="例：太刀 / ルフィ"></div>
+                <div><label>休日の過ごし方</label><input id="favHoliday" placeholder="例：寝る / 買い物"></div>
+                <div><label>作業用BGM</label><input id="favBgm" placeholder="例：ロック / Lo-fi"></div>
+                <div><label>地元あるある</label><input id="favLocalThing" placeholder="例：海が近い"></div>
+                <div><label>好きな季節</label><input id="favSeason" placeholder="例：秋"></div>
+                <div><label>好きな動物</label><input id="favAnimal" placeholder="例：猫"></div>
+                <div><label>推し</label><input id="favOshi" placeholder="例：〇〇"></div>
+                <div><label>初見だった配信/企画</label><input id="favFirstStream" placeholder="例：チンチロ回"></div>
+                <div><label>一言プロフィール</label><input id="favOneLine" placeholder="例：深夜に強い人"></div>
+                <div><label>いじりOKライン</label><input id="favTeaseLine" placeholder="例：ゲーム下手いじりOK"></div>
+              </div>
             </div>
           </div></div>
 
@@ -974,7 +1013,7 @@ state.listeners.forEach(l=>{
   if(typeof l.firstVisitDate!=="string") l.firstVisitDate="";
   if(typeof l.nickname!=="string") l.nickname="";
   if(!l.favorites) l.favorites={};
-  ["project","game","food","area","music","anime","habit","free1","free2","ngTopic"].forEach(k=>{ if(typeof l.favorites[k]!=="string") l.favorites[k]=""; });
+  ["project","game","food","area","music","anime","habit","free1","free2","ngTopic","dislikeFood","firstGame","mainWeapon","holiday","bgm","localThing","season","animal","oshi","firstStream","oneLine","teaseLine"].forEach(k=>{ if(typeof l.favorites[k]!=="string") l.favorites[k]=""; });
   if(!Array.isArray(l.topicSeeds)) l.topicSeeds=[];
   l.logboByMonth = l.logboByMonth || {};
   if(Array.isArray(l.days) && !l.logboByMonth[state.logboMonth]){
@@ -1350,11 +1389,23 @@ function generateTopicSeeds(l){
   if(f.habit) seeds.push(`${f.habit}としていじれる/拾える`);
   if(f.free1) seeds.push(`${f.free1}から一言質問を作る`);
   if(f.free2) seeds.push(`${f.free2}から近況を聞ける`);
+  if(f.dislikeFood) seeds.push(`嫌いな食べ物は${f.dislikeFood}。食べ物トークで避ける/軽く聞ける`);
+  if(f.firstGame) seeds.push(`初めてやったゲームは${f.firstGame}。懐かしゲーム話に繋げる`);
+  if(f.mainWeapon) seeds.push(`よく使う武器/キャラは${f.mainWeapon}。こだわりを聞ける`);
+  if(f.holiday) seeds.push(`休日は${f.holiday}。休みの日トークに使える`);
+  if(f.bgm) seeds.push(`作業用BGMは${f.bgm}。音楽の話を振れる`);
+  if(f.localThing) seeds.push(`地元あるある：${f.localThing}`);
+  if(f.season) seeds.push(`好きな季節は${f.season}。季節ネタに振れる`);
+  if(f.animal) seeds.push(`好きな動物は${f.animal}。動物ネタに使える`);
+  if(f.oshi) seeds.push(`推しは${f.oshi}。推し活トークに繋げる`);
+  if(f.firstStream) seeds.push(`初見だった配信/企画は${f.firstStream}。思い出話にできる`);
+  if(f.oneLine) seeds.push(`一言プロフィール：${f.oneLine}`);
+  if(f.teaseLine) seeds.push(`いじりOKライン：${f.teaseLine}`);
   if(f.ngTopic) seeds.push(`⚠ NG注意：${f.ngTopic}`);
   if((l.penalty||0)>0) seeds.push(`ペナルティー${l.penalty}回。内容確認から話を作れる`);
 
   if(!seeds.length) seeds.push("まだ情報少なめ。好きな企画・地域・NG話題を入れると話題化できる");
-  return seeds.slice(0,10);
+  return seeds.slice(0,16);
 }
 function refreshTopicSeeds(index){
   const l=state.listeners[index];
@@ -1403,12 +1454,28 @@ function renderListenerDetail(){
   favFree1.value=f.free1 || "";
   favFree2.value=f.free2 || "";
   favNgTopic.value=f.ngTopic || "";
+  favDislikeFood.value=f.dislikeFood || "";
+  favFirstGame.value=f.firstGame || "";
+  favMainWeapon.value=f.mainWeapon || "";
+  favHoliday.value=f.holiday || "";
+  favBgm.value=f.bgm || "";
+  favLocalThing.value=f.localThing || "";
+  favSeason.value=f.season || "";
+  favAnimal.value=f.animal || "";
+  favOshi.value=f.oshi || "";
+  favFirstStream.value=f.firstStream || "";
+  favOneLine.value=f.oneLine || "";
+  favTeaseLine.value=f.teaseLine || "";
 
   const seeds=l.topicSeeds && l.topicSeeds.length ? l.topicSeeds : generateTopicSeeds(l);
   detailTopicSeeds.innerHTML=seeds.map(s=>`<div>${escapeHtml(s)}</div>`).join("") || `<div class="muted">まだ話題の種なし</div>`;
 }
 if(window.backToMemo) backToMemo.onclick=()=>showScreen("memo");
 if(window.refreshDetailSeeds) refreshDetailSeeds.onclick=()=>refreshTopicSeeds(detailListenerIndex);
+if(window.toggleMoreDetail) toggleMoreDetail.onclick=()=>{
+  moreDetailPanel.classList.toggle("open");
+  toggleMoreDetail.textContent=moreDetailPanel.classList.contains("open") ? "お気に入り詳細を閉じる" : "お気に入りをもっと詳しく";
+};
 if(window.saveListenerDetail) saveListenerDetail.onclick=()=>{
   const l=state.listeners[detailListenerIndex];
   if(!l) return;
@@ -1429,7 +1496,19 @@ if(window.saveListenerDetail) saveListenerDetail.onclick=()=>{
     habit:favHabit.value.trim(),
     free1:favFree1.value.trim(),
     free2:favFree2.value.trim(),
-    ngTopic:favNgTopic.value.trim()
+    ngTopic:favNgTopic.value.trim(),
+    dislikeFood:favDislikeFood.value.trim(),
+    firstGame:favFirstGame.value.trim(),
+    mainWeapon:favMainWeapon.value.trim(),
+    holiday:favHoliday.value.trim(),
+    bgm:favBgm.value.trim(),
+    localThing:favLocalThing.value.trim(),
+    season:favSeason.value.trim(),
+    animal:favAnimal.value.trim(),
+    oshi:favOshi.value.trim(),
+    firstStream:favFirstStream.value.trim(),
+    oneLine:favOneLine.value.trim(),
+    teaseLine:favTeaseLine.value.trim()
   };
   l.topicSeeds=generateTopicSeeds(l);
   if(l.firstVisitDate) l.registeredDate=l.firstVisitDate;
@@ -2327,7 +2406,7 @@ state.tools = state.tools || structuredClone(defaultState.tools);
   if(typeof l.firstVisitDate!=="string") l.firstVisitDate="";
   if(typeof l.nickname!=="string") l.nickname="";
   if(!l.favorites) l.favorites={};
-  ["project","game","food","area","music","anime","habit","free1","free2","ngTopic"].forEach(k=>{ if(typeof l.favorites[k]!=="string") l.favorites[k]=""; });
+  ["project","game","food","area","music","anime","habit","free1","free2","ngTopic","dislikeFood","firstGame","mainWeapon","holiday","bgm","localThing","season","animal","oshi","firstStream","oneLine","teaseLine"].forEach(k=>{ if(typeof l.favorites[k]!=="string") l.favorites[k]=""; });
   if(!Array.isArray(l.topicSeeds)) l.topicSeeds=[]; });
     selectedListener=0;
     refreshAll();
