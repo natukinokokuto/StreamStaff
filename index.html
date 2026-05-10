@@ -2032,6 +2032,40 @@ function fitBrushText(text){
     grid-template-columns:1fr;
   }
 }
+/* v69 bet board usability fix */
+.bet-cell .chip-stack,
+.bet-cell .chip-stack *,
+.bet-chip{
+  pointer-events:none !important;
+}
+#rouletteBetBoardCard{
+  display:none;
+}
+/* v70 host profile + special bet chip */
+.bet-chip.host-chip{
+  background:radial-gradient(circle at 30% 25%,#fff,#67e8f9 38%,#2563eb 70%,#111827);
+  color:#ffffff;
+  border-color:#bae6fd;
+  box-shadow:
+    0 0 10px rgba(34,211,238,.95),
+    0 2px 6px rgba(0,0,0,.55);
+}
+.bet-chip.host-chip::before{
+  content:"★";
+  margin-right:2px;
+  color:#fde68a;
+}
+.host-profile-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#082f49;
+  border:1px solid #38bdf8;
+  color:#bae6fd;
+  font-weight:1000;
+}
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -2675,6 +2709,27 @@ function fitBrushText(text){
         </div></div>
       </div>
 
+
+      
+<div class="card" style="margin-top:14px"><div class="inner">
+  <h2>枠主情報</h2>
+  <p class="muted">ここに枠主を登録しておくと、カジノルーレットのベット盤で色違いチップとして表示される。</p>
+
+  <label>枠主名</label>
+  <input id="hostNameInput" placeholder="例：北斗 / 枠主 / Streamer">
+
+  <label>表示メモ</label>
+  <input id="hostMemoInput" placeholder="例：枠主チップ / 主催者">
+
+  <div class="row" style="margin-top:12px">
+    <button class="btn primary" id="saveHostProfile" type="button">枠主情報を保存</button>
+    <button class="btn danger" id="clearHostProfile" type="button">枠主情報を削除</button>
+  </div>
+
+  <div class="history" style="margin-top:12px">
+    <div id="hostProfileStatus">未登録</div>
+  </div>
+</div></div>
 
       <div class="card" style="margin-top:14px"><div class="inner">
         <h2>データ保存 / 読み込み</h2>
@@ -5004,6 +5059,7 @@ const firebaseConfig = { ... }
     if(!Array.isArray(state.roulette.history)) state.roulette.history = [];
     if(!Array.isArray(state.roulette.bets)) state.roulette.bets = [];
     if(!Array.isArray(state.roulette.guestBetters)) state.roulette.guestBetters = [];
+    state.hostProfile = state.hostProfile || {name:"", memo:""};
   }
 
   function safeSave(){
@@ -5018,8 +5074,13 @@ const firebaseConfig = { ... }
 
   function getBetters(){
     ensureRouletteState();
+    const host = state.hostProfile && state.hostProfile.name ? [state.hostProfile.name] : [];
     const listeners = Array.isArray(state.listeners) ? state.listeners.map(function(l){ return l.name; }).filter(Boolean) : [];
-    return Array.from(new Set(listeners.concat(state.roulette.guestBetters || [])));
+    return Array.from(new Set(host.concat(listeners).concat(state.roulette.guestBetters || [])));
+  }
+
+  function isHostBetter(name){
+    return !!(state.hostProfile && state.hostProfile.name && name === state.hostProfile.name);
   }
 
   function currentSlots(){
@@ -5135,7 +5196,10 @@ const firebaseConfig = { ... }
     const betters = getBetters();
     if(select){
       select.innerHTML = betters.length
-        ? betters.map(function(name){ return '<option value="' + esc(name) + '">' + esc(name) + '</option>'; }).join("")
+        ? betters.map(function(name){
+            const label = isHostBetter(name) ? '★ ' + name + '（枠主）' : name;
+            return '<option value="' + esc(name) + '">' + esc(label) + '</option>';
+          }).join("")
         : '<option value="">登録者なし</option>';
     }
 
@@ -5151,7 +5215,7 @@ const firebaseConfig = { ... }
       }
 
       stack.innerHTML = bets.map(function(b){
-        return '<span class="bet-chip">' + esc(b.name) + '</span>';
+        return '<span class="bet-chip ' + (isHostBetter(b.name) ? 'host-chip' : '') + '">' + esc(b.name) + '</span>';
       }).join("");
       cell.classList.remove("bet-win");
     });
@@ -5199,7 +5263,7 @@ const firebaseConfig = { ... }
     }
     if(center) center.textContent = isCasino ? "37" : "SS";
     if(itemsTitle) itemsTitle.textContent = isCasino ? "カジノ数字" : "カスタム項目";
-    if(betCard) betCard.style.display = "block";
+    if(betCard) betCard.style.display = isCasino ? "block" : "none";
 
     if(customBtn && casinoBtn){
       customBtn.classList.toggle("primary", !isCasino);
@@ -5467,7 +5531,8 @@ const firebaseConfig = { ... }
       return;
     }
 
-    if(t.dataset && t.dataset.bet !== undefined){
+    const betTarget = t.closest ? t.closest("[data-bet]") : null;
+    if(betTarget && betTarget.dataset && betTarget.dataset.bet !== undefined){
       ensureRouletteState();
       if(state.roulette.mode !== "casino"){
         alert("ベットはカジノモードで使うやつｗ");
@@ -5481,7 +5546,7 @@ const firebaseConfig = { ... }
       }
       state.roulette.bets.push({
         name:name,
-        bet:t.dataset.bet
+        bet:betTarget.dataset.bet
       });
       safeSave();
       window.renderRoulette();
@@ -5505,6 +5570,17 @@ const firebaseConfig = { ... }
       window.renderRoulette();
       return;
     }
+
+
+if(t.id === "saveHostProfile"){
+  saveHostProfileFromSettings();
+  return;
+}
+
+if(t.id === "clearHostProfile"){
+  clearHostProfileFromSettings();
+  return;
+}
 
     if(t.id === "spinRoulette"){ countdownThenSpin(); return; }
 
@@ -5563,16 +5639,67 @@ const firebaseConfig = { ... }
     }
   });
 
+
+function renderHostProfileSettings(){
+  const nameInput = document.getElementById("hostNameInput");
+  const memoInput = document.getElementById("hostMemoInput");
+  const status = document.getElementById("hostProfileStatus");
+  if(!nameInput || !memoInput || !status) return;
+
+  ensureRouletteState();
+
+  nameInput.value = state.hostProfile.name || "";
+  memoInput.value = state.hostProfile.memo || "";
+
+  if(state.hostProfile.name){
+    status.innerHTML = '<span class="host-profile-badge">★ ' + esc(state.hostProfile.name) + '</span>' + (state.hostProfile.memo ? '　' + esc(state.hostProfile.memo) : '');
+  }else{
+    status.textContent = "未登録";
+  }
+}
+
+function saveHostProfileFromSettings(){
+  ensureRouletteState();
+  const nameInput = document.getElementById("hostNameInput");
+  const memoInput = document.getElementById("hostMemoInput");
+  if(!nameInput || !memoInput) return;
+
+  const name = nameInput.value.trim();
+  const memo = memoInput.value.trim();
+
+  if(!name){
+    alert("枠主名を入れてｗ");
+    return;
+  }
+
+  state.hostProfile = {name:name, memo:memo};
+  safeSave();
+  renderHostProfileSettings();
+  window.renderRoulette();
+  alert("枠主情報を保存した！");
+}
+
+function clearHostProfileFromSettings(){
+  ensureRouletteState();
+  if(!confirm("枠主情報を削除する？")) return;
+  state.hostProfile = {name:"", memo:""};
+  safeSave();
+  renderHostProfileSettings();
+  window.renderRoulette();
+}
+
   document.addEventListener("DOMContentLoaded", function(){
     ensureRouletteState();
     renderZoom("READY", state.roulette.mode === "casino" ? "BET PLEASE" : "赤 → 黒 → 緑", false);
     window.renderRoulette();
+    renderHostProfileSettings();
   });
 
   if(document.readyState !== "loading"){
     ensureRouletteState();
     renderZoom("READY", state.roulette.mode === "casino" ? "BET PLEASE" : "赤 → 黒 → 緑", false);
     window.renderRoulette();
+    renderHostProfileSettings();
   }
 })();
 </script>
@@ -5594,11 +5721,16 @@ const firebaseConfig = { ... }
 
     const select = document.getElementById("rouletteBetterSelect");
     if(select && !select.options.length){
+      const host = (window.state && state.hostProfile && state.hostProfile.name) ? [state.hostProfile.name] : [];
       const names = (window.state && Array.isArray(state.listeners))
         ? state.listeners.map(function(l){return l.name;}).filter(Boolean)
         : [];
-      select.innerHTML = names.length
-        ? names.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join("")
+      const allNames = Array.from(new Set(host.concat(names)));
+      select.innerHTML = allNames.length
+        ? allNames.map(function(n){
+            const label = (state.hostProfile && state.hostProfile.name === n) ? "★ " + n + "（枠主）" : n;
+            return '<option value="'+n+'">'+label+'</option>';
+          }).join("")
         : '<option value="">ゲスト名追加してね</option>';
     }
   }
