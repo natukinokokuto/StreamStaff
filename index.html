@@ -282,6 +282,37 @@ function fitBrushText(text){
   letter-spacing:.25em;
   margin-bottom:12px;
 }
+
+.poll-box{
+  background:#101321;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px;
+  margin-top:12px;
+}
+.poll-option{
+  background:#0b0d13;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px;
+  margin-top:8px;
+}
+.poll-bar{
+  height:10px;
+  border-radius:999px;
+  background:#202638;
+  overflow:hidden;
+  margin-top:8px;
+}
+.poll-fill{
+  height:100%;
+  background:linear-gradient(135deg,#7c3aed,#22d3ee);
+}
+.poll-votes{
+  font-size:13px;
+  color:var(--muted);
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -529,6 +560,21 @@ function fitBrushText(text){
             <button class="btn primary" id="openCalendarFromTools">開く</button>
           </div>
         </div>
+          <div class="tool-item" style="margin-bottom:12px;background:#111022;border-color:#6d28d9">
+          <div class="row" style="justify-content:space-between">
+            <div>
+              <div class="tool-title">🗳️ 投票システム</div>
+              <div class="muted">配信中の投票を手動集計。URL投票は外部連携で拡張予定。</div>
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <input id="newPollTitle" placeholder="投票タイトル">
+            <input id="newPollOptions" placeholder="選択肢をカンマ区切り 例：A,B,C">
+            <button class="btn primary" id="addPoll">投票追加</button>
+          </div>
+          <div id="pollList"></div>
+        </div>
+
           <h2>カウント機能</h2>
           <p class="muted">項目を何個でも追加して、配信中に数をポチポチ数えられる。</p>
           <div class="row">
@@ -672,6 +718,18 @@ const defaultState={
   },
   calendarEvents:[],
   logboMonth:"",
+  polls:[
+    {
+      id:"poll_sample_1",
+      title:"今日どの企画からやる？",
+      options:[
+        {text:"チンチロ",votes:0},
+        {text:"雑談",votes:0},
+        {text:"大喜利",votes:0}
+      ],
+      memo:"URL投票は外部連携が必要。今は手動集計用。"
+    }
+  ],
   tools:{
     counters:[
       {id:"c_sample_1",name:"ツッコミ回数",value:0},
@@ -698,6 +756,7 @@ const defaultState={
 let state=load();
 state.settings = state.settings || structuredClone(defaultState.settings);
 if(typeof state.settings.alarmVolume!=="number") state.settings.alarmVolume=80;
+state.polls = state.polls || structuredClone(defaultState.polls || []);
 state.tools = state.tools || structuredClone(defaultState.tools);
 state.tools.counters = state.tools.counters || [];
 state.tools.timers = state.tools.timers || [];
@@ -712,6 +771,7 @@ state.customGames = state.customGames || structuredClone(defaultState.customGame
 for (const k in defaultState.customGames) state.customGames[k] = state.customGames[k] || structuredClone(defaultState.customGames[k]);
 state.listeners = state.listeners || [];
 state.calendarEvents = state.calendarEvents || [];
+    state.polls = state.polls || structuredClone(defaultState.polls || []);
 state.logboMonth = state.logboMonth || ym(new Date());
 state.listeners.forEach(l=>{
   if(typeof l.penalty!=="number") l.penalty=0;
@@ -1532,6 +1592,80 @@ if(window.addCalendarEvent) addCalendarEvent.onclick=()=>{
   save();renderCalendar();renderMemo();renderBonus();
 }
 
+
+function renderPolls(){
+  if(!window.pollList) return;
+  pollList.innerHTML=(state.polls||[]).map((poll,pi)=>{
+    const total=poll.options.reduce((s,o)=>s+(o.votes||0),0);
+    const options=poll.options.map((o,oi)=>{
+      const pct=total ? Math.round((o.votes||0)/total*100) : 0;
+      return `<div class="poll-option">
+        <div class="row" style="justify-content:space-between">
+          <b>${escapeHtml(o.text)}</b>
+          <span class="poll-votes">${o.votes||0}票 / ${pct}%</span>
+        </div>
+        <div class="poll-bar"><div class="poll-fill" style="width:${pct}%"></div></div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn primary mini-btn" data-poll-plus="${pi}" data-option="${oi}">＋1</button>
+          <button class="btn mini-btn" data-poll-minus="${pi}" data-option="${oi}">−1</button>
+        </div>
+      </div>`;
+    }).join("");
+    return `<div class="poll-box">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <h3 style="margin:0">${escapeHtml(poll.title)}</h3>
+          <div class="muted">合計 ${total}票</div>
+        </div>
+        <button class="btn danger mini-btn" data-poll-delete="${pi}">削除</button>
+      </div>
+      ${options}
+      <div class="row" style="margin-top:10px">
+        <button class="btn mini-btn" data-poll-reset="${pi}">投票リセット</button>
+      </div>
+    </div>`;
+  }).join("") || `<div class="poll-box muted">投票なし</div>`;
+
+  pollList.querySelectorAll("[data-poll-plus]").forEach(btn=>btn.onclick=()=>{
+    const p=state.polls[Number(btn.dataset.pollPlus)];
+    const o=p.options[Number(btn.dataset.option)];
+    o.votes=(o.votes||0)+1;
+    save();renderPolls();
+  });
+  pollList.querySelectorAll("[data-poll-minus]").forEach(btn=>btn.onclick=()=>{
+    const p=state.polls[Number(btn.dataset.pollMinus)];
+    const o=p.options[Number(btn.dataset.option)];
+    o.votes=Math.max(0,(o.votes||0)-1);
+    save();renderPolls();
+  });
+  pollList.querySelectorAll("[data-poll-reset]").forEach(btn=>btn.onclick=()=>{
+    const p=state.polls[Number(btn.dataset.pollReset)];
+    if(!confirm(`${p.title} の票をリセットする？`)) return;
+    p.options.forEach(o=>o.votes=0);
+    save();renderPolls();
+  });
+  pollList.querySelectorAll("[data-poll-delete]").forEach(btn=>btn.onclick=()=>{
+    const i=Number(btn.dataset.pollDelete);
+    if(!confirm(`${state.polls[i].title} を削除する？`)) return;
+    state.polls.splice(i,1);
+    save();renderPolls();
+  });
+}
+if(window.addPoll) addPoll.onclick=()=>{
+  const title=newPollTitle.value.trim() || "新しい投票";
+  const options=newPollOptions.value.split(",").map(x=>x.trim()).filter(Boolean);
+  if(options.length<2) return alert("選択肢は2つ以上ほしいｗ");
+  state.polls.push({
+    id:uid("poll"),
+    title,
+    options:options.map(text=>({text,votes:0})),
+    memo:""
+  });
+  newPollTitle.value="";
+  newPollOptions.value="";
+  save();renderPolls();
+}
+
 const timerSounds=[
   {id:"hato1",label:"鳩時計1"},
   {id:"hato2",label:"鳩時計2"},
@@ -1558,6 +1692,7 @@ function playAlarm(sound){
   }catch(e){}
 }
 function renderTools(){
+  renderPolls();
   if(!window.counterList) return;
   newTimerSound.innerHTML=timerSounds.map(s=>`<option value="${s.id}">${s.label}</option>`).join("");
 
@@ -1711,6 +1846,7 @@ function refreshAll(){
   renderSettings();
   renderCalendar();
   renderTools();
+  renderPolls();
   applyVolumes();
 }
 if(window.exportDataCode) exportDataCode.onclick=()=>{
@@ -1735,6 +1871,7 @@ if(window.importDataCode) importDataCode.onclick=()=>{
     state.settings = state.settings || structuredClone(defaultState.settings);
     if(typeof state.settings.alarmVolume!=="number") state.settings.alarmVolume=80;
     state.calendarEvents = state.calendarEvents || [];
+    state.polls = state.polls || structuredClone(defaultState.polls || []);
     state.logboMonth = state.logboMonth || ym(new Date());
     state.listeners = state.listeners || [];
     state.listeners.forEach(l=>{
@@ -1742,7 +1879,8 @@ if(window.importDataCode) importDataCode.onclick=()=>{
       if(Array.isArray(l.days) && !l.logboByMonth[state.logboMonth]) l.logboByMonth[state.logboMonth]=[...l.days].sort((a,b)=>a-b);
       l.days=getLogboDays(l);
     });
-    state.tools = state.tools || structuredClone(defaultState.tools);
+    state.polls = state.polls || structuredClone(defaultState.polls || []);
+state.tools = state.tools || structuredClone(defaultState.tools);
     state.tools.counters = state.tools.counters || [];
     state.tools.timers = state.tools.timers || [];
     state.chin = state.chin || structuredClone(defaultState.chin);
@@ -1765,7 +1903,7 @@ if(window.importDataCode) importDataCode.onclick=()=>{
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
 function escapeAttr(s){return escapeHtml(s).replace(/"/g,"&quot;")}
 
-renderHome();renderGames();renderBonus();renderMemo();renderCalendar();renderChLog();renderChinMode();renderSettings();renderTools();applyVolumes();ensureTimerTick();
+renderHome();renderGames();renderBonus();renderMemo();renderCalendar();renderChLog();renderChinMode();renderSettings();renderTools();renderPolls();applyVolumes();ensureTimerTick();
 </script>
 </body>
 </html>
