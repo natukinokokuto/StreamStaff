@@ -612,6 +612,111 @@ function fitBrushText(text){
   border-color:#ef444466;
 }
 
+
+.roulette-box{
+  background:#0b0d13;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px;
+  margin-top:12px;
+}
+.roulette-stage{
+  display:grid;
+  place-items:center;
+  min-height:300px;
+  position:relative;
+  overflow:hidden;
+  border-radius:18px;
+  background:radial-gradient(circle at center,#24103f,#05060a 68%);
+  border:1px solid #3b1b68;
+}
+.roulette-wheel{
+  width:min(260px,78vw);
+  height:min(260px,78vw);
+  border-radius:50%;
+  border:10px solid #e9d5ff;
+  background:
+    conic-gradient(
+      #7c3aed 0 45deg,
+      #22d3ee 45deg 90deg,
+      #f59e0b 90deg 135deg,
+      #ef4444 135deg 180deg,
+      #10b981 180deg 225deg,
+      #ec4899 225deg 270deg,
+      #a3e635 270deg 315deg,
+      #6366f1 315deg 360deg
+    );
+  box-shadow:0 0 42px #a855f766, inset 0 0 28px #0008;
+  display:grid;
+  place-items:center;
+  transition:transform 4s cubic-bezier(.12,.88,.16,1);
+  position:relative;
+}
+.roulette-wheel::after{
+  content:"SS";
+  width:82px;
+  height:82px;
+  border-radius:50%;
+  background:#05060a;
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-weight:1000;
+  font-size:30px;
+  box-shadow:0 0 24px #000b;
+}
+.roulette-pointer{
+  position:absolute;
+  top:14px;
+  left:50%;
+  transform:translateX(-50%);
+  width:0;
+  height:0;
+  border-left:20px solid transparent;
+  border-right:20px solid transparent;
+  border-top:42px solid #fff;
+  filter:drop-shadow(0 4px 10px #000);
+  z-index:3;
+}
+.roulette-result{
+  position:absolute;
+  inset:auto 14px 18px 14px;
+  background:#05060ae6;
+  border:1px solid #f59e0b;
+  border-radius:18px;
+  padding:14px;
+  text-align:center;
+  font-weight:1000;
+  font-size:clamp(22px,6vw,44px);
+  color:#ffd76a;
+  opacity:0;
+  transform:translateY(20px) scale(.92);
+  transition:.45s;
+  text-shadow:0 0 18px #f59e0b88;
+}
+.roulette-result.show{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+@keyframes rouletteFlash{
+  0%,100%{box-shadow:0 0 18px #f59e0b33}
+  50%{box-shadow:0 0 45px #f59e0baa}
+}
+.roulette-stage.hit{
+  animation:rouletteFlash 1.3s ease-in-out infinite;
+}
+.roulette-items{
+  display:grid;
+  gap:8px;
+  margin-top:10px;
+}
+.roulette-item{
+  background:#111827;
+  border:1px solid #29324a;
+  border-radius:12px;
+  padding:8px;
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -971,7 +1076,42 @@ function fitBrushText(text){
             <button class="btn primary" id="openCalendarFromTools">開く</button>
           </div>
         </div>
-          <div class="tool-item" style="margin-bottom:12px;background:#111022;border-color:#6d28d9">
+          
+<div class="tool-item" style="margin-bottom:12px;background:#140b20;border-color:#6d28d9">
+  <div class="row" style="justify-content:space-between">
+    <div>
+      <div class="tool-title">🎯 ルーレット</div>
+      <div class="muted">抽選・罰ゲーム・参加者決定に使える演出付きルーレット</div>
+    </div>
+    <button class="btn mini-btn" id="toggleRoulettePanel">開く</button>
+  </div>
+
+  <div class="collapsible-body" id="roulettePanelBody">
+    <div class="roulette-stage" id="rouletteStage">
+      <div class="roulette-pointer"></div>
+      <div class="roulette-wheel" id="rouletteWheel"></div>
+      <div class="roulette-result" id="rouletteResult">READY</div>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <input id="newRouletteItem" placeholder="項目・名前を追加">
+      <button class="btn primary" id="addRouletteItem">追加</button>
+      <button class="btn danger" id="clearRouletteHistory">履歴削除</button>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <button class="btn primary" id="spinRoulette">ルーレット開始</button>
+      <button class="btn" id="shuffleRoulette">並びシャッフル</button>
+    </div>
+
+    <div id="rouletteItems" class="roulette-items"></div>
+
+    <h3>ルーレット履歴</h3>
+    <div id="rouletteHistory" class="history"></div>
+  </div>
+</div>
+
+<div class="tool-item" style="margin-bottom:12px;background:#111022;border-color:#6d28d9">
           <div class="row" style="justify-content:space-between">
             <div>
               <div class="tool-title">🗳️ 投票システム</div>
@@ -1312,6 +1452,10 @@ const defaultState={
       sound:"assets/countdown/学校のチャイム.mp3"
     }
   ],
+  roulette:{
+    items:["チンチロ","大喜利","雑談","罰ゲーム","歌う","モノマネ"],
+    history:[]
+  },
   tools:{
     counters:[
       {id:"c_sample_1",name:"ツッコミ回数",value:0},
@@ -1339,8 +1483,8 @@ let state=load();
 state.settings = state.settings || structuredClone(defaultState.settings);
 if(typeof state.settings.alarmVolume!=="number") state.settings.alarmVolume=80;
 state.polls = state.polls || structuredClone(defaultState.polls || []);
-state.ui = Object.assign({pollOpen:false,countersOpen:true,timersOpen:true,countdownsOpen:true}, state.ui || {});
-state.ui = Object.assign({pollOpen:false,countersOpen:true,timersOpen:true,countdownsOpen:true}, state.ui || {});
+state.ui = Object.assign({pollOpen:false,rouletteOpen:true,countersOpen:true,timersOpen:true,countdownsOpen:true}, state.ui || {});
+state.ui = Object.assign({pollOpen:false,rouletteOpen:true,countersOpen:true,timersOpen:true,countdownsOpen:true}, state.ui || {});
     state.countdowns = state.countdowns || structuredClone(defaultState.countdowns || []);
 state.countdowns.forEach(c=>{
   if(typeof c.sound!=="string") c.sound="assets/countdown/学校のチャイム.mp3";
@@ -2845,6 +2989,7 @@ setInterval(()=>{
 
 function setupToolCollapse(){
   const pairs=[
+    ["rouletteOpen","toggleRoulettePanel","roulettePanelBody"],
     ["countersOpen","toggleCountersPanel","countersPanelBody"],
     ["timersOpen","toggleTimersPanel","timersPanelBody"],
     ["countdownsOpen","toggleCountdownsPanel","countdownsPanelBody"]
@@ -2863,8 +3008,92 @@ function setupToolCollapse(){
   });
 }
 
+
+let rouletteRotation=0;
+let rouletteSpinning=false;
+
+function renderRoulette(){
+  if(!window.rouletteItems) return;
+  const items=state.roulette?.items || [];
+
+  rouletteItems.innerHTML=items.map((item,i)=>`
+    <div class="roulette-item">
+      <div class="row" style="justify-content:space-between">
+        <b>${escapeHtml(item)}</b>
+        <button class="btn danger mini-btn" data-del-roulette="${i}">削除</button>
+      </div>
+    </div>
+  `).join("") || `<div class="roulette-item muted">項目なし</div>`;
+
+  rouletteHistory.innerHTML=(state.roulette.history||[]).slice(0,10).map(h=>`
+    <div>${escapeHtml(h.time)}：<b>${escapeHtml(h.result)}</b></div>
+  `).join("") || `<div>履歴なし</div>`;
+
+  rouletteItems.querySelectorAll("[data-del-roulette]").forEach(btn=>btn.onclick=()=>{
+    const i=Number(btn.dataset.delRoulette);
+    state.roulette.items.splice(i,1);
+    save();renderRoulette();
+  });
+}
+
+if(window.addRouletteItem) addRouletteItem.onclick=()=>{
+  const v=newRouletteItem.value.trim();
+  if(!v) return;
+  state.roulette.items.push(v);
+  newRouletteItem.value="";
+  save();renderRoulette();
+};
+
+if(window.shuffleRoulette) shuffleRoulette.onclick=()=>{
+  const arr=state.roulette.items;
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  save();renderRoulette();
+};
+
+if(window.clearRouletteHistory) clearRouletteHistory.onclick=()=>{
+  if(!confirm("ルーレット履歴を削除する？")) return;
+  state.roulette.history=[];
+  save();renderRoulette();
+};
+
+if(window.spinRoulette) spinRoulette.onclick=()=>{
+  if(rouletteSpinning) return;
+  const items=state.roulette.items || [];
+  if(items.length<2) return alert("ルーレット項目は2個以上ほしいｗ");
+
+  rouletteSpinning=true;
+  rouletteStage.classList.remove("hit");
+  rouletteResult.classList.remove("show");
+  rouletteResult.textContent="回転中…";
+
+  const winnerIndex=Math.floor(Math.random()*items.length);
+  const winner=items[winnerIndex];
+
+  const extra=360*5 + Math.floor(Math.random()*360);
+  rouletteRotation += extra;
+  rouletteWheel.style.transform=`rotate(${rouletteRotation}deg)`;
+
+  setTimeout(()=>{
+    rouletteResult.textContent=winner;
+    rouletteResult.classList.add("show");
+    rouletteStage.classList.add("hit");
+    state.roulette.history.unshift({
+      time:new Date().toLocaleTimeString("ja-JP"),
+      result:winner
+    });
+    state.roulette.history=state.roulette.history.slice(0,30);
+    save();renderRoulette();
+    try{ playAlarm("sponsor"); }catch(e){}
+    rouletteSpinning=false;
+  },4200);
+};
+
 function renderTools(){
   setupToolCollapse();
+  renderRoulette();
   renderPolls();
   if(!window.counterList) return;
   newTimerSound.innerHTML=timerSounds.map(s=>`<option value="${s.id}">${s.label}</option>`).join("");
@@ -3021,6 +3250,7 @@ function refreshAll(){
   renderCalendar();
   renderTools();
   renderPolls();
+  renderRoulette();
   renderCountdowns();
   applyVolumes();
 }
@@ -3088,7 +3318,7 @@ state.tools = state.tools || structuredClone(defaultState.tools);
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
 function escapeAttr(s){return escapeHtml(s).replace(/"/g,"&quot;")}
 
-renderHome();renderGames();renderBonus();renderMemo();renderCalendar();renderChLog();renderChinMode();renderSettings();renderTools();renderPolls();renderCountdowns();applyVolumes();ensureTimerTick();
+renderHome();renderGames();renderBonus();renderMemo();renderCalendar();renderChLog();renderChinMode();renderSettings();renderTools();renderPolls();renderRoulette();renderCountdowns();applyVolumes();ensureTimerTick();
 
 
 document.addEventListener("click",(e)=>{
