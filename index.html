@@ -313,6 +313,44 @@ function fitBrushText(text){
   color:var(--muted);
 }
 
+
+/* v30: main calendar hard 7-column lock */
+.calendar-month{
+  display:grid !important;
+  grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+  gap:7px !important;
+  width:100% !important;
+}
+.calendar-month .cal-week,
+.calendar-month .cal-day{
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+.calendar-type-editor{
+  background:#0b0d13;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px;
+  margin-top:12px;
+}
+.type-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 9px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  margin:4px;
+  font-size:12px;
+  font-weight:800;
+}
+.type-color-dot{
+  width:12px;
+  height:12px;
+  border-radius:999px;
+  display:inline-block;
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -528,20 +566,23 @@ function fitBrushText(text){
           <label>対象常連</label>
           <select id="calendarListener"></select>
           <label>種類</label>
-          <select id="calendarType">
-            <option value="登録日">登録日</option>
-            <option value="返礼品獲得日">返礼品獲得日</option>
-            <option value="配信メモ">配信メモ</option>
-            <option value="ペナルティー">ペナルティー</option>
-            <option value="約束">約束</option>
-            <option value="その他">その他</option>
-          </select>
+          <select id="calendarType"></select>
           <label>項目</label>
           <input id="calendarItem" placeholder="例：14日達成 個通30分 / 初回来店 / 約束した内容">
           <div class="row" style="margin-top:10px">
             <button class="btn primary" id="addCalendarEvent">この日に追加</button>
             <button class="btn" id="todayCalendar">今日へ</button>
           </div>
+          <div class="calendar-type-editor">
+            <h3 style="margin-top:0">種類の編集</h3>
+            <div class="row">
+              <input id="newCalendarTypeName" placeholder="種類名 例：誕生日 / 罰ゲーム / 返礼済み">
+              <input id="newCalendarTypeColor" type="color" value="#38bdf8" style="max-width:80px">
+              <button class="btn primary" id="addCalendarType">種類追加</button>
+            </div>
+            <div id="calendarTypeEditor" style="margin-top:8px"></div>
+          </div>
+
           <h3 style="margin-top:16px">この日の記録</h3>
           <div id="selectedDateEvents" class="calendar-events"></div>
         </div></div>
@@ -717,6 +758,14 @@ const defaultState={
     localMap:{}
   },
   calendarEvents:[],
+  calendarTypes:[
+    {name:"登録日",color:"#10b981"},
+    {name:"返礼品獲得日",color:"#f59e0b"},
+    {name:"配信メモ",color:"#8b5cf6"},
+    {name:"ペナルティー",color:"#ef4444"},
+    {name:"約束",color:"#38bdf8"},
+    {name:"その他",color:"#94a3b8"}
+  ],
   logboMonth:"",
   polls:[
     {
@@ -771,6 +820,8 @@ state.customGames = state.customGames || structuredClone(defaultState.customGame
 for (const k in defaultState.customGames) state.customGames[k] = state.customGames[k] || structuredClone(defaultState.customGames[k]);
 state.listeners = state.listeners || [];
 state.calendarEvents = state.calendarEvents || [];
+state.calendarTypes = state.calendarTypes || structuredClone(defaultState.calendarTypes || []);
+if(!state.calendarTypes.length) state.calendarTypes = structuredClone(defaultState.calendarTypes || []);
     state.polls = state.polls || structuredClone(defaultState.polls || []);
 state.logboMonth = state.logboMonth || ym(new Date());
 state.listeners.forEach(l=>{
@@ -1500,12 +1551,45 @@ function penaltyDetailList(listenerName){
 }
 
 
+
+function getCalendarType(typeName){
+  return (state.calendarTypes||[]).find(t=>t.name===typeName) || {name:typeName,color:"#8b5cf6"};
+}
+function renderCalendarTypeOptions(){
+  if(!window.calendarType) return;
+  const current=calendarType.value;
+  calendarType.innerHTML=(state.calendarTypes||[]).map(t=>`<option value="${escapeAttr(t.name)}" ${t.name===current?"selected":""}>${escapeHtml(t.name)}</option>`).join("");
+}
+function renderCalendarTypeEditor(){
+  if(!window.calendarTypeEditor) return;
+  calendarTypeEditor.innerHTML=(state.calendarTypes||[]).map((t,i)=>`
+    <span class="type-chip">
+      <span class="type-color-dot" style="background:${escapeAttr(t.color)}"></span>
+      ${escapeHtml(t.name)}
+      <input type="color" value="${escapeAttr(t.color)}" data-type-color="${i}" style="width:34px;height:26px;padding:0;border:0">
+      ${["登録日","返礼品獲得日","配信メモ","ペナルティー","約束","その他"].includes(t.name) ? "" : `<button class="btn danger mini-btn" data-type-del="${i}">削除</button>`}
+    </span>
+  `).join("");
+  calendarTypeEditor.querySelectorAll("[data-type-color]").forEach(inp=>inp.oninput=()=>{
+    state.calendarTypes[Number(inp.dataset.typeColor)].color=inp.value;
+    save();renderCalendar();
+  });
+  calendarTypeEditor.querySelectorAll("[data-type-del]").forEach(btn=>btn.onclick=()=>{
+    const i=Number(btn.dataset.typeDel);
+    if(!confirm(`${state.calendarTypes[i].name} を削除する？`)) return;
+    state.calendarTypes.splice(i,1);
+    save();renderCalendar();
+  });
+}
+
 function renderCalendar(){
   if(!window.calendarMonth) return;
   const y=calendarCursor.getFullYear();
   const m=calendarCursor.getMonth();
   calendarTitle.textContent=`${y}年 ${m+1}月`;
   calendarListener.innerHTML=state.listeners.map(l=>`<option value="${escapeAttr(l.name)}">${escapeHtml(l.name)}</option>`).join("");
+  renderCalendarTypeOptions();
+  renderCalendarTypeEditor();
   selectedDateTitle.textContent=`${selectedCalendarDate} の記録`;
 
   const first=new Date(y,m,1);
@@ -1536,8 +1620,8 @@ function renderCalendar(){
     const isHoliday=Boolean(jpHolidays[md]);
     const evs=eventsForDate(date);
     const marks=evs.slice(0,3).map(ev=>{
-      const cls=ev.type==="返礼品獲得日"?"gift":ev.type==="登録日"?"reg":ev.type==="ペナルティー"?"penalty":"memo";
-      return `<div class="cal-mark ${cls}">${escapeHtml(ev.listener)}：${escapeHtml(ev.type)}</div>`;
+      const typeInfo=getCalendarType(ev.type);
+      return `<div class="cal-mark" style="background:${escapeAttr(typeInfo.color)}22;color:${escapeAttr(typeInfo.color)};border:1px solid ${escapeAttr(typeInfo.color)}66">${escapeHtml(ev.listener)}：${escapeHtml(ev.type)}</div>`;
     }).join("");
     const more=evs.length>3?`<div class="cal-mark">+${evs.length-3}</div>`:"";
     cells+=`<button class="cal-day 
@@ -1558,7 +1642,7 @@ function renderSelectedDateEvents(){
   const evs=eventsForDate(selectedCalendarDate);
   selectedDateEvents.innerHTML=evs.map(ev=>`
     <div class="event-item">
-      <b>${escapeHtml(ev.listener)}：${escapeHtml(ev.type)}</b>
+      <b><span class="type-color-dot" style="background:${escapeAttr(getCalendarType(ev.type).color)}"></span> ${escapeHtml(ev.listener)}：${escapeHtml(ev.type)}</b>
       <div>${escapeHtml(ev.item)}</div>
       <div class="muted">${escapeHtml(ev.date)}</div>
       ${String(ev.id||"").startsWith("auto_") ? "" : `<button class="btn danger mini-btn" data-del-cal="${escapeAttr(ev.id)}" style="margin-top:8px">削除</button>`}
@@ -1575,6 +1659,17 @@ function renderSelectedDateEvents(){
 if(window.prevMonth) prevMonth.onclick=()=>{calendarCursor=addMonths(calendarCursor,-1);renderCalendar();}
 if(window.nextMonth) nextMonth.onclick=()=>{calendarCursor=addMonths(calendarCursor,1);renderCalendar();}
 if(window.todayCalendar) todayCalendar.onclick=()=>{calendarCursor=new Date();selectedCalendarDate=ymd(new Date());renderCalendar();}
+
+if(window.addCalendarType) addCalendarType.onclick=()=>{
+  const name=newCalendarTypeName.value.trim();
+  const color=newCalendarTypeColor.value || "#38bdf8";
+  if(!name) return alert("種類名を入れてｗ");
+  if((state.calendarTypes||[]).some(t=>t.name===name)) return alert("その種類はもうあるｗ");
+  state.calendarTypes.push({name,color});
+  newCalendarTypeName.value="";
+  save();renderCalendar();
+};
+
 if(window.addCalendarEvent) addCalendarEvent.onclick=()=>{
   const listener=calendarListener.value;
   const type=calendarType.value;
@@ -1871,6 +1966,8 @@ if(window.importDataCode) importDataCode.onclick=()=>{
     state.settings = state.settings || structuredClone(defaultState.settings);
     if(typeof state.settings.alarmVolume!=="number") state.settings.alarmVolume=80;
     state.calendarEvents = state.calendarEvents || [];
+    state.calendarTypes = state.calendarTypes || structuredClone(defaultState.calendarTypes || []);
+    if(!state.calendarTypes.length) state.calendarTypes = structuredClone(defaultState.calendarTypes || []);
     state.polls = state.polls || structuredClone(defaultState.polls || []);
     state.logboMonth = state.logboMonth || ym(new Date());
     state.listeners = state.listeners || [];
