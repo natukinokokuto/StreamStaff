@@ -2189,6 +2189,18 @@ function fitBrushText(text){
  .talk-main-item{font-size:25px}.talk-item{font-size:16px}.talk-rescue-title{font-size:13px}.talk-clock{font-size:15px}
 }
 
+
+/* v75.2 talk rescue click/layer hard fix */
+#talkRescue.screen{display:none;}
+#talkRescue.screen.active{display:block!important;position:fixed!important;inset:0!important;z-index:99999!important;background:#05070c!important;}
+#talkRescue .talk-rescue-wrap{height:100vh!important;min-height:100vh!important;pointer-events:auto!important;}
+#talkRescue .talk-buttons{position:relative!important;z-index:100020!important;pointer-events:auto!important;}
+#talkRescue .talk-buttons button{pointer-events:auto!important;position:relative!important;z-index:100021!important;}
+#talkRescue .talk-settings-panel{z-index:100030!important;pointer-events:auto!important;}
+#talkRescue .talk-settings-panel *{pointer-events:auto!important;}
+#talkMemoPanel.talk-hidden{display:none!important;}
+#talkBottomGrid.memo-off{grid-template-columns:1fr 1fr!important;}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -3380,28 +3392,92 @@ document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",(
 if(window.openChinchiroFromGames) openChinchiroFromGames.onclick=()=>showScreen("chinchiro");
 if(window.openCalendarFromTools) openCalendarFromTools.onclick=()=>showScreen("calendar");
 
-if(window.openTalkRescue) openTalkRescue.onclick=()=>openTalkRescueMode();
-if(window.talkRefresh) talkRefresh.onclick=()=>renderTalkRescue();
-if(window.talkToggleMemo) talkToggleMemo.onclick=()=>{talkMemoOn=!talkMemoOn;renderTalkRescue();};
-if(window.talkSettingsBtn) talkSettingsBtn.onclick=()=>talkSettingsPanel.classList.toggle("open");
-if(window.talkExit) talkExit.onclick=()=>{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); showScreen("home"); };
-document.querySelectorAll("[data-talk-mode]").forEach(b=>b.addEventListener("click",()=>{talkMode=b.dataset.talkMode;renderTalkRescue();}));
-if(window.talkThemeSelect) talkThemeSelect.onchange=()=>{talkRescueWrap.className="talk-rescue-wrap "+talkThemeSelect.value;};
-if(window.talkClockPosSelect) talkClockPosSelect.onchange=()=>{talkClock.className="talk-clock "+talkClockPosSelect.value;};
-if(window.talkMemoSelect) talkMemoSelect.onchange=()=>{talkMemoOn=talkMemoSelect.value==="on";renderTalkRescue();};
-document.addEventListener("keydown",e=>{
-  const active=document.getElementById("talkRescue")?.classList.contains("active");
-  if(!active) return;
-  const tag=(e.target.tagName||"").toLowerCase();
-  if(tag==="input"||tag==="textarea"||tag==="select") return;
-  if(e.code==="Space"){e.preventDefault();renderTalkRescue();}
-  if(e.key==="1"){talkMode="chat";renderTalkRescue();}
-  if(e.key==="2"){talkMode="memory";renderTalkRescue();}
-  if(e.key==="3"){talkMode="love";renderTalkRescue();}
-  if(e.key.toLowerCase()==="m"){talkMemoOn=!talkMemoOn; if(window.talkMemoSelect) talkMemoSelect.value=talkMemoOn?"on":"off"; renderTalkRescue();}
-  if(e.key.toLowerCase()==="s"){talkSettingsPanel.classList.toggle("open");}
-  if(e.key==="Escape"){ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); showScreen("home"); }
-});
+
+/* v75.2: TALK RESCUE robust controls */
+function talkEl(id){ return document.getElementById(id); }
+function applyTalkMemoLayout(){
+  const grid=talkEl("talkBottomGrid");
+  const memo=talkEl("talkMemoPanel");
+  const btn=talkEl("talkToggleMemo");
+  const sel=talkEl("talkMemoSelect");
+  if(grid) grid.classList.toggle("memo-off", !talkMemoOn);
+  if(memo){
+    memo.classList.toggle("talk-hidden", !talkMemoOn);
+    memo.style.display = talkMemoOn ? "" : "none";
+  }
+  if(btn){
+    btn.classList.toggle("active", talkMemoOn);
+    btn.textContent = talkMemoOn ? "メモ ON" : "メモ OFF";
+  }
+  if(sel) sel.value = talkMemoOn ? "on" : "off";
+}
+const _renderTalkRescueBase = renderTalkRescue;
+renderTalkRescue = function(){
+  _renderTalkRescueBase();
+  applyTalkMemoLayout();
+};
+function closeTalkRescueMode(){
+  if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+  const settings=talkEl("talkSettingsPanel");
+  if(settings) settings.classList.remove("open");
+  showScreen("home");
+}
+function setTalkMode(mode){
+  talkMode = mode || "chat";
+  renderTalkRescue();
+}
+function refreshTalkThemeOnly(){ renderTalkRescue(); }
+function toggleTalkMemo(){
+  talkMemoOn = !talkMemoOn;
+  applyTalkMemoLayout();
+}
+function toggleTalkSettings(){
+  const panel=talkEl("talkSettingsPanel");
+  if(panel) panel.classList.toggle("open");
+}
+function bindTalkRescueControls(){
+  const open=talkEl("openTalkRescue");
+  if(open) open.addEventListener("click", openTalkRescueMode);
+
+  document.addEventListener("click", (e)=>{
+    const target=e.target.closest("button,select");
+    if(!target) return;
+    const talkActive=talkEl("talkRescue")?.classList.contains("active");
+
+    if(target.id==="openTalkRescue"){ e.preventDefault(); openTalkRescueMode(); return; }
+    if(!talkActive) return;
+
+    const modeBtn=target.closest("[data-talk-mode]");
+    if(modeBtn){ e.preventDefault(); setTalkMode(modeBtn.dataset.talkMode); return; }
+    if(target.id==="talkRefresh"){ e.preventDefault(); refreshTalkThemeOnly(); return; }
+    if(target.id==="talkToggleMemo"){ e.preventDefault(); toggleTalkMemo(); return; }
+    if(target.id==="talkSettingsBtn"){ e.preventDefault(); toggleTalkSettings(); return; }
+    if(target.id==="talkExit"){ e.preventDefault(); closeTalkRescueMode(); return; }
+  }, true);
+
+  const theme=talkEl("talkThemeSelect");
+  if(theme) theme.addEventListener("change", ()=>{ const wrap=talkEl("talkRescueWrap"); if(wrap) wrap.className="talk-rescue-wrap "+theme.value; });
+  const clock=talkEl("talkClockPosSelect");
+  if(clock) clock.addEventListener("change", ()=>{ const el=talkEl("talkClock"); if(el) el.className="talk-clock "+clock.value; });
+  const memo=talkEl("talkMemoSelect");
+  if(memo) memo.addEventListener("change", ()=>{ talkMemoOn=memo.value==="on"; applyTalkMemoLayout(); });
+
+  document.addEventListener("keydown", e=>{
+    const active=talkEl("talkRescue")?.classList.contains("active");
+    if(!active) return;
+    const tag=(e.target.tagName||"").toLowerCase();
+    if(tag==="input"||tag==="textarea"||tag==="select") return;
+    if(e.code==="Space"){e.preventDefault();refreshTalkThemeOnly();}
+    if(e.key==="1"){setTalkMode("chat");}
+    if(e.key==="2"){setTalkMode("memory");}
+    if(e.key==="3"){setTalkMode("love");}
+    if(e.key.toLowerCase()==="m"){toggleTalkMemo();}
+    if(e.key.toLowerCase()==="s"){toggleTalkSettings();}
+    if(e.key==="Escape"){closeTalkRescueMode();}
+  });
+}
+bindTalkRescueControls();
+applyTalkMemoLayout();
 
 
 
