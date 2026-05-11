@@ -2289,6 +2289,67 @@ function fitBrushText(text){
   .talk-rescue-card{text-align:left;justify-content:flex-start}
 }
 
+
+
+/* v76 Talk Rescue expansion */
+.talk-chaos-warning{
+  position:fixed;
+  inset:0;
+  display:none;
+  place-items:center;
+  z-index:10020;
+  background:rgba(0,0,0,.62);
+  pointer-events:none;
+}
+.talk-chaos-warning.show{display:grid;animation:chaosWarnFade 2.4s ease forwards}
+.talk-chaos-warning-box{
+  max-width:min(760px,92vw);
+  padding:30px 34px;
+  border-radius:28px;
+  border:2px solid #ff2d2d;
+  color:#ff3b3b;
+  background:rgba(20,0,0,.88);
+  box-shadow:0 0 28px rgba(255,0,0,.72), inset 0 0 26px rgba(255,0,0,.18);
+  text-align:center;
+  font-size:clamp(26px,5vw,58px);
+  line-height:1.25;
+  font-weight:1000;
+  text-shadow:0 0 12px rgba(255,0,0,.95),0 4px 0 #000;
+}
+.talk-chaos-warning-box small{
+  display:block;
+  margin-top:14px;
+  color:#ffd0d0;
+  font-size:clamp(15px,2.2vw,24px);
+}
+@keyframes chaosWarnFade{
+  0%{opacity:0;filter:blur(4px);transform:scale(1.02)}
+  12%{opacity:1;filter:blur(0);transform:scale(1)}
+  84%{opacity:1}
+  100%{opacity:0;filter:blur(3px)}
+}
+.talk-rescue-overlay.chaos-mode{
+  --talk-neon:#ff2d2d;
+  --talk-glow:rgba(255,45,45,.72);
+}
+.talk-rescue-overlay.chaos-mode .talk-rescue-panel-head span,
+.talk-rescue-overlay.chaos-mode .talk-rescue-brand{color:#ff4d4d;text-shadow:0 0 16px rgba(255,0,0,.8)}
+.host-talk-settings{
+  margin-top:14px;
+  padding:12px;
+  border-radius:16px;
+  border:1px solid #32415d;
+  background:#0b1020;
+}
+.host-talk-settings .help{
+  background:#111827;
+  border:1px solid #334155;
+  border-radius:14px;
+  padding:10px;
+  color:#cbd5e1;
+  font-size:13px;
+  line-height:1.6;
+}
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -2911,6 +2972,23 @@ function fitBrushText(text){
 
   <label>表示メモ</label>
   <input id="hostMemoInput" placeholder="例：枠主チップ / 主催者">
+
+  <div class="host-talk-settings">
+    <h3 style="margin:0 0 8px">話題レスキュー用プロフィール</h3>
+    <p class="muted">枠主が話しやすい空気に寄せるための設定。NGワードは話題生成から自動除外される。</p>
+    <label>NGワード（改行区切り）</label>
+    <textarea id="hostNgWordsInput" placeholder="例：
+中学生
+家族
+元カノ"></textarea>
+    <div class="help" style="margin-top:8px">
+      <b>説明：</b>NGワードは部分一致で除外します。<br>
+      例：「中学生」を入れる → 中学生関連を除外。<br>
+      例：「修学旅行」を入れる → 高校時代の修学旅行なども除外。<br>
+      「中学生の修学旅行だけ」を避けたい場合は、まず単語単位で何を避けたいか考えて登録してください。
+    </div>
+    <label class="check-line" style="margin-top:10px"><input type="checkbox" id="hostLoveFantasyInput"> 恋愛トークNG寄り：恋バナは妄想シチュ中心にする <span>安全逃げ道</span></label>
+  </div>
 
   <div class="row" style="margin-top:12px">
     <button class="btn primary" id="saveHostProfile" type="button">枠主情報を保存</button>
@@ -5291,7 +5369,7 @@ const firebaseConfig = { ... }
     if(!Array.isArray(state.roulette.history)) state.roulette.history = [];
     if(!Array.isArray(state.roulette.bets)) state.roulette.bets = [];
     if(!Array.isArray(state.roulette.guestBetters)) state.roulette.guestBetters = [];
-    state.hostProfile = state.hostProfile || {name:"", memo:""};
+    state.hostProfile = Object.assign({name:"", memo:"", ngWords:"", loveFantasy:false}, state.hostProfile || {});
 
     state.roulette.settings = Object.assign({
       bgmVolume:50,
@@ -5624,13 +5702,19 @@ const firebaseConfig = { ... }
   function renderHostProfileSettings(){
     const nameInput = document.getElementById("hostNameInput");
     const memoInput = document.getElementById("hostMemoInput");
+    const ngInput = document.getElementById("hostNgWordsInput");
+    const loveInput = document.getElementById("hostLoveFantasyInput");
     const status = document.getElementById("hostProfileStatus");
     if(!nameInput || !memoInput || !status) return;
     ensureRouletteState();
+    state.hostProfile = Object.assign({name:"", memo:"", ngWords:"", loveFantasy:false}, state.hostProfile || {});
     nameInput.value = state.hostProfile.name || "";
     memoInput.value = state.hostProfile.memo || "";
+    if(ngInput) ngInput.value = state.hostProfile.ngWords || "";
+    if(loveInput) loveInput.checked = !!state.hostProfile.loveFantasy;
+    const ngCount = String(state.hostProfile.ngWords||"").split(/\n|,/).map(x=>x.trim()).filter(Boolean).length;
     if(state.hostProfile.name){
-      status.innerHTML = '<span class="host-profile-badge">★ ' + esc(state.hostProfile.name) + '</span>' + (state.hostProfile.memo ? '　' + esc(state.hostProfile.memo) : '');
+      status.innerHTML = '<span class="host-profile-badge">★ ' + esc(state.hostProfile.name) + '</span>' + (state.hostProfile.memo ? '　' + esc(state.hostProfile.memo) : '') + (ngCount ? '<br><span class="muted">NGワード ' + ngCount + '件 / レスキューに反映</span>' : '');
     }else{
       status.textContent = "未登録";
     }
@@ -5640,11 +5724,15 @@ const firebaseConfig = { ... }
     ensureRouletteState();
     const nameInput = document.getElementById("hostNameInput");
     const memoInput = document.getElementById("hostMemoInput");
+    const ngInput = document.getElementById("hostNgWordsInput");
+    const loveInput = document.getElementById("hostLoveFantasyInput");
     if(!nameInput || !memoInput) return;
     const name = nameInput.value.trim();
     const memo = memoInput.value.trim();
+    const ngWords = ngInput ? ngInput.value.trim() : "";
+    const loveFantasy = loveInput ? !!loveInput.checked : false;
     if(!name){ alert("枠主名を入れてｗ"); return; }
-    state.hostProfile = {name:name, memo:memo};
+    state.hostProfile = {name:name, memo:memo, ngWords:ngWords, loveFantasy:loveFantasy};
     safeSave();
     renderHostProfileSettings();
     window.renderRoulette();
@@ -5654,7 +5742,7 @@ const firebaseConfig = { ... }
   function clearHostProfileFromSettings(){
     ensureRouletteState();
     if(!confirm("枠主情報を削除する？")) return;
-    state.hostProfile = {name:"", memo:""};
+    state.hostProfile = {name:"", memo:"", ngWords:"", loveFantasy:false};
     safeSave();
     renderHostProfileSettings();
     window.renderRoulette();
@@ -6098,61 +6186,178 @@ const firebaseConfig = { ... }
 })();
 
 
-/* v75.6 Talk Rescue fullscreen - independent module */
+/* v76 Talk Rescue fullscreen - expanded theme engine */
 (function(){
+  const talkRecentKey = "streamstaff_talk_recent_v76";
+  const fallbackNg = [];
+  const commonBranches = [
+    "恥ずかしかったこと","嬉しかったこと","黒歴史","緊張したこと","イキってた話",
+    "意味わからん流行り","サボり・逃げ道","友達との話","先生・先輩・上司の話","当時の謎ルール",
+    "今なら怒られる話","地元差・世代差","一番記憶に残ってる場面","無茶ぶり：3秒で説明して",
+    "無茶ぶり：ラスボス風に話して","無茶ぶり：先生視点で話して","無茶ぶり：ランキングにして",
+    "無茶ぶり：物語っぽくして","逆に嫌だった話","思ったより良かった話","誰かに助けられた話",
+    "調子乗った話","ミスった話","謎に覚えてる一言","リスナーに二択で聞く"
+  ];
+  const commonLeaves = [
+    "みんなもある？","今でも覚えてる？","写真残ってる？","今なら怒られる？","誰が一番やばかった？",
+    "コメントで一個だけ教えて","同世代いる？","逆に嫌だった？","一番強い思い出どれ？",
+    "それ今やったらアリ？","当時の自分に言うなら？","あるある判定して","一番バカなやつ採用",
+    "リスナーの体験談も拾う","そこから次の枝に逃げる","ツッコミ入ったら葉にする",
+    "共感コメントを拾う","初見にも聞いてみる","地域差コメントを拾う","世代差コメントを拾う"
+  ];
+
+  const pairedEvents = {
+    "小学生":["運動会","遠足","給食","夏休み","冬休み","席替え","授業参観","係活動","放課後","初めての習い事","友達の家","ゲーム貸し借り"],
+    "中学生":["体育祭","文化祭","修学旅行","部活","テスト期間","席替え","放課後","塾","卒業式","合唱コンクール","初恋っぽい空気","謎の流行り"],
+    "高校時代":["体育祭","文化祭","修学旅行","部活","テスト期間","放課後","バイト探し","卒業式","打ち上げ","昼休み","通学路","クラス替え"],
+    "専門学生":["初登校","実習","課題提出","クラス飲み","友達作り","寝坊","テスト","卒業制作","放課後","進路相談"],
+    "初バイト":["初出勤","初給料","やらかし","変なお客さん","怖い先輩","シフトミス","休憩時間","閉店作業","制服","面接"],
+    "新社会人":["初出勤","歓迎会","新年会","初任給","飲み会","仕事ミス","名刺交換","上司との会話","朝の通勤","研修","電話対応","初めて怒られた日"],
+    "一人暮らし初期":["引っ越し","初自炊","家具選び","家電トラブル","洗濯","夜中のコンビニ","家賃の現実","近所探索","虫との遭遇","寂しい夜"],
+    "配信初期":["初配信","コメント0人","初見さん","マイク事故","OBS設定","初めての常連","緊張した枠","謎の沈黙","初コラボ","配信後の反省"],
+    "地元時代":["駅前","コンビニ","祭り","友達との集合場所","地元飯","帰り道","謎の店","ヤンキーっぽい人","海・川・山","夜の散歩"],
+    "最近":["買い物","仕事帰り","寝る前","休日","コンビニ","SNS","YouTube","服選び","食事","ちょっとした失敗","体調管理","部屋の片付け"],
+    "深夜":["コンビニ","SNS巡回","寝る前の考え事","急な掃除","謎の食欲","昔の記憶","音楽","寂しさ","明日の不安","変なテンション"]
+  };
+
+  function makeMemoryTrunks(){
+    const out=[];
+    Object.entries(pairedEvents).forEach(([axis, events])=>{
+      events.forEach(ev=>{
+        if(axis === "新社会人" && ["歓迎会","新年会","初任給"].includes(ev)) out.push(`${axis}一発目の${ev}の話`);
+        else if(axis === "最近") out.push(`最近の${ev}の話`);
+        else if(axis === "深夜") out.push(`深夜の${ev}の話`);
+        else out.push(`${axis}の${ev}の話`);
+      });
+    });
+    return out;
+  }
+
   const modes = {
     zatsudan:{
       label:"雑談モード",
-      trunks:["最近ちょっと笑ったこと","人に言うほどじゃないけど好きなもの","最近買ってよかったもの","今日のどうでもいいニュース","自分だけの変なこだわり"],
-      branches:["食べ物に逃げる","仕事あるあるにする","リスナーに二択で聞く","昔と今で比べる","ランキング形式にする"],
-      leaves:["みんなはどう？","あるあるある？","逆に嫌いなやつある？","一番記憶あるの何？","コメントで一個だけ教えて"]
+      trunks:[
+        "最近の買い物の話","最近ちょっと笑った話","今日のどうでもいいニュース","仕事帰りに考えた話","最近の食べ物の話",
+        "服・靴・身だしなみの話","コンビニでつい買うもの","最近見た動画の話","自分だけの変なこだわり","地味に困ってること",
+        "最近ちょっと成長したこと","やめたいけどやめられない習慣","大人になって変わった感覚","昔は嫌いだったけど今アリなもの",
+        "人に言うほどじゃないけど好きなもの","最近の小さな失敗","体力・健康の話","家でのだらしない話","配信前の準備の話",
+        "最近の自分ルール","地元あるある","仕事あるある","天気でテンション変わる話","寝る前の習慣"
+      ],
+      branches:commonBranches,
+      leaves:commonLeaves
     },
     memory:{
       label:"思い出モード",
-      trunks:["子どもの頃ハマったもの","学生時代の黒歴史","昔よく食べたもの","初めて買ったゲーム","昔の自分に言いたいこと"],
-      branches:["友達との思い出","家族にバレた話","地域差","当時の流行","今やるとキツい"],
-      leaves:["みんな昔なに流行ってた？","初めての○○覚えてる？","同世代いる？","今でも残ってる？","それ黒歴史？"]
+      trunks:makeMemoryTrunks(),
+      branches:commonBranches.concat(["思い出補正込みで話す","当時の流行りを掘る","友達のキャラを思い出す","今の自分ならどうするか","人生の分岐っぽく話す"]),
+      leaves:commonLeaves.concat(["同じ時代の人いる？","その頃なに流行ってた？","自分の学校だけだった？","今思うと謎じゃない？"])
     },
     love:{
       label:"恋バナモード",
-      trunks:["昔の勘違いエピソード","好きになる瞬間","モテると思ってた行動","青春っぽい失敗","理想と現実の差"],
-      branches:["友達に相談した話","LINEの距離感","服装の話","勘違いあるある","優しさの基準"],
-      leaves:["それ脈ありだと思う？","みんなならどうする？","これはセーフ？","逆に冷める瞬間は？","青春エピある？"]
+      trunks:[
+        "学生時代の恋っぽい空気","片思いしてた時の話","好きになる瞬間の話","告白する・される妄想","LINEの距離感の話",
+        "デートで気まずそうな場面","勘違いしたかもしれない話","優しさと脈ありの違い","モテると思ってた行動","青春っぽい失敗",
+        "友達に相談する恋バナ","好きなタイプの話","冷める瞬間の話","理想と現実の差","映画みたいな恋愛シーン"
+      ],
+      fantasyTrunks:[
+        "理想の出会いシチュエーション","雨の日に起きてほしいイベント","漫画みたいな告白シーン","幼馴染は本当に強いのか会議",
+        "深夜の電話イベント妄想","文化祭で起きそうなベタ展開","職場じゃなくて異世界なら許される恋愛イベント",
+        "絶対に現実では無理なデートプラン","恋愛ドラマの第1話っぽい出会い","急にモテ期が来たらどこで気づくか",
+        "ベタだけど嫌いじゃないシチュ","逆に一番冷める妄想シチュ","少女漫画の強すぎる演出","ラブコメの勘違いイベント"
+      ],
+      branches:["勘違い","タイミング","友達に相談","LINE・DM","服装・第一印象","優しさの基準","嫉妬","気まずさ","無茶ぶり：ドラマ予告風に話して","無茶ぶり：少女漫画風にして"],
+      leaves:["それ脈ありだと思う？","みんなならどうする？","これはセーフ？","逆に冷める瞬間は？","ベタだけど好き？","現実である？","一番強いシチュ何？","コメントで判定して"]
     },
     midnight:{
       label:"深夜モード",
-      trunks:["夜中に考えちゃうこと","人生で地味に覚えてる場面","大人になって分かったこと","最近少し疲れた話","静かに語れる好きなもの"],
-      branches:["昔の自分を掘る","音楽の話にする","眠れない夜の話","後悔と笑い話","ひとり時間"],
-      leaves:["深夜勢いる？","寝る前なに考える？","これ分かる人いる？","同じタイプいる？","明日休みの人？"]
+      trunks:[
+        "夜中に急に考える人生の話","寝る前に思い出す昔の場面","深夜のコンビニの話","静かに語れる好きなもの","孤独感の話",
+        "SNS見すぎた夜の話","明日への不安の話","音楽で思い出す場面","大人になって分かったこと","昔の自分に言いたいこと",
+        "夜だけ許されるテンション","深夜に食べたくなるもの","寝れない時の謎行動","将来のぼんやりした話","後悔を笑い話にする"
+      ],
+      branches:["静かに語る","少し笑い話にする","音楽に逃げる","昔の自分を掘る","不安とネタの間で話す","ひとり時間","明日になればどうでもいい話","無茶ぶり：ポエム風に話して"],
+      leaves:["深夜勢いる？","寝る前なに考える？","これ分かる人いる？","同じタイプいる？","明日休みの人？","夜中だけ強くなる感情ある？","コメント欄だけの秘密にする？"]
     },
     chaos:{
       label:"カオスモード",
-      trunks:["絶対に盛り上がらないイベント名","もし配信部屋にゴリラが来たら","コンビニで起きたら怖いこと","変なルールを一個作る","今日から禁止されたら困るもの"],
-      branches:["大喜利にする","罰ゲーム化する","リスナーに丸投げ","一番くだらない答え募集","ゲームのステータス風にする"],
-      leaves:["一番バカな答えくれ","それ採用でいい？","もっとくだらなくして","優勝決めるか","コメント欄に任せた"]
+      trunks:[
+        "存在しない部活","コンビニのラスボス","絶対に弱い必殺技","存在しない法律","深夜テンション商品名",
+        "学校に一人はいない奴","冷蔵庫のラスボス","もし配信部屋にゴリラが来たら","ギリありそうな都市伝説","絶対に売れない新商品",
+        "最弱の魔法名","地味すぎる超能力","存在しない体育祭種目","意味不明な校則","コンビニ四天王",
+        "異世界転生した配管工","ラスボス前のどうでもいい会話","絶対に盛り上がらないイベント名","弱そうな怪人名","世界一どうでもいいランキング"
+      ],
+      branches:["物語を作れ","ラスボスを出せ","設定を盛れ","途中で裏切れ","世界観を壊せ","伏線っぽい事言え","最終回みたいにしろ","急に恋愛要素入れろ","リスナーに丸投げ","先生視点で語れ","悪役会議にしろ","ゲームのステータス風にしろ","無茶ぶり：CM風にして","無茶ぶり：必殺技名を付けろ","無茶ぶり：一番弱くして"],
+      leaves:["リスナーは乗っかれ","ツッコミ歓迎","後付け設定OK","矛盾を恐れるな","コメント欄は共犯です","一番意味不明な奴優勝","設定追加して","ボケを育てろ","主はツッコミ担当","世界観を壊すな、でも壊していい","途中から敵増やしてOK","コメント欄でラスボス作れ"]
     }
   };
+
   let currentMode = "zatsudan";
   let memoOn = true;
   const qs = (id)=>document.getElementById(id);
   const esc = (s)=>String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  function getHostProfile(){
+    try{
+      if(typeof state !== "undefined" && state.hostProfile) return Object.assign({ngWords:"", loveFantasy:false}, state.hostProfile);
+    }catch(e){}
+    return {ngWords:"", loveFantasy:false};
+  }
+  function getNgWords(){
+    const hp = getHostProfile();
+    return String(hp.ngWords||"").split(/\n|,/).map(x=>x.trim()).filter(Boolean).concat(fallbackNg);
+  }
+  function isLoveFantasy(){
+    const hp = getHostProfile();
+    const ng = getNgWords().join(" ");
+    return !!hp.loveFantasy || ng.includes("恋愛") || ng.includes("恋バナ");
+  }
+  function loadRecent(){
+    try{return JSON.parse(localStorage.getItem(talkRecentKey)||"[]")}catch(e){return []}
+  }
+  function saveRecent(items){
+    try{localStorage.setItem(talkRecentKey, JSON.stringify(items.slice(0,80)))}catch(e){}
+  }
+  function filterList(list){
+    const ng=getNgWords();
+    const recent=loadRecent();
+    let filtered=list.filter(x=>!ng.some(w=>String(x).includes(w))).filter(x=>!recent.includes(x));
+    if(filtered.length < 5) filtered=list.filter(x=>!ng.some(w=>String(x).includes(w)));
+    if(filtered.length < 5) filtered=list;
+    return filtered;
+  }
   function pickFive(list){
-    const pool = [...list];
+    const pool = filterList([...list]);
     const out = [];
     while(out.length < 5 && pool.length){
       out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
     }
     return out;
   }
-  function renderTalk(){
+  function getModeData(){
     const m = modes[currentMode] || modes.zatsudan;
+    if(currentMode === "love" && isLoveFantasy()) return Object.assign({}, m, {label:"恋バナモード（妄想寄り）", trunks:m.fantasyTrunks});
+    return m;
+  }
+  function showChaosWarning(){
+    const w = qs("talkChaosWarning");
+    if(!w) return;
+    w.classList.remove("show");
+    void w.offsetWidth;
+    w.classList.add("show");
+  }
+  function renderTalk(){
+    const m = getModeData();
     const overlay = qs("talkRescueOverlay");
     if(!overlay) return;
     overlay.classList.toggle("memo-on", memoOn);
+    overlay.classList.toggle("chaos-mode", currentMode === "chaos");
     qs("talkRescueModeLabel").textContent = m.label;
-    qs("talkRescueTrunks").innerHTML = pickFive(m.trunks).map(x=>`<div class="talk-rescue-card">${esc(x)}</div>`).join("");
-    qs("talkRescueBranches").innerHTML = pickFive(m.branches).map(x=>`<div>${esc(x)}</div>`).join("");
-    qs("talkRescueLeaves").innerHTML = pickFive(m.leaves).map(x=>`<div>${esc(x)}</div>`).join("");
+    const trunks = pickFive(m.trunks);
+    const branches = pickFive(m.branches);
+    const leaves = pickFive(m.leaves);
+    qs("talkRescueTrunks").innerHTML = trunks.map(x=>`<div class="talk-rescue-card">${esc(x)}</div>`).join("");
+    qs("talkRescueBranches").innerHTML = branches.map(x=>`<div>${esc(x)}</div>`).join("");
+    qs("talkRescueLeaves").innerHTML = leaves.map(x=>`<div>${esc(x)}</div>`).join("");
+    saveRecent([...trunks, ...loadRecent()]);
     document.querySelectorAll("[data-talk-mode]").forEach(btn=>{
       btn.classList.toggle("active", btn.dataset.talkMode === currentMode);
     });
@@ -6191,6 +6396,7 @@ const firebaseConfig = { ... }
         const actionBtn = e.target.closest("[data-talk-action]");
         if(modeBtn){
           currentMode = modeBtn.dataset.talkMode;
+          if(currentMode === "chaos") showChaosWarning();
           renderTalk();
           return;
         }
@@ -6210,6 +6416,7 @@ const firebaseConfig = { ... }
       if(e.key.toLowerCase() === "m"){ memoOn = !memoOn; renderTalk(); }
       if(["1","2","3","4","5"].includes(e.key)){
         currentMode = ["zatsudan","memory","love","midnight","chaos"][Number(e.key)-1];
+        if(currentMode === "chaos") showChaosWarning();
         renderTalk();
       }
     });
@@ -6220,6 +6427,8 @@ const firebaseConfig = { ... }
 })();
 
 </script>
+
+<div class="talk-chaos-warning" id="talkChaosWarning"><div class="talk-chaos-warning-box">⚠ 社会的にまずくないですか？<br>その辺保証できません。<small>※ コメント欄は共犯です</small></div></div>
 
 <div class="talk-rescue-overlay memo-on" id="talkRescueOverlay" aria-hidden="true">
   <div class="talk-rescue-frame">
