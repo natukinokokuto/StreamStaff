@@ -6688,10 +6688,8 @@ const firebaseConfig = { ... }
   }
   function hostProfileTalkItems(){
     const hp = getHostProfile();
-    const raw = [hp.favoriteThings,hp.hobbies,hp.frequentTopics,hp.streamGenres].join("
-");
-    const items = raw.split(/
-|,/).map(x=>x.trim()).filter(Boolean);
+    const raw = [hp.favoriteThings,hp.hobbies,hp.frequentTopics,hp.streamGenres].join("\n");
+    const items = raw.split(/\n|,/).map(x=>x.trim()).filter(Boolean);
     const out = [];
     items.forEach(x=>{
       out.push(`枠主プロフィール：${x}の話`);
