@@ -3444,15 +3444,15 @@ function bindTalkRescueControls(){
     if(!target) return;
     const talkActive=talkEl("talkRescue")?.classList.contains("active");
 
-    if(target.id==="openTalkRescue"){ e.preventDefault(); openTalkRescueMode(); return; }
+    if(target.id==="openTalkRescue"){ e.preventDefault(); e.stopImmediatePropagation(); openTalkRescueMode(); return; }
     if(!talkActive) return;
 
     const modeBtn=target.closest("[data-talk-mode]");
-    if(modeBtn){ e.preventDefault(); setTalkMode(modeBtn.dataset.talkMode); return; }
-    if(target.id==="talkRefresh"){ e.preventDefault(); refreshTalkThemeOnly(); return; }
-    if(target.id==="talkToggleMemo"){ e.preventDefault(); toggleTalkMemo(); return; }
-    if(target.id==="talkSettingsBtn"){ e.preventDefault(); toggleTalkSettings(); return; }
-    if(target.id==="talkExit"){ e.preventDefault(); closeTalkRescueMode(); return; }
+    if(modeBtn){ e.preventDefault(); e.stopImmediatePropagation(); setTalkMode(modeBtn.dataset.talkMode); return; }
+    if(target.id==="talkRefresh"){ e.preventDefault(); e.stopImmediatePropagation(); refreshTalkThemeOnly(); return; }
+    if(target.id==="talkToggleMemo"){ e.preventDefault(); e.stopImmediatePropagation(); toggleTalkMemo(); return; }
+    if(target.id==="talkSettingsBtn"){ e.preventDefault(); e.stopImmediatePropagation(); toggleTalkSettings(); return; }
+    if(target.id==="talkExit"){ e.preventDefault(); e.stopImmediatePropagation(); closeTalkRescueMode(); return; }
   }, true);
 
   const theme=talkEl("talkThemeSelect");
@@ -3479,63 +3479,6 @@ function bindTalkRescueControls(){
 bindTalkRescueControls();
 applyTalkMemoLayout();
 
-
-
-/* v75.1: Talk Rescue click fix - ID globalsに頼らずイベント委任で確実に押せるようにする */
-function setTalkTheme(value){
-  const wrap=document.getElementById("talkRescueWrap");
-  if(wrap) wrap.className="talk-rescue-wrap "+(value||"theme-cyber");
-}
-function setTalkClockPos(value){
-  const clock=document.getElementById("talkClock");
-  if(clock) clock.className="talk-clock "+(value||"pos-right");
-}
-function setTalkMemoVisible(value){
-  talkMemoOn=value!=="off";
-  renderTalkRescue();
-}
-document.addEventListener("click", e=>{
-  const talkSection=document.getElementById("talkRescue");
-  const active=talkSection?.classList.contains("active");
-  if(!active) return;
-  const btn=e.target.closest("button");
-  if(!btn || !talkSection.contains(btn)) return;
-  e.preventDefault();
-  e.stopPropagation();
-  if(btn.dataset.talkMode){
-    talkMode=btn.dataset.talkMode;
-    renderTalkRescue();
-    return;
-  }
-  if(btn.id==="talkToggleMemo"){
-    talkMemoOn=!talkMemoOn;
-    const sel=document.getElementById("talkMemoSelect");
-    if(sel) sel.value=talkMemoOn?"on":"off";
-    renderTalkRescue();
-    return;
-  }
-  if(btn.id==="talkRefresh"){
-    renderTalkRescue();
-    return;
-  }
-  if(btn.id==="talkSettingsBtn"){
-    document.getElementById("talkSettingsPanel")?.classList.toggle("open");
-    return;
-  }
-  if(btn.id==="talkExit"){
-    if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
-    showScreen("home");
-    return;
-  }
-}, true);
-document.addEventListener("change", e=>{
-  const talkSection=document.getElementById("talkRescue");
-  if(!talkSection?.classList.contains("active")) return;
-  const el=e.target;
-  if(el.id==="talkThemeSelect") setTalkTheme(el.value);
-  if(el.id==="talkClockPosSelect") setTalkClockPos(el.value);
-  if(el.id==="talkMemoSelect") setTalkMemoVisible(el.value);
-}, true);
 
 
 function renderHome(){
