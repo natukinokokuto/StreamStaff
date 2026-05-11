@@ -2119,87 +2119,54 @@ function fitBrushText(text){
 }
 
 
-/* v75: フルスクリーン・トークレスキュー試作 */
-.talk-rescue-screen{
-  min-height:100vh;
-  padding:0!important;
-  background:radial-gradient(circle at top,#15203a,#05070c 62%);
-  overflow:hidden;
-}
+/* v75.5 Talk Rescue fullscreen prototype */
+#talkRescue.screen{display:none;}
+#talkRescue.screen.active{display:block!important;position:fixed!important;inset:0!important;z-index:99999!important;background:#05070c!important;}
 .talk-rescue-wrap{
   --talk-main:#39d0ff;
   --talk-sub:#ff4fd8;
   --talk-glow:rgba(57,208,255,.55);
-  --talk-bg:rgba(10,14,22,.72);
   min-height:100vh;
-  color:#f4f7fb;
+  height:100vh;
+  overflow:hidden;
   display:grid;
-  grid-template-rows:auto 1fr .82fr auto;
-  gap:16px;
-  padding:18px 24px 22px;
-  background:
-    radial-gradient(circle at 20% 0%,rgba(57,208,255,.22),transparent 28%),
-    radial-gradient(circle at 85% 12%,rgba(255,79,216,.18),transparent 30%),
-    linear-gradient(180deg,rgba(5,7,12,.2),rgba(5,7,12,.9));
+  grid-template-rows:auto minmax(0,1fr) minmax(0,.74fr) auto;
+  gap:14px;
+  padding:18px;
+  color:#f8fbff;
+  background:radial-gradient(circle at top,#15203a,#05070c 62%);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
+.talk-rescue-wrap.theme-cyber{--talk-main:#39d0ff;--talk-sub:#ff4fd8;--talk-glow:rgba(57,208,255,.55);background:radial-gradient(circle at top,#15203a,#05070c 62%)}
 .talk-rescue-wrap.theme-midnight{--talk-main:#a78bfa;--talk-sub:#60a5fa;--talk-glow:rgba(167,139,250,.55);background:radial-gradient(circle at top,#211342,#05060a 65%)}
 .talk-rescue-wrap.theme-casino{--talk-main:#facc15;--talk-sub:#34d399;--talk-glow:rgba(250,204,21,.55);background:radial-gradient(circle at top,#3a2608,#070504 66%)}
-.talk-rescue-wrap.theme-simple{--talk-main:#ffffff;--talk-sub:#d1d5db;--talk-glow:rgba(255,255,255,.18);background:#050505}
-.talk-rescue-top{
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
-  align-items:center;
-  gap:12px;
-  min-height:34px;
-}
+.talk-rescue-wrap.theme-simple{--talk-main:#ffffff;--talk-sub:#d1d5db;--talk-glow:rgba(255,255,255,.16);background:#050505}
+.talk-rescue-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;min-height:34px;pointer-events:auto;}
 .talk-rescue-title{font-size:18px;font-weight:1000;letter-spacing:.14em;color:var(--talk-main);text-shadow:0 0 16px var(--talk-glow)}
-.talk-clock{font-size:20px;font-weight:900;opacity:.95;text-shadow:0 0 12px var(--talk-glow)}
-.talk-clock.pos-left{justify-self:start;grid-column:1}.talk-clock.pos-center{justify-self:center;grid-column:2}.talk-clock.pos-right{justify-self:end;grid-column:3}
-.talk-rescue-panel{
-  background:var(--talk-bg);
-  border:2px solid var(--talk-main);
-  border-radius:28px;
-  box-shadow:0 0 10px var(--talk-glow),0 0 34px color-mix(in srgb,var(--talk-main),transparent 72%),inset 0 0 18px rgba(255,255,255,.05);
-  backdrop-filter:blur(8px);
-  overflow:hidden;
-}
-.talk-main-panel{padding:22px 26px;display:flex;flex-direction:column;justify-content:center}
-.talk-panel-title{font-size:20px;font-weight:1000;letter-spacing:.08em;margin-bottom:12px;color:var(--talk-main);text-shadow:0 0 12px var(--talk-glow)}
-.talk-main-list{display:grid;grid-template-columns:1fr;gap:10px}
-.talk-main-item{font-size:clamp(25px,3.1vw,54px);line-height:1.16;font-weight:1000;letter-spacing:-.04em;padding:8px 12px;border-radius:18px;background:rgba(255,255,255,.035)}
-.talk-bottom-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;min-height:0}
-.talk-bottom-grid.memo-off{grid-template-columns:1fr 1fr}.talk-bottom-grid.memo-off #talkMemoPanel{display:none}
-.talk-sub-panel{padding:18px;min-height:0;display:flex;flex-direction:column}
-.talk-sub-panel .talk-panel-title{font-size:18px;color:var(--talk-sub)}
-.talk-list{display:grid;gap:9px;overflow:auto;padding-right:2px}
-.talk-item{padding:10px 12px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.06);border-radius:15px;font-size:clamp(16px,1.45vw,24px);font-weight:850;line-height:1.28}
-.talk-memo-input{height:100%;min-height:190px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.1);color:#ffe9a6;border-radius:16px;padding:12px;font-weight:800;font-size:17px;resize:none}
-.talk-buttons{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;position:relative;z-index:140;pointer-events:auto}
-.talk-buttons button,.talk-mini-btn{border:1px solid rgba(255,255,255,.14);background:#101827;color:white;border-radius:999px;padding:12px 17px;font-weight:1000;min-height:44px;cursor:pointer;pointer-events:auto}
-.talk-buttons button.active,.talk-mini-btn.primary{background:linear-gradient(135deg,var(--talk-main),#fff);color:#061018;box-shadow:0 0 18px var(--talk-glow)}
-.talk-mini-btn.danger{background:#3a1014;color:#fff}
-.talk-settings-panel{position:fixed;right:22px;bottom:86px;width:min(390px,calc(100vw - 44px));display:none;z-index:80;padding:16px;background:rgba(5,8,14,.94);border:1px solid var(--talk-main);border-radius:22px;box-shadow:0 0 30px var(--talk-glow)}
-.talk-settings-panel.open{display:block}
-.talk-settings-panel label{margin-top:10px;color:#cbd5e1}.talk-settings-panel select{margin-top:5px}
-.talk-home-actions{margin-top:12px;padding:12px;border-radius:16px;background:#0b1020;border:1px solid #263a63}
-@media(max-width:820px){
- .talk-rescue-wrap{grid-template-rows:auto 1fr 1.1fr auto;padding:12px;gap:10px}
- .talk-bottom-grid,.talk-bottom-grid.memo-off{grid-template-columns:1fr}
- .talk-bottom-grid.memo-off #talkMemoPanel{display:none}
- .talk-main-item{font-size:25px}.talk-item{font-size:16px}.talk-rescue-title{font-size:13px}.talk-clock{font-size:15px}
-}
-
-
-/* v75.2 talk rescue click/layer hard fix */
-#talkRescue.screen{display:none;}
-#talkRescue.screen.active{display:block!important;position:fixed!important;inset:0!important;z-index:99999!important;background:#05070c!important;}
-#talkRescue .talk-rescue-wrap{height:100vh!important;min-height:100vh!important;pointer-events:auto!important;}
-#talkRescue .talk-buttons{position:relative!important;z-index:100020!important;pointer-events:auto!important;}
-#talkRescue .talk-buttons button{pointer-events:auto!important;position:relative!important;z-index:100021!important;}
-#talkRescue .talk-settings-panel{z-index:100030!important;pointer-events:auto!important;}
-#talkRescue .talk-settings-panel *{pointer-events:auto!important;}
-#talkMemoPanel.talk-hidden{display:none!important;}
-#talkBottomGrid.memo-off{grid-template-columns:1fr 1fr!important;}
+.talk-clock{font-size:18px;font-weight:900;opacity:.92;color:#fff;text-shadow:0 0 12px var(--talk-glow)}
+.talk-clock.left{justify-self:start}.talk-clock.center{justify-self:center}.talk-clock.right{justify-self:end}
+.talk-rescue-panel{background:rgba(8,12,20,.78);border:2px solid var(--talk-main);border-radius:26px;box-shadow:0 0 10px var(--talk-glow),0 0 34px rgba(57,208,255,.22),inset 0 0 18px rgba(255,255,255,.055);backdrop-filter:blur(8px);overflow:hidden;}
+.talk-main-panel{padding:22px 24px;display:flex;flex-direction:column;}
+.talk-panel-title{font-size:18px;font-weight:1000;letter-spacing:.08em;color:var(--talk-main);margin-bottom:12px;text-shadow:0 0 14px var(--talk-glow)}
+.talk-main-list{display:grid;gap:12px;align-content:start;}
+.talk-main-item{font-size:clamp(24px,3.1vw,48px);font-weight:1000;line-height:1.15;padding:10px 14px;border-radius:18px;background:rgba(255,255,255,.04)}
+.talk-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;min-height:0;}
+.talk-bottom.no-memo{grid-template-columns:1fr 1fr;}
+.talk-sub-panel{padding:16px;min-height:0;}
+.talk-sub-title{font-size:16px;font-weight:1000;color:var(--talk-sub);margin-bottom:10px;text-shadow:0 0 14px rgba(255,79,216,.35)}
+.talk-list{display:grid;gap:9px;}
+.talk-item{font-size:clamp(16px,1.55vw,25px);font-weight:850;line-height:1.25;padding:9px 11px;border-radius:14px;background:rgba(255,255,255,.045)}
+#talkMemoPanel.hidden{display:none!important;}
+.talk-memo-area{width:100%;height:calc(100% - 32px);min-height:150px;resize:none;border:1px solid rgba(255,255,255,.14);border-radius:16px;background:rgba(0,0,0,.32);color:#ffe9a6;font-weight:800;font-size:16px;line-height:1.45;padding:12px;outline:none;}
+.talk-buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;pointer-events:auto;position:relative;z-index:100010;}
+.talk-buttons button{border:1px solid rgba(255,255,255,.16);background:#131c2d;color:#fff;border-radius:999px;padding:12px 18px;font-weight:1000;min-height:44px;cursor:pointer;pointer-events:auto;}
+.talk-buttons button.active{background:linear-gradient(135deg,var(--talk-main),#e0faff);color:#061018;box-shadow:0 0 20px var(--talk-glow)}
+.talk-buttons .danger{background:#3a1014;border-color:#7f2028;color:#fff;}
+.talk-settings-panel{position:absolute;right:18px;bottom:78px;width:min(360px,calc(100vw - 36px));background:rgba(5,8,14,.96);border:1px solid var(--talk-main);border-radius:20px;padding:14px;box-shadow:0 0 32px var(--talk-glow);z-index:100030;display:none;}
+.talk-settings-panel.open{display:block;}
+.talk-settings-panel label{display:block;font-size:12px;color:#aab2c8;margin:8px 0 4px;}
+.talk-settings-panel select{width:100%;background:#080a10;color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:9px;}
+@media(max-width:760px){.talk-rescue-wrap{grid-template-rows:auto 1fr 1.05fr auto;padding:10px;gap:10px}.talk-bottom,.talk-bottom.no-memo{grid-template-columns:1fr}.talk-main-item{font-size:24px}.talk-item{font-size:16px}.talk-rescue-title{font-size:13px}.talk-clock{font-size:15px}.talk-sub-panel{padding:12px}.talk-buttons button{padding:10px 12px;font-size:13px}}
 
 </style>
 
@@ -2268,70 +2235,65 @@ function fitBrushText(text){
 
 </section>
 
+
+
 <section id="talkRescue" class="screen talk-rescue-screen">
   <div class="talk-rescue-wrap theme-cyber" id="talkRescueWrap">
     <div class="talk-rescue-top">
       <div class="talk-rescue-title">TALK RESCUE MODE</div>
-      <div class="talk-clock pos-right" id="talkClock">2026/05/11 23:48</div>
+      <div class="talk-clock right" id="talkClock">----/--/-- --:--</div>
+      <div></div>
     </div>
 
     <div class="talk-rescue-panel talk-main-panel">
       <div class="talk-panel-title">幹｜メインテーマ候補</div>
-      <div class="talk-main-list" id="talkTrunkList"></div>
+      <div class="talk-main-list" id="talkMainList"></div>
     </div>
 
-    <div class="talk-bottom-grid" id="talkBottomGrid">
+    <div class="talk-bottom" id="talkBottomGrid">
       <div class="talk-rescue-panel talk-sub-panel">
-        <div class="talk-panel-title">枝｜サブテーマ候補</div>
+        <div class="talk-sub-title">枝｜サブテーマ候補</div>
         <div class="talk-list" id="talkBranchList"></div>
       </div>
       <div class="talk-rescue-panel talk-sub-panel">
-        <div class="talk-panel-title">葉｜発展候補</div>
+        <div class="talk-sub-title">葉｜発展候補</div>
         <div class="talk-list" id="talkLeafList"></div>
       </div>
       <div class="talk-rescue-panel talk-sub-panel" id="talkMemoPanel">
-        <div class="talk-panel-title">メモ</div>
-        <textarea class="talk-memo-input" id="talkMemoText" placeholder="告知 / 拾いたいコメント / NG / 次の導線"></textarea>
+        <div class="talk-sub-title">メモ</div>
+        <textarea class="talk-memo-area" id="talkMemoText" placeholder="告知 / 拾いたいコメント / 忘れたくないこと"></textarea>
       </div>
     </div>
 
-    <div class="talk-buttons">
-      <button data-talk-mode="chat" class="active" type="button">雑談</button>
-      <button data-talk-mode="memory" type="button">思い出</button>
-      <button data-talk-mode="love" type="button">恋バナ</button>
-      <button data-talk-mode="night" type="button">深夜</button>
-      <button data-talk-mode="chaos" type="button">カオス</button>
-      <button id="talkToggleMemo" type="button">メモ</button>
-      <button id="talkRefresh" class="active" type="button">テーマ更新</button>
-      <button id="talkSettingsBtn" type="button">設定</button>
-      <button id="talkExit" type="button">戻る</button>
+    <div class="talk-settings-panel" id="talkSettingsPanel">
+      <label>テーマプリセット</label>
+      <select id="talkThemeSelect">
+        <option value="theme-cyber">サイバー配信</option>
+        <option value="theme-midnight">深夜雑談</option>
+        <option value="theme-casino">カジノネオン</option>
+        <option value="theme-simple">白黒シンプル</option>
+      </select>
+      <label>時計位置</label>
+      <select id="talkClockPosition">
+        <option value="left">左</option>
+        <option value="center">中央</option>
+        <option value="right" selected>右</option>
+      </select>
+    </div>
+
+    <div class="talk-buttons" id="talkButtons">
+      <button type="button" data-talk-mode="chat" class="active">雑談</button>
+      <button type="button" data-talk-mode="memory">思い出</button>
+      <button type="button" data-talk-mode="love">恋バナ</button>
+      <button type="button" data-talk-mode="midnight">深夜</button>
+      <button type="button" data-talk-mode="chaos">カオス</button>
+      <button type="button" data-talk-action="memo">メモ ON</button>
+      <button type="button" data-talk-action="refresh">テーマ更新</button>
+      <button type="button" data-talk-action="settings">設定</button>
+      <button type="button" data-talk-action="exit" class="danger">戻る</button>
     </div>
   </div>
-
-  <div class="talk-settings-panel" id="talkSettingsPanel">
-    <h3 style="margin:0 0 8px">フルスクリーン設定</h3>
-    <label>一括テーマ</label>
-    <select id="talkThemeSelect">
-      <option value="theme-cyber">サイバー配信</option>
-      <option value="theme-midnight">深夜雑談</option>
-      <option value="theme-casino">カジノネオン</option>
-      <option value="theme-simple">白黒シンプル</option>
-    </select>
-    <label>時計位置</label>
-    <select id="talkClockPosSelect">
-      <option value="pos-left">左寄せ</option>
-      <option value="pos-center">中央</option>
-      <option value="pos-right" selected>右寄せ</option>
-    </select>
-    <label>メモ表示</label>
-    <select id="talkMemoSelect">
-      <option value="on">ON</option>
-      <option value="off">OFF</option>
-    </select>
-    <p class="muted">ショートカット仮：Space 更新 / 1 雑談 / 2 思い出 / 3 恋バナ / M メモ / S 設定 / Esc 戻る</p>
-  </div>
 </section>
-
 
     <section id="games" class="screen">
       <div class="grid">
@@ -2748,7 +2710,7 @@ function fitBrushText(text){
 <div class="tool-item" style="margin-bottom:12px;background:#111022;border-color:#6d28d9">
           <div class="row" style="justify-content:space-between">
             <div>
-              <div class="tool-title">🗳️ 投票システム</div>
+              <div class="tool-title">🗳️ 投票システム（未完成）</div>
               <div class="muted">使う時だけ開く手動集計</div>
             </div>
             <button class="btn mini-btn" id="togglePollPanel">開く</button>
@@ -3062,13 +3024,6 @@ function fitBrushText(text){
   </div>
 
 <script>
-// v75.4 safety helper: used by old and new renderers
-function escapeHtml(s){
-  return String(s ?? '').replace(/[&<>"']/g, function(m){
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m];
-  });
-}
-
 const KEY="stream_manager_integrated_v1";
 function ym(d){
   const y=d.getFullYear();
@@ -3324,63 +3279,6 @@ function makeBranchPack(){
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||defaultState}catch(e){return structuredClone(defaultState)}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
-
-
-/* v75: TALK RESCUE MODE */
-const talkPools={
-  chat:{
-    trunks:["最近ちょっと笑ったこと","人に言うほどじゃないけど好きなもの","今日のどうでもいいニュース","最近買ってよかったもの","自分だけの変なこだわり","配信中に決めたい謎ルール","最近ちょっと成長したこと"],
-    branches:["食べ物に例える","ダーツに例える","リスナーに二択で聞く","地域差に広げる","仕事あるあるにする","ランキング形式にする","逆に嫌いなものを聞く"],
-    leaves:["みんなはどう？","あるあるある？","一番近い経験ある？","逆にこれは無理？","コメントで一言ちょうだい","今でもやる？","どっち派？"]
-  },
-  memory:{
-    trunks:["昔ハマってたゲーム","学生時代の黒歴史","子どもの頃の謎ルール","昔好きだった食べ物","初めて買った思い出の物","昔の自分に言いたいこと","地元の思い出"],
-    branches:["初めてやった時","親の影響","友達との思い出","今やるとキツい","地域差","流行ってた理由","当時の自分の勘違い"],
-    leaves:["みんな何ハマってた？","今でも覚えてる？","一番記憶あるの何？","同世代いる？","逆に通ってない人いる？","懐かしい単語ある？","当時いくらだった？"]
-  },
-  love:{
-    trunks:["勘違いして恥ずかしかった話","青春っぽい思い出","モテると思ってた謎行動","友達の恋バナあるある","異性に言われて覚えてる一言","好きなタイプの変化","告白じゃないけど緊張した瞬間"],
-    branches:["学生時代に戻す","服装の話に逃げる","友達目線で話す","勘違いあるあるにする","理想と現実に分ける","失敗談にする","笑える黒歴史にする"],
-    leaves:["これ分かる人いる？","逆にされたらどう？","みんなの黒歴史ある？","これはセーフ？","同性目線だとどう？","一番ダサい行動は？","今ならどうする？"]
-  },
-  night:{
-    trunks:["深夜にだけ考えること","大人になって分かったこと","昔より楽になったこと","最近ちょっと疲れたこと","静かな時間にしたい話","人生で地味に効いた言葉","寝る前の謎ルーティン"],
-    branches:["少し真面目にする","笑い話に戻す","昔話に逃げる","リスナーの習慣を聞く","朝と夜で比べる","自分の変化を話す","次の日の話に繋げる"],
-    leaves:["夜型いる？","寝る前何してる？","こういう時ある？","今の自分に一言なら？","明日何ある？","深夜テンションあるあるは？","静かに聞いてる人いる？"]
-  },
-  chaos:{
-    trunks:["一番くだらない自慢","もし急に魔法が使えたら","配信中に起きたら困る事件","変なランキングを作る","ありえない店名を考える","動物が配信者だったら","今日から謎ルールを作る"],
-    branches:["全員巻き込む","大喜利にする","罰ゲームに繋げる","ルーレット行きにする","名前だけ募集する","一番ダサくする","逆にかっこよくする"],
-    leaves:["一番バカな答え募集","優勝コメント決めよう","これ名前つけるなら？","採用されたらログ行き","誰かもっとひどいのある？","今のなし？あり？","次枠の企画にする？"]
-  }
-};
-let talkMode="chat";
-let talkMemoOn=true;
-function sampleMany(arr,n){const pool=[...arr];const out=[];for(let i=0;i<n&&pool.length;i++){const idx=Math.floor(Math.random()*pool.length);out.push(pool.splice(idx,1)[0]);}return out;}
-function renderTalkRescue(){
-  const pool=talkPools[talkMode]||talkPools.chat;
-  const trunks=sampleMany(pool.trunks,5), branches=sampleMany(pool.branches,5), leaves=sampleMany(pool.leaves,5);
-  const tl=document.getElementById("talkTrunkList"), bl=document.getElementById("talkBranchList"), ll=document.getElementById("talkLeafList"), grid=document.getElementById("talkBottomGrid");
-  if(tl) tl.innerHTML=trunks.map(x=>`<div class="talk-main-item">・${escapeHtml(x)}</div>`).join("");
-  if(bl) bl.innerHTML=branches.map(x=>`<div class="talk-item">${escapeHtml(x)}</div>`).join("");
-  if(ll) ll.innerHTML=leaves.map(x=>`<div class="talk-item">${escapeHtml(x)}</div>`).join("");
-  if(grid) grid.classList.toggle("memo-off",!talkMemoOn);
-  document.querySelectorAll("[data-talk-mode]").forEach(b=>b.classList.toggle("active",b.dataset.talkMode===talkMode));
-}
-function updateTalkClock(){
-  const el=document.getElementById("talkClock"); if(!el) return;
-  const now=new Date();
-  const y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,"0"), d=String(now.getDate()).padStart(2,"0"), h=String(now.getHours()).padStart(2,"0"), mi=String(now.getMinutes()).padStart(2,"0");
-  el.textContent=`${y}/${m}/${d} ${h}:${mi}`;
-}
-function openTalkRescueMode(){
-  showScreen("talkRescue");
-  renderTalkRescue();
-  const sec=document.getElementById("talkRescue");
-  if(sec && sec.requestFullscreen) sec.requestFullscreen().catch(()=>{});
-}
-setInterval(updateTalkClock,1000);
-
 function showScreen(id){
   if(id!=="chinchiro") stopChinBgm();
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
@@ -3392,100 +3290,11 @@ function showScreen(id){
   if(id==="calendar") renderCalendar();
   if(id==="tools") renderTools();
   if(id==="chinchiro"){ renderChinMode(); startChinBgm(); }
-  if(id==="talkRescue"){ renderTalkRescue(); updateTalkClock(); }
 }
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>showScreen(b.dataset.screen)));
 
 if(window.openChinchiroFromGames) openChinchiroFromGames.onclick=()=>showScreen("chinchiro");
 if(window.openCalendarFromTools) openCalendarFromTools.onclick=()=>showScreen("calendar");
-
-
-/* v75.2: TALK RESCUE robust controls */
-function talkEl(id){ return document.getElementById(id); }
-function applyTalkMemoLayout(){
-  const grid=talkEl("talkBottomGrid");
-  const memo=talkEl("talkMemoPanel");
-  const btn=talkEl("talkToggleMemo");
-  const sel=talkEl("talkMemoSelect");
-  if(grid) grid.classList.toggle("memo-off", !talkMemoOn);
-  if(memo){
-    memo.classList.toggle("talk-hidden", !talkMemoOn);
-    memo.style.display = talkMemoOn ? "" : "none";
-  }
-  if(btn){
-    btn.classList.toggle("active", talkMemoOn);
-    btn.textContent = talkMemoOn ? "メモ ON" : "メモ OFF";
-  }
-  if(sel) sel.value = talkMemoOn ? "on" : "off";
-}
-const _renderTalkRescueBase = renderTalkRescue;
-renderTalkRescue = function(){
-  _renderTalkRescueBase();
-  applyTalkMemoLayout();
-};
-function closeTalkRescueMode(){
-  if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
-  const settings=talkEl("talkSettingsPanel");
-  if(settings) settings.classList.remove("open");
-  showScreen("home");
-}
-function setTalkMode(mode){
-  talkMode = mode || "chat";
-  renderTalkRescue();
-}
-function refreshTalkThemeOnly(){ renderTalkRescue(); }
-function toggleTalkMemo(){
-  talkMemoOn = !talkMemoOn;
-  applyTalkMemoLayout();
-}
-function toggleTalkSettings(){
-  const panel=talkEl("talkSettingsPanel");
-  if(panel) panel.classList.toggle("open");
-}
-function bindTalkRescueControls(){
-  const open=talkEl("openTalkRescue");
-  if(open) open.addEventListener("click", openTalkRescueMode);
-
-  document.addEventListener("click", (e)=>{
-    const target=e.target.closest("button,select");
-    if(!target) return;
-    const talkActive=talkEl("talkRescue")?.classList.contains("active");
-
-    if(target.id==="openTalkRescue"){ e.preventDefault(); e.stopImmediatePropagation(); openTalkRescueMode(); return; }
-    if(!talkActive) return;
-
-    const modeBtn=target.closest("[data-talk-mode]");
-    if(modeBtn){ e.preventDefault(); e.stopImmediatePropagation(); setTalkMode(modeBtn.dataset.talkMode); return; }
-    if(target.id==="talkRefresh"){ e.preventDefault(); e.stopImmediatePropagation(); refreshTalkThemeOnly(); return; }
-    if(target.id==="talkToggleMemo"){ e.preventDefault(); e.stopImmediatePropagation(); toggleTalkMemo(); return; }
-    if(target.id==="talkSettingsBtn"){ e.preventDefault(); e.stopImmediatePropagation(); toggleTalkSettings(); return; }
-    if(target.id==="talkExit"){ e.preventDefault(); e.stopImmediatePropagation(); closeTalkRescueMode(); return; }
-  }, true);
-
-  const theme=talkEl("talkThemeSelect");
-  if(theme) theme.addEventListener("change", ()=>{ const wrap=talkEl("talkRescueWrap"); if(wrap) wrap.className="talk-rescue-wrap "+theme.value; });
-  const clock=talkEl("talkClockPosSelect");
-  if(clock) clock.addEventListener("change", ()=>{ const el=talkEl("talkClock"); if(el) el.className="talk-clock "+clock.value; });
-  const memo=talkEl("talkMemoSelect");
-  if(memo) memo.addEventListener("change", ()=>{ talkMemoOn=memo.value==="on"; applyTalkMemoLayout(); });
-
-  document.addEventListener("keydown", e=>{
-    const active=talkEl("talkRescue")?.classList.contains("active");
-    if(!active) return;
-    const tag=(e.target.tagName||"").toLowerCase();
-    if(tag==="input"||tag==="textarea"||tag==="select") return;
-    if(e.code==="Space"){e.preventDefault();refreshTalkThemeOnly();}
-    if(e.key==="1"){setTalkMode("chat");}
-    if(e.key==="2"){setTalkMode("memory");}
-    if(e.key==="3"){setTalkMode("love");}
-    if(e.key.toLowerCase()==="m"){toggleTalkMemo();}
-    if(e.key.toLowerCase()==="s"){toggleTalkSettings();}
-    if(e.key==="Escape"){closeTalkRescueMode();}
-  });
-}
-bindTalkRescueControls();
-applyTalkMemoLayout();
-
 
 
 function renderHome(){
@@ -5758,124 +5567,103 @@ const firebaseConfig = { ... }
 })();
 </script>
 
+
 <script>
-/* v75.4 TALK RESCUE final hotfix: render topics + controls */
 (function(){
+  const $talk = (id)=>document.getElementById(id);
+  const esc = (v)=>String(v ?? '').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const pools={
     chat:{
-      trunks:["最近ちょっと笑ったこと","人に言うほどじゃないけど好きなもの","今日のどうでもいいニュース","最近買ってよかったもの","自分だけの変なこだわり","配信中に決めたい謎ルール","最近ちょっと成長したこと"],
-      branches:["食べ物に例える","ダーツに例える","リスナーに二択で聞く","地域差に広げる","仕事あるあるにする","ランキング形式にする","逆に嫌いなものを聞く"],
-      leaves:["みんなはどう？","あるあるある？","一番近い経験ある？","逆にこれは無理？","コメントで一言ちょうだい","今でもやる？","どっち派？"]
+      main:['最近買ってよかったもの','地味にテンション上がる瞬間','仕事中にふと思ったこと','最近ちょっと笑ったこと','大人になって変わった感覚','自分だけの変なこだわり','最近の小さい失敗'],
+      branch:['食べ物に例える','地元あるあるに寄せる','友達に言われたら笑う一言','今と昔で比べる','リスナーに二択で聞く','値段の話にする','配信者あるあるにする'],
+      leaf:['みんなはどう？','これあるある？','逆に嫌いな人いる？','今でもやる？','一番記憶あるの何？','コメントで一番変な例ちょうだい','それ自分だけ？']
     },
     memory:{
-      trunks:["昔ハマってたゲーム","学生時代の黒歴史","子どもの頃の謎ルール","昔好きだった食べ物","初めて買った思い出の物","昔の自分に言いたいこと","地元の思い出"],
-      branches:["初めてやった時","親の影響","友達との思い出","今やるとキツい","地域差","流行ってた理由","当時の自分の勘違い"],
-      leaves:["みんな何ハマってた？","今でも覚えてる？","一番記憶あるの何？","同世代いる？","逆に通ってない人いる？","懐かしい単語ある？","当時いくらだった？"]
+      main:['昔ハマってたゲーム','学生時代の黒歴史','子どもの頃の謎ルール','初めて買ったCDや曲','昔好きだった食べ物','昔の自分に言いたいこと','初めてのバイトや仕事'],
+      branch:['初めてやった時の話','親や友達の影響','今やるとキツいもの','地域差','当時の流行','恥ずかしかった瞬間','今なら分かること'],
+      leaf:['みんな何ハマってた？','それ今でも覚えてる？','同世代いる？','一番古い記憶なに？','昔の流行で戻したいものある？','その頃の自分に一言言うなら？','給食で好きだったものは？']
     },
     love:{
-      trunks:["勘違いして恥ずかしかった話","青春っぽい思い出","モテると思ってた謎行動","友達の恋バナあるある","異性に言われて覚えてる一言","好きなタイプの変化","告白じゃないけど緊張した瞬間"],
-      branches:["学生時代に戻す","服装の話に逃げる","友達目線で話す","勘違いあるあるにする","理想と現実に分ける","失敗談にする","笑える黒歴史にする"],
-      leaves:["これ分かる人いる？","逆にされたらどう？","みんなの黒歴史ある？","これはセーフ？","同性目線だとどう？","一番ダサい行動は？","今ならどうする？"]
+      main:['学生時代の勘違い','好きな人の前でやらかした話','モテると思ってた行動','異性に言われて覚えてる一言','恋愛じゃないけどドキッとした話','告白より緊張した瞬間','理想と現実の差'],
+      branch:['黒歴史寄りにする','友達の話にぼかす','青春あるあるにする','男女の違いにする','今なら笑える話にする','ドラマみたいに言い換える','勘違いあるあるにする'],
+      leaf:['みんなはやらかしたことある？','それ脈ありだと思う？','今ならどうする？','一番恥ずかしい青春ある？','友達に止められたことある？','恋バナ苦手勢いる？','これはセーフ？アウト？']
     },
-    night:{
-      trunks:["深夜にだけ考えること","大人になって分かったこと","昔より楽になったこと","最近ちょっと疲れたこと","静かな時間にしたい話","人生で地味に効いた言葉","寝る前の謎ルーティン"],
-      branches:["少し真面目にする","笑い話に戻す","昔話に逃げる","リスナーの習慣を聞く","朝と夜で比べる","自分の変化を話す","次の日の話に繋げる"],
-      leaves:["夜型いる？","寝る前何してる？","こういう時ある？","今の自分に一言なら？","明日何ある？","深夜テンションあるあるは？","静かに聞いてる人いる？"]
+    midnight:{
+      main:['夜中に考えすぎること','人生で地味に大事だと思うこと','大人になって寂しくなったこと','寝る前の変な習慣','深夜に食べたくなるもの','昔の友達を思い出す瞬間','静かな時間にしたくなる話'],
+      branch:['少し真面目にする','昔話に寄せる','食べ物で軽くする','音楽の話にする','自分ルールにする','リスナーの生活感を聞く','明日の話に戻す'],
+      leaf:['夜更かし勢いる？','寝る前なにしてる？','深夜に食べるなら何？','こういう時ある？','明日何時起き？','静かな曲で好きなのある？','深夜テンションの失敗ある？']
     },
     chaos:{
-      trunks:["一番くだらない自慢","もし急に魔法が使えたら","配信中に起きたら困る事件","変なランキングを作る","ありえない店名を考える","動物が配信者だったら","今日から謎ルールを作る"],
-      branches:["全員巻き込む","大喜利にする","罰ゲームに繋げる","ルーレット行きにする","名前だけ募集する","一番ダサくする","逆にかっこよくする"],
-      leaves:["一番バカな答え募集","優勝コメント決めよう","これ名前つけるなら？","採用されたらログ行き","誰かもっとひどいのある？","今のなし？あり？","次枠の企画にする？"]
+      main:['もし配信画面から急に鳩が出たら','一番くだらない必殺技名','コンビニ店員がラスボスだったら','猫が配信者だった時の初見挨拶','米を炊きすぎた事件','世界一どうでもいい大会','絶対に盛り上がらないイベント名'],
+      branch:['大喜利にする','リスナーに乗っける','罰ゲームに繋げる','セリフ化する','ランキング化する','急に真面目に考える','カジノ風にする'],
+      leaf:['一番バカな答えちょうだい','これ優勝だれ？','コメント欄で完成させて','逆にかっこよく言って','名前つけるなら？','それ商品化するなら？','次の企画にする？']
     }
   };
-  let mode='chat';
-  let memoOn=true;
-  const $=id=>document.getElementById(id);
-  const esc=s=>String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  function pickMany(arr,n){
-    const pool=[...arr], out=[];
-    while(out.length<n && pool.length){ out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]); }
+  const stateTalk={mode:'chat', memo:true, theme:'theme-cyber', clock:'right'};
+  function sample(arr,n=5){
+    const a=[...arr]; const out=[];
+    while(a.length && out.length<n){ out.push(a.splice(Math.floor(Math.random()*a.length),1)[0]); }
     return out;
   }
-  function applyMemo(){
-    const grid=$('talkBottomGrid'), panel=$('talkMemoPanel'), btn=$('talkToggleMemo'), sel=$('talkMemoSelect');
-    if(grid) grid.classList.toggle('memo-off', !memoOn);
-    if(panel){ panel.classList.toggle('talk-hidden', !memoOn); panel.style.display=memoOn ? '' : 'none'; }
-    if(btn){ btn.classList.toggle('active', memoOn); btn.textContent=memoOn ? 'メモ ON' : 'メモ OFF'; }
-    if(sel) sel.value=memoOn ? 'on' : 'off';
+  function renderTalk(){
+    const pool=pools[stateTalk.mode]||pools.chat;
+    const main=$talk('talkMainList'), branch=$talk('talkBranchList'), leaf=$talk('talkLeafList');
+    if(main) main.innerHTML=sample(pool.main).map(x=>`<div class="talk-main-item">・${esc(x)}</div>`).join('');
+    if(branch) branch.innerHTML=sample(pool.branch).map(x=>`<div class="talk-item">${esc(x)}</div>`).join('');
+    if(leaf) leaf.innerHTML=sample(pool.leaf).map(x=>`<div class="talk-item">${esc(x)}</div>`).join('');
+    document.querySelectorAll('#talkRescue [data-talk-mode]').forEach(b=>b.classList.toggle('active', b.dataset.talkMode===stateTalk.mode));
+    const memo=$talk('talkMemoPanel'), grid=$talk('talkBottomGrid'), memoBtn=document.querySelector('#talkRescue [data-talk-action="memo"]');
+    if(memo) memo.classList.toggle('hidden', !stateTalk.memo);
+    if(grid) grid.classList.toggle('no-memo', !stateTalk.memo);
+    if(memoBtn) memoBtn.textContent=stateTalk.memo?'メモ OFF':'メモ ON';
+    const wrap=$talk('talkRescueWrap'); if(wrap) wrap.className='talk-rescue-wrap '+stateTalk.theme;
+    const clock=$talk('talkClock'); if(clock) clock.className='talk-clock '+stateTalk.clock;
   }
   function updateClock(){
-    const el=$('talkClock'); if(!el) return;
-    const now=new Date();
-    const y=now.getFullYear(), mo=String(now.getMonth()+1).padStart(2,'0'), d=String(now.getDate()).padStart(2,'0');
-    const h=String(now.getHours()).padStart(2,'0'), mi=String(now.getMinutes()).padStart(2,'0');
-    el.textContent=`${y}/${mo}/${d} ${h}:${mi}`;
-  }
-  function render(){
-    const p=pools[mode] || pools.chat;
-    const trunk=$('talkTrunkList'), branch=$('talkBranchList'), leaf=$('talkLeafList');
-    if(trunk) trunk.innerHTML=pickMany(p.trunks,5).map(x=>`<div class="talk-main-item">・${esc(x)}</div>`).join('');
-    if(branch) branch.innerHTML=pickMany(p.branches,5).map(x=>`<div class="talk-item">${esc(x)}</div>`).join('');
-    if(leaf) leaf.innerHTML=pickMany(p.leaves,5).map(x=>`<div class="talk-item">${esc(x)}</div>`).join('');
-    document.querySelectorAll('#talkRescue [data-talk-mode]').forEach(b=>b.classList.toggle('active', b.dataset.talkMode===mode));
-    applyMemo();
-    updateClock();
+    const c=$talk('talkClock'); if(!c) return;
+    const d=new Date();
+    c.textContent=`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
   }
   function openTalk(){
-    try{ if(typeof stopChinBgm==='function') stopChinBgm(); }catch(e){}
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    const sec=$('talkRescue'); if(sec) sec.classList.add('active');
-    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-    render();
-    if(sec && sec.requestFullscreen) sec.requestFullscreen().catch(()=>{});
+    if(typeof showScreen==='function') showScreen('talkRescue');
+    const sec=$talk('talkRescue'); if(sec) sec.classList.add('active');
+    renderTalk(); updateClock();
   }
   function closeTalk(){
-    if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
-    const settings=$('talkSettingsPanel'); if(settings) settings.classList.remove('open');
+    const sec=$talk('talkRescue'); if(sec) sec.classList.remove('active');
     if(typeof showScreen==='function') showScreen('home');
-    else {
-      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-      const home=$('home'); if(home) home.classList.add('active');
-    }
   }
-  // Override old global functions used by older listeners.
-  window.renderTalkRescue=render;
-  window.updateTalkClock=updateClock;
-  window.openTalkRescueMode=openTalk;
-  window.setTalkMode=function(m){ mode=m||'chat'; render(); };
-  window.refreshTalkThemeOnly=render;
-  window.toggleTalkMemo=function(){ memoOn=!memoOn; applyMemo(); };
-  window.toggleTalkSettings=function(){ const p=$('talkSettingsPanel'); if(p) p.classList.toggle('open'); };
-  window.closeTalkRescueMode=closeTalk;
-
-  function bind(){
-    const open=$('openTalkRescue');
-    if(open) open.onclick=function(e){ e.preventDefault(); e.stopPropagation(); openTalk(); };
-
-    const root=$('talkRescue');
-    if(root){
-      root.addEventListener('click', function(e){
-        const target=e.target.closest('button');
-        if(!target) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if(target.dataset.talkMode){ mode=target.dataset.talkMode; render(); return; }
-        if(target.id==='talkRefresh'){ render(); return; }
-        if(target.id==='talkToggleMemo'){ memoOn=!memoOn; applyMemo(); return; }
-        if(target.id==='talkSettingsBtn'){ const p=$('talkSettingsPanel'); if(p) p.classList.toggle('open'); return; }
-        if(target.id==='talkExit'){ closeTalk(); return; }
-      }, true);
-    }
-
-    const theme=$('talkThemeSelect');
-    if(theme) theme.onchange=function(){ const wrap=$('talkRescueWrap'); if(wrap) wrap.className='talk-rescue-wrap '+theme.value; };
-    const pos=$('talkClockPosSelect');
-    if(pos) pos.onchange=function(){ const el=$('talkClock'); if(el) el.className='talk-clock '+pos.value; };
-    const memo=$('talkMemoSelect');
-    if(memo) memo.onchange=function(){ memoOn=memo.value==='on'; applyMemo(); };
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind); else bind();
-  setInterval(updateClock,1000);
+  document.addEventListener('click', function(e){
+    const open=e.target.closest('#openTalkRescue');
+    if(open){ e.preventDefault(); openTalk(); return; }
+    const root=$talk('talkRescue');
+    if(!root || !root.classList.contains('active')) return;
+    const modeBtn=e.target.closest('#talkRescue [data-talk-mode]');
+    if(modeBtn){ e.preventDefault(); stateTalk.mode=modeBtn.dataset.talkMode; renderTalk(); return; }
+    const actionBtn=e.target.closest('#talkRescue [data-talk-action]');
+    if(!actionBtn) return;
+    e.preventDefault();
+    const action=actionBtn.dataset.talkAction;
+    if(action==='memo'){ stateTalk.memo=!stateTalk.memo; renderTalk(); }
+    if(action==='refresh'){ renderTalk(); }
+    if(action==='settings'){ const p=$talk('talkSettingsPanel'); if(p) p.classList.toggle('open'); }
+    if(action==='exit'){ closeTalk(); }
+  }, true);
+  document.addEventListener('change', function(e){
+    if(e.target && e.target.id==='talkThemeSelect'){ stateTalk.theme=e.target.value; renderTalk(); }
+    if(e.target && e.target.id==='talkClockPosition'){ stateTalk.clock=e.target.value; renderTalk(); }
+  });
+  document.addEventListener('keydown', function(e){
+    const active=$talk('talkRescue')?.classList.contains('active');
+    if(!active) return;
+    if(e.key==='Escape'){ e.preventDefault(); closeTalk(); }
+    if(e.key===' '){ e.preventDefault(); renderTalk(); }
+    if(e.key.toLowerCase()==='m'){ e.preventDefault(); stateTalk.memo=!stateTalk.memo; renderTalk(); }
+    const map={1:'chat',2:'memory',3:'love',4:'midnight',5:'chaos'};
+    if(map[e.key]){ e.preventDefault(); stateTalk.mode=map[e.key]; renderTalk(); }
+  });
+  setInterval(updateClock, 1000);
+  updateClock();
 })();
 </script>
 
