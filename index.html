@@ -2118,55 +2118,176 @@ function fitBrushText(text){
   font-weight:1000;
 }
 
-
-/* v75.5 Talk Rescue fullscreen prototype */
-#talkRescue.screen{display:none;}
-#talkRescue.screen.active{display:block!important;position:fixed!important;inset:0!important;z-index:99999!important;background:#05070c!important;}
-.talk-rescue-wrap{
-  --talk-main:#39d0ff;
-  --talk-sub:#ff4fd8;
-  --talk-glow:rgba(57,208,255,.55);
-  min-height:100vh;
-  height:100vh;
-  overflow:hidden;
-  display:grid;
-  grid-template-rows:auto minmax(0,1fr) minmax(0,.74fr) auto;
-  gap:14px;
+/* v75.6 Talk Rescue fullscreen overlay - independent */
+.talk-rescue-overlay{
+  position:fixed;
+  inset:0;
+  z-index:20000;
+  display:none;
+  background:
+    radial-gradient(circle at top left,rgba(124,58,237,.28),transparent 34%),
+    radial-gradient(circle at bottom right,rgba(34,211,238,.18),transparent 30%),
+    #05070c;
+  color:#f8fafc;
   padding:18px;
-  color:#f8fbff;
-  background:radial-gradient(circle at top,#15203a,#05070c 62%);
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  overflow:hidden;
 }
-.talk-rescue-wrap.theme-cyber{--talk-main:#39d0ff;--talk-sub:#ff4fd8;--talk-glow:rgba(57,208,255,.55);background:radial-gradient(circle at top,#15203a,#05070c 62%)}
-.talk-rescue-wrap.theme-midnight{--talk-main:#a78bfa;--talk-sub:#60a5fa;--talk-glow:rgba(167,139,250,.55);background:radial-gradient(circle at top,#211342,#05060a 65%)}
-.talk-rescue-wrap.theme-casino{--talk-main:#facc15;--talk-sub:#34d399;--talk-glow:rgba(250,204,21,.55);background:radial-gradient(circle at top,#3a2608,#070504 66%)}
-.talk-rescue-wrap.theme-simple{--talk-main:#ffffff;--talk-sub:#d1d5db;--talk-glow:rgba(255,255,255,.16);background:#050505}
-.talk-rescue-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;min-height:34px;pointer-events:auto;}
-.talk-rescue-title{font-size:18px;font-weight:1000;letter-spacing:.14em;color:var(--talk-main);text-shadow:0 0 16px var(--talk-glow)}
-.talk-clock{font-size:18px;font-weight:900;opacity:.92;color:#fff;text-shadow:0 0 12px var(--talk-glow)}
-.talk-clock.left{justify-self:start}.talk-clock.center{justify-self:center}.talk-clock.right{justify-self:end}
-.talk-rescue-panel{background:rgba(8,12,20,.78);border:2px solid var(--talk-main);border-radius:26px;box-shadow:0 0 10px var(--talk-glow),0 0 34px rgba(57,208,255,.22),inset 0 0 18px rgba(255,255,255,.055);backdrop-filter:blur(8px);overflow:hidden;}
-.talk-main-panel{padding:22px 24px;display:flex;flex-direction:column;}
-.talk-panel-title{font-size:18px;font-weight:1000;letter-spacing:.08em;color:var(--talk-main);margin-bottom:12px;text-shadow:0 0 14px var(--talk-glow)}
-.talk-main-list{display:grid;gap:12px;align-content:start;}
-.talk-main-item{font-size:clamp(24px,3.1vw,48px);font-weight:1000;line-height:1.15;padding:10px 14px;border-radius:18px;background:rgba(255,255,255,.04)}
-.talk-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;min-height:0;}
-.talk-bottom.no-memo{grid-template-columns:1fr 1fr;}
-.talk-sub-panel{padding:16px;min-height:0;}
-.talk-sub-title{font-size:16px;font-weight:1000;color:var(--talk-sub);margin-bottom:10px;text-shadow:0 0 14px rgba(255,79,216,.35)}
-.talk-list{display:grid;gap:9px;}
-.talk-item{font-size:clamp(16px,1.55vw,25px);font-weight:850;line-height:1.25;padding:9px 11px;border-radius:14px;background:rgba(255,255,255,.045)}
-#talkMemoPanel.hidden{display:none!important;}
-.talk-memo-area{width:100%;height:calc(100% - 32px);min-height:150px;resize:none;border:1px solid rgba(255,255,255,.14);border-radius:16px;background:rgba(0,0,0,.32);color:#ffe9a6;font-weight:800;font-size:16px;line-height:1.45;padding:12px;outline:none;}
-.talk-buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;pointer-events:auto;position:relative;z-index:100010;}
-.talk-buttons button{border:1px solid rgba(255,255,255,.16);background:#131c2d;color:#fff;border-radius:999px;padding:12px 18px;font-weight:1000;min-height:44px;cursor:pointer;pointer-events:auto;}
-.talk-buttons button.active{background:linear-gradient(135deg,var(--talk-main),#e0faff);color:#061018;box-shadow:0 0 20px var(--talk-glow)}
-.talk-buttons .danger{background:#3a1014;border-color:#7f2028;color:#fff;}
-.talk-settings-panel{position:absolute;right:18px;bottom:78px;width:min(360px,calc(100vw - 36px));background:rgba(5,8,14,.96);border:1px solid var(--talk-main);border-radius:20px;padding:14px;box-shadow:0 0 32px var(--talk-glow);z-index:100030;display:none;}
-.talk-settings-panel.open{display:block;}
-.talk-settings-panel label{display:block;font-size:12px;color:#aab2c8;margin:8px 0 4px;}
-.talk-settings-panel select{width:100%;background:#080a10;color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:9px;}
-@media(max-width:760px){.talk-rescue-wrap{grid-template-rows:auto 1fr 1.05fr auto;padding:10px;gap:10px}.talk-bottom,.talk-bottom.no-memo{grid-template-columns:1fr}.talk-main-item{font-size:24px}.talk-item{font-size:16px}.talk-rescue-title{font-size:13px}.talk-clock{font-size:15px}.talk-sub-panel{padding:12px}.talk-buttons button{padding:10px 12px;font-size:13px}}
+.talk-rescue-overlay.open{display:block}
+.talk-rescue-frame{
+  height:100%;
+  display:grid;
+  grid-template-rows:auto minmax(0,1.05fr) minmax(0,.85fr) auto;
+  gap:14px;
+}
+.talk-rescue-topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  min-height:36px;
+}
+.talk-rescue-brand{
+  font-weight:1000;
+  letter-spacing:.12em;
+  color:#c4b5fd;
+  text-shadow:0 0 18px rgba(168,85,247,.85);
+}
+.talk-rescue-clock{
+  font-size:clamp(16px,2vw,26px);
+  font-weight:900;
+  color:#e9d5ff;
+  text-shadow:0 0 14px rgba(216,180,254,.7);
+}
+.talk-rescue-panel{
+  border:2px solid var(--talk-neon,#a855f7);
+  border-radius:28px;
+  background:rgba(8,10,18,.74);
+  box-shadow:
+    0 0 12px var(--talk-glow,rgba(168,85,247,.62)),
+    0 0 36px rgba(168,85,247,.26),
+    inset 0 0 28px rgba(255,255,255,.035);
+  backdrop-filter:blur(10px);
+  overflow:hidden;
+}
+.talk-rescue-panel-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  padding:13px 18px;
+  background:linear-gradient(90deg,rgba(168,85,247,.22),rgba(34,211,238,.08));
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+.talk-rescue-panel-head b{
+  font-size:clamp(18px,2.2vw,30px);
+  letter-spacing:.08em;
+}
+.talk-rescue-panel-head span{
+  color:#a5b4fc;
+  font-size:14px;
+  font-weight:900;
+}
+.talk-rescue-main{
+  padding:16px 18px;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:12px;
+  height:calc(100% - 58px);
+}
+.talk-rescue-card{
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:20px;
+  padding:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:clamp(20px,2.4vw,38px);
+  font-weight:1000;
+  line-height:1.3;
+  text-shadow:0 2px 0 rgba(0,0,0,.55);
+}
+.talk-rescue-bottom{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  min-height:0;
+}
+.talk-rescue-overlay.memo-on .talk-rescue-bottom{
+  grid-template-columns:1fr 1fr 1fr;
+}
+.talk-rescue-list{
+  padding:14px;
+  display:grid;
+  gap:10px;
+  height:calc(100% - 54px);
+}
+.talk-rescue-list div{
+  display:flex;
+  align-items:center;
+  min-height:0;
+  padding:10px 12px;
+  border-radius:16px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.10);
+  font-size:clamp(16px,1.55vw,24px);
+  font-weight:850;
+}
+.talk-rescue-memo{
+  display:none;
+}
+.talk-rescue-overlay.memo-on .talk-rescue-memo{
+  display:block;
+}
+.talk-rescue-memo textarea{
+  height:calc(100% - 54px);
+  min-height:160px;
+  border:0;
+  border-radius:0;
+  background:rgba(0,0,0,.18);
+  color:#fff7ed;
+  font-size:clamp(16px,1.5vw,23px);
+  resize:none;
+}
+.talk-rescue-actions{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  padding-top:2px;
+}
+.talk-rescue-actions button{
+  min-height:44px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:#101827;
+  color:#f8fafc;
+  padding:10px 15px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.talk-rescue-actions button.active{
+  background:linear-gradient(135deg,#ffffff,#c4b5fd);
+  color:#070812;
+  box-shadow:0 0 22px rgba(168,85,247,.55);
+}
+.talk-rescue-actions button.primary{
+  background:linear-gradient(135deg,#a855f7,#22d3ee);
+  color:#fff;
+}
+.talk-rescue-actions button.danger{
+  background:#3a1014;
+  color:#fecaca;
+}
+@media(max-width:820px){
+  .talk-rescue-overlay{padding:10px;overflow:auto}
+  .talk-rescue-frame{height:auto;min-height:100%;grid-template-rows:auto auto auto auto}
+  .talk-rescue-main{grid-template-columns:1fr;height:auto}
+  .talk-rescue-bottom,.talk-rescue-overlay.memo-on .talk-rescue-bottom{grid-template-columns:1fr}
+  .talk-rescue-card{text-align:left;justify-content:flex-start}
+}
 
 </style>
 
@@ -2215,7 +2336,7 @@ function fitBrushText(text){
             <button class="btn primary" id="autoTree">自動で組む</button>
             <button class="btn" id="nextBranch">枝を出し直す</button>
             <button class="btn" id="branchToLeaf">今の枝を葉にする</button>
-            <button class="btn primary" id="openTalkRescue" type="button">話題レスキュー 全画面</button>
+            <button class="btn primary" id="openTalkRescue" type="button">話題レスキュー全画面</button>
           </div>
         </div></div>
         <div class="card"><div class="inner">
@@ -2233,66 +2354,6 @@ function fitBrushText(text){
     
 
 
-</section>
-
-
-
-<section id="talkRescue" class="screen talk-rescue-screen">
-  <div class="talk-rescue-wrap theme-cyber" id="talkRescueWrap">
-    <div class="talk-rescue-top">
-      <div class="talk-rescue-title">TALK RESCUE MODE</div>
-      <div class="talk-clock right" id="talkClock">----/--/-- --:--</div>
-      <div></div>
-    </div>
-
-    <div class="talk-rescue-panel talk-main-panel">
-      <div class="talk-panel-title">幹｜メインテーマ候補</div>
-      <div class="talk-main-list" id="talkMainList"></div>
-    </div>
-
-    <div class="talk-bottom" id="talkBottomGrid">
-      <div class="talk-rescue-panel talk-sub-panel">
-        <div class="talk-sub-title">枝｜サブテーマ候補</div>
-        <div class="talk-list" id="talkBranchList"></div>
-      </div>
-      <div class="talk-rescue-panel talk-sub-panel">
-        <div class="talk-sub-title">葉｜発展候補</div>
-        <div class="talk-list" id="talkLeafList"></div>
-      </div>
-      <div class="talk-rescue-panel talk-sub-panel" id="talkMemoPanel">
-        <div class="talk-sub-title">メモ</div>
-        <textarea class="talk-memo-area" id="talkMemoText" placeholder="告知 / 拾いたいコメント / 忘れたくないこと"></textarea>
-      </div>
-    </div>
-
-    <div class="talk-settings-panel" id="talkSettingsPanel">
-      <label>テーマプリセット</label>
-      <select id="talkThemeSelect">
-        <option value="theme-cyber">サイバー配信</option>
-        <option value="theme-midnight">深夜雑談</option>
-        <option value="theme-casino">カジノネオン</option>
-        <option value="theme-simple">白黒シンプル</option>
-      </select>
-      <label>時計位置</label>
-      <select id="talkClockPosition">
-        <option value="left">左</option>
-        <option value="center">中央</option>
-        <option value="right" selected>右</option>
-      </select>
-    </div>
-
-    <div class="talk-buttons" id="talkButtons">
-      <button type="button" data-talk-mode="chat" class="active">雑談</button>
-      <button type="button" data-talk-mode="memory">思い出</button>
-      <button type="button" data-talk-mode="love">恋バナ</button>
-      <button type="button" data-talk-mode="midnight">深夜</button>
-      <button type="button" data-talk-mode="chaos">カオス</button>
-      <button type="button" data-talk-action="memo">メモ ON</button>
-      <button type="button" data-talk-action="refresh">テーマ更新</button>
-      <button type="button" data-talk-action="settings">設定</button>
-      <button type="button" data-talk-action="exit" class="danger">戻る</button>
-    </div>
-  </div>
 </section>
 
     <section id="games" class="screen">
@@ -2707,6 +2768,7 @@ function fitBrushText(text){
           </div>
         </div>
           
+
 <div class="tool-item" style="margin-bottom:12px;background:#111022;border-color:#6d28d9">
           <div class="row" style="justify-content:space-between">
             <div>
@@ -4647,6 +4709,7 @@ setInterval(()=>{
 
 function setupToolCollapse(){
   const pairs=[
+    ["rouletteOpen","toggleRoulettePanel","roulettePanelBody"],
     ["countersOpen","toggleCountersPanel","countersPanelBody"],
     ["timersOpen","toggleTimersPanel","timersPanelBody"],
     ["countdownsOpen","toggleCountdownsPanel","countdownsPanelBody"]
@@ -4666,7 +4729,475 @@ function setupToolCollapse(){
 }
 
 
-/* v74: 道具内の旧ルーレットを削除。ゲーム内の専用ルーレットへ一本化。 */
+let rouletteRotation=0;
+let rouletteSpinning=false;
+
+function renderRoulette(){
+  const itemsBox=document.getElementById("rouletteItems");
+  const histBox=document.getElementById("rouletteHistory");
+  const card=document.getElementById("rouletteGameCard");
+  const toggle=document.getElementById("toggleRoulettePanel");
+
+  state.roulette = state.roulette || {items:[],history:[]};
+  state.roulette.items = state.roulette.items || [];
+  state.roulette.history = state.roulette.history || [];
+  state.ui = state.ui || {};
+  if(typeof state.ui.rouletteOpen!=="boolean") state.ui.rouletteOpen=true;
+
+  if(card){
+    card.classList.toggle("open", state.ui.rouletteOpen);
+  }
+  if(toggle){
+    toggle.textContent=state.ui.rouletteOpen ? "閉じる" : "開く";
+  }
+
+  if(itemsBox){
+    const items=state.roulette.items;
+    itemsBox.innerHTML=items.map((item,i)=>`
+      <div class="roulette-item">
+        <div class="row" style="justify-content:space-between">
+          <b>${escapeHtml(item)}</b>
+          <button class="btn danger mini-btn" data-del-roulette="${i}" type="button">削除</button>
+        </div>
+      </div>
+    `).join("") || `<div class="roulette-item muted">項目なし</div>`;
+  }
+
+  if(histBox){
+    histBox.innerHTML=(state.roulette.history||[]).slice(0,10).map(h=>`
+      <div>${escapeHtml(h.time)}：<b>${escapeHtml(h.result)}</b></div>
+    `).join("") || `<div>履歴なし</div>`;
+  }
+}
+
+
+function renderTools(){
+  setupToolCollapse();
+  renderRoulette();
+  renderPolls();
+  if(!window.counterList) return;
+  newTimerSound.innerHTML=timerSounds.map(s=>`<option value="${s.id}">${s.label}</option>`).join("");
+
+  counterList.innerHTML=state.tools.counters.map((c,i)=>`
+    <div class="tool-item">
+      <div class="row" style="justify-content:space-between">
+        <input value="${escapeAttr(c.name)}" data-counter-name="${i}" style="max-width:65%">
+        <button class="btn danger mini-btn" data-counter-del="${i}">削除</button>
+      </div>
+      <div class="row" style="justify-content:space-between;margin-top:12px">
+        <div class="count-value">${c.value||0}</div>
+        <div class="row">
+          <button class="btn mini-btn" data-counter-minus="${i}">−</button>
+          <button class="btn primary mini-btn" data-counter-plus="${i}">＋</button>
+          <button class="btn mini-btn" data-counter-reset="${i}">リセット</button>
+        </div>
+      </div>
+    </div>
+  `).join("") || `<div class="tool-item muted">カウンターなし</div>`;
+
+  timerList.innerHTML=state.tools.timers.map((t,i)=>`
+    <div class="tool-item ${t.running?"running":""} ${t.done?"done":""}">
+      <div class="row" style="justify-content:space-between">
+        <input value="${escapeAttr(t.name)}" data-timer-name="${i}" style="max-width:58%">
+        <button class="btn danger mini-btn" data-timer-del="${i}">削除</button>
+      </div>
+      <div class="row" style="justify-content:space-between;margin-top:12px">
+        <div class="timer-value">${fmtTime(t.remaining)}</div>
+        <div class="row">
+          <button class="btn primary mini-btn" data-timer-toggle="${i}">${t.running?"停止":"開始"}</button>
+          <button class="btn mini-btn" data-timer-reset="${i}">リセット</button>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <label style="margin:0">時間</label>
+        <input type="number" min="0" value="${Math.floor((t.duration||0)/60)}" data-timer-min="${i}" style="max-width:82px">
+        <span>分</span>
+        <input type="number" min="0" max="59" value="${(t.duration||0)%60}" data-timer-sec="${i}" style="max-width:82px">
+        <span>秒</span>
+        <select data-timer-sound="${i}" style="max-width:180px">
+          ${timerSounds.map(s=>`<option value="${s.id}" ${t.sound===s.id?"selected":""}>${s.label}</option>`).join("")}
+        </select>
+        <button class="btn mini-btn" data-timer-test="${i}">音テスト</button>
+      </div>
+    </div>
+  `).join("") || `<div class="tool-item muted">タイマーなし</div>`;
+
+  bindToolButtons();
+  ensureTimerTick();
+}
+function bindToolButtons(){
+  counterList.querySelectorAll("[data-counter-name]").forEach(inp=>inp.onchange=()=>{state.tools.counters[Number(inp.dataset.counterName)].name=inp.value;save();renderTools()});
+  counterList.querySelectorAll("[data-counter-plus]").forEach(btn=>btn.onclick=()=>{state.tools.counters[Number(btn.dataset.counterPlus)].value++;save();renderTools()});
+  counterList.querySelectorAll("[data-counter-minus]").forEach(btn=>btn.onclick=()=>{const c=state.tools.counters[Number(btn.dataset.counterMinus)];c.value=Math.max(0,(c.value||0)-1);save();renderTools()});
+  counterList.querySelectorAll("[data-counter-reset]").forEach(btn=>btn.onclick=()=>{state.tools.counters[Number(btn.dataset.counterReset)].value=0;save();renderTools()});
+  counterList.querySelectorAll("[data-counter-del]").forEach(btn=>btn.onclick=()=>{const i=Number(btn.dataset.counterDel); if(confirm(`${state.tools.counters[i].name} を削除する？`)){state.tools.counters.splice(i,1);save();renderTools()}});
+
+  timerList.querySelectorAll("[data-timer-name]").forEach(inp=>inp.onchange=()=>{state.tools.timers[Number(inp.dataset.timerName)].name=inp.value;save();renderTools()});
+  timerList.querySelectorAll("[data-timer-toggle]").forEach(btn=>btn.onclick=()=>toggleTimer(Number(btn.dataset.timerToggle)));
+  timerList.querySelectorAll("[data-timer-reset]").forEach(btn=>btn.onclick=()=>resetTimer(Number(btn.dataset.timerReset)));
+  timerList.querySelectorAll("[data-timer-del]").forEach(btn=>btn.onclick=()=>{const i=Number(btn.dataset.timerDel); if(confirm(`${state.tools.timers[i].name} を削除する？`)){state.tools.timers.splice(i,1);save();renderTools()}});
+  timerList.querySelectorAll("[data-timer-min], [data-timer-sec]").forEach(inp=>inp.onchange=()=>updateTimerDurationFromInputs(inp));
+  timerList.querySelectorAll("[data-timer-sound]").forEach(sel=>sel.onchange=()=>{state.tools.timers[Number(sel.dataset.timerSound)].sound=sel.value;save();});
+  timerList.querySelectorAll("[data-timer-test]").forEach(btn=>btn.onclick=()=>playAlarm(state.tools.timers[Number(btn.dataset.timerTest)].sound));
+}
+function updateTimerDurationFromInputs(inp){
+  const i=Number(inp.dataset.timerMin ?? inp.dataset.timerSec);
+  const minEl=timerList.querySelector(`[data-timer-min="${i}"]`);
+  const secEl=timerList.querySelector(`[data-timer-sec="${i}"]`);
+  const duration=Math.max(1,(Number(minEl.value)||0)*60 + Math.min(59,Number(secEl.value)||0));
+  const t=state.tools.timers[i];
+  t.duration=duration;
+  if(!t.running) t.remaining=duration;
+  t.done=false;
+  save();renderTools();
+}
+function toggleTimer(i){
+  const t=state.tools.timers[i];
+  if(!t)return;
+  if(t.remaining<=0) t.remaining=t.duration;
+  t.running=!t.running;
+  t.done=false;
+  save();renderTools();
+}
+function resetTimer(i){
+  const t=state.tools.timers[i];
+  if(!t)return;
+  t.running=false;
+  t.done=false;
+  t.remaining=t.duration;
+  save();renderTools();
+}
+function ensureTimerTick(){
+  if(timerTick) return;
+  timerTick=setInterval(()=>{
+    let changed=false, needRender=false;
+    state.tools.timers.forEach(t=>{
+      if(t.running){
+        t.remaining=Math.max(0,(t.remaining||0)-1);
+        changed=true;
+        needRender=true;
+        if(t.remaining<=0){
+          t.running=false;
+          t.done=true;
+          playAlarm(t.sound);
+        }
+      }
+    });
+    if(changed) save();
+    if(needRender && document.getElementById("tools").classList.contains("active")) renderTools();
+  },1000);
+}
+if(window.addCounter) addCounter.onclick=()=>{
+  const name=newCounterName.value.trim() || "新しいカウンター";
+  state.tools.counters.push({id:uid("c"),name,value:0});
+  newCounterName.value="";
+  save();renderTools();
+}
+if(window.addTimer) addTimer.onclick=()=>{
+  const name=newTimerName.value.trim() || "新しいタイマー";
+  const duration=Math.max(1,(Number(newTimerMinutes.value)||0)*60 + Math.min(59,Number(newTimerSeconds.value)||0));
+  state.tools.timers.push({id:uid("t"),name,duration,remaining:duration,running:false,sound:newTimerSound.value||"hato1",done:false});
+  newTimerName.value="";
+  save();renderTools();
+}
+
+function encodeSaveData(obj){
+  const json=JSON.stringify(obj);
+  const bytes=new TextEncoder().encode(json);
+  let binary="";
+  bytes.forEach(b=>binary+=String.fromCharCode(b));
+  return "STREAMBASE1:" + btoa(binary);
+}
+function decodeSaveData(code){
+  const raw=String(code||"").trim();
+  if(!raw.startsWith("STREAMBASE1:")) throw new Error("保存文字列の形式が違う");
+  const b64=raw.replace("STREAMBASE1:","");
+  const binary=atob(b64);
+  const bytes=new Uint8Array([...binary].map(ch=>ch.charCodeAt(0)));
+  const json=new TextDecoder().decode(bytes);
+  return JSON.parse(json);
+}
+function refreshAll(){
+  save();
+  renderHome();
+  renderGames();
+  renderBonus();
+  renderMemo();
+  renderChLog();
+  renderChinMode();
+  renderSettings();
+  renderFirebaseSettings();
+  renderCalendar();
+  renderTools();
+  renderPolls();
+  renderRoulette();
+  renderCountdowns();
+  applyVolumes();
+}
+if(window.exportDataCode) exportDataCode.onclick=()=>{
+  dataCodeBox.value=encodeSaveData(state);
+};
+if(window.copyDataCode) copyDataCode.onclick=async()=>{
+  if(!dataCodeBox.value.trim()) dataCodeBox.value=encodeSaveData(state);
+  try{
+    await navigator.clipboard.writeText(dataCodeBox.value);
+    alert("コピーした！");
+  }catch(e){
+    dataCodeBox.select();
+    document.execCommand("copy");
+    alert("コピーした！ たぶん！");
+  }
+};
+if(window.importDataCode) importDataCode.onclick=()=>{
+  try{
+    const next=decodeSaveData(dataCodeBox.value);
+    if(!confirm("この保存文字列を読み込む？\\n今のデータは上書きされるよ。")) return;
+    state=next;
+    state.settings = state.settings || structuredClone(defaultState.settings);
+    if(typeof state.settings.alarmVolume!=="number") state.settings.alarmVolume=80;
+    state.calendarEvents = state.calendarEvents || [];
+    state.calendarTypes = state.calendarTypes || structuredClone(defaultState.calendarTypes || []);
+    if(!state.calendarTypes.length) state.calendarTypes = structuredClone(defaultState.calendarTypes || []);
+    state.polls = state.polls || structuredClone(defaultState.polls || []);
+    state.logboMonth = state.logboMonth || ym(new Date());
+    state.listeners = state.listeners || [];
+    state.listeners.forEach(l=>{
+      l.logboByMonth = l.logboByMonth || {};
+      if(Array.isArray(l.days) && !l.logboByMonth[state.logboMonth]) l.logboByMonth[state.logboMonth]=[...l.days].sort((a,b)=>a-b);
+      l.days=getLogboDays(l);
+    });
+    state.polls = state.polls || structuredClone(defaultState.polls || []);
+state.tools = state.tools || structuredClone(defaultState.tools);
+    state.tools.counters = state.tools.counters || [];
+    state.tools.timers = state.tools.timers || [];
+    state.chin = state.chin || structuredClone(defaultState.chin);
+    state.chin.diceCount = state.chin.diceCount || 3;
+    state.chin.diceNames = state.chin.diceNames || structuredClone(defaultState.chin.diceNames);
+    state.chin.customDice = state.chin.customDice || structuredClone(defaultState.chin.customDice);
+    state.chin.localMap = state.chin.localMap || {};
+    state.customGames = state.customGames || structuredClone(defaultState.customGames);
+    for (const k in defaultState.customGames) state.customGames[k] = state.customGames[k] || structuredClone(defaultState.customGames[k]);
+    state.listeners = state.listeners || [];
+    state.listeners.forEach(l=>{ if(typeof l.penalty!=="number") l.penalty=0; if(typeof l.registeredDate!=="string") l.registeredDate="";
+  if(typeof l.birthday!=="string") l.birthday="";
+  if(typeof l.birthYear!=="string") l.birthYear="";
+  if(typeof l.bloodType!=="string") l.bloodType="";
+  if(typeof l.firstVisitDate!=="string") l.firstVisitDate="";
+  if(typeof l.nickname!=="string") l.nickname="";
+  if(!l.favorites) l.favorites={};
+  ["project","game","food","area","music","anime","habit","free1","free2","ngTopic","dislikeFood","firstGame","mainWeapon","holiday","bgm","localThing","season","animal","oshi","firstStream","oneLine","teaseLine"].forEach(k=>{ if(typeof l.favorites[k]!=="string") l.favorites[k]=""; });
+  if(!Array.isArray(l.topicSeeds)) l.topicSeeds=[]; });
+    selectedListener=0;
+    refreshAll();
+    alert("読み込んだ！");
+  }catch(e){
+    alert("読み込み失敗：保存文字列が違うか壊れてるかも");
+  }
+};
+
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function escapeAttr(s){return escapeHtml(s).replace(/"/g,"&quot;")}
+
+renderHome();renderGames();renderBonus();renderMemo();renderCalendar();renderChLog();renderChinMode();renderSettings();renderTools();renderPolls();renderRoulette();renderCountdowns();applyVolumes();ensureTimerTick();
+
+
+document.addEventListener("click",(e)=>{
+  if(e.target && e.target.id==="openFirebaseHelp"){
+    const modal=document.getElementById("firebaseHelpModal");
+    if(modal) modal.classList.add("open");
+  }
+  if(e.target && e.target.id==="closeFirebaseHelp"){
+    const modal=document.getElementById("firebaseHelpModal");
+    if(modal) modal.classList.remove("open");
+  }
+  if(e.target && e.target.id==="firebaseHelpModal"){
+    e.target.classList.remove("open");
+  }
+});
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="Escape"){
+    const modal=document.getElementById("firebaseHelpModal");
+    if(modal) modal.classList.remove("open");
+  }
+});
+
+
+document.addEventListener("click",(e)=>{
+  const t=e.target;
+  if(!t) return;
+
+  if(t.id==="addRouletteItem"){
+    const input=document.getElementById("newRouletteItem");
+    const v=input?.value.trim();
+    if(!v) return;
+    state.roulette=state.roulette||{items:[],history:[]};
+    state.roulette.items.push(v);
+    input.value="";
+    save();renderRoulette();
+  }
+
+  if(t.id==="shuffleRoulette"){
+    const arr=state.roulette?.items||[];
+    for(let i=arr.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    save();renderRoulette();
+  }
+
+  if(t.id==="clearRouletteHistory"){
+    if(!confirm("ルーレット履歴を削除する？")) return;
+    state.roulette.history=[];
+    save();renderRoulette();
+  }
+
+  if(t.id==="spinRoulette"){
+    spinCasinoRoulette();
+  }
+
+  if(t.dataset && t.dataset.delRoulette!==undefined){
+    const i=Number(t.dataset.delRoulette);
+    state.roulette.items.splice(i,1);
+    save();renderRoulette();
+  }
+});
+
+function spinCasinoRoulette(){
+  if(rouletteSpinning) return;
+  const items=state.roulette?.items || [];
+  if(items.length<2) return alert("ルーレット項目は2個以上ほしいｗ");
+
+  const stage=document.getElementById("rouletteStage");
+  const wheel=document.getElementById("rouletteWheel");
+  const resultEl=document.getElementById("rouletteResult");
+  if(!stage || !wheel || !resultEl) return alert("ルーレット表示が見つからないｗ");
+
+  rouletteSpinning=true;
+  stage.classList.remove("hit");
+  resultEl.classList.remove("show");
+  resultEl.textContent="回転中…";
+
+  const winnerIndex=Math.floor(Math.random()*items.length);
+  const winner=items[winnerIndex];
+
+  rouletteRotation += 360*6 + Math.floor(Math.random()*360);
+  wheel.style.transform=`rotate(${rouletteRotation}deg)`;
+
+  setTimeout(()=>{
+    resultEl.textContent=winner;
+    resultEl.classList.add("show");
+    stage.classList.add("hit");
+    state.roulette.history.unshift({
+      time:new Date().toLocaleTimeString("ja-JP"),
+      result:winner
+    });
+    state.roulette.history=state.roulette.history.slice(0,30);
+    save();renderRoulette();
+    try{ playAlarm("sponsor"); }catch(e){}
+    rouletteSpinning=false;
+  },4200);
+}
+
+
+document.addEventListener("click",(e)=>{
+  const t=e.target;
+  if(!t) return;
+
+  if(t.id==="toggleRoulettePanel"){
+    state.ui=state.ui||{};
+    state.ui.rouletteOpen=!state.ui.rouletteOpen;
+    save();
+    renderRoulette();
+    return;
+  }
+
+  if(t.id==="addRouletteItem"){
+    const input=document.getElementById("newRouletteItem");
+    const v=input?.value.trim();
+    if(!v) return;
+    state.roulette=state.roulette||{items:[],history:[]};
+    state.roulette.items=state.roulette.items||[];
+    state.roulette.items.push(v);
+    input.value="";
+    save();
+    renderRoulette();
+    return;
+  }
+
+  if(t.id==="shuffleRoulette"){
+    const arr=state.roulette?.items||[];
+    for(let i=arr.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    save();
+    renderRoulette();
+    return;
+  }
+
+  if(t.id==="clearRouletteHistory"){
+    if(!confirm("ルーレット履歴を削除する？")) return;
+    state.roulette=state.roulette||{items:[],history:[]};
+    state.roulette.history=[];
+    save();
+    renderRoulette();
+    return;
+  }
+
+  if(t.id==="spinRoulette"){
+    spinCasinoRoulette();
+    return;
+  }
+
+  if(t.dataset && t.dataset.delRoulette!==undefined){
+    const i=Number(t.dataset.delRoulette);
+    if(state.roulette?.items) state.roulette.items.splice(i,1);
+    save();
+    renderRoulette();
+    return;
+  }
+});
+
+function spinCasinoRoulette(){
+  if(rouletteSpinning) return;
+  state.roulette=state.roulette||{items:[],history:[]};
+  const items=state.roulette.items || [];
+  if(items.length<2) return alert("ルーレット項目は2個以上ほしいｗ");
+
+  const stage=document.getElementById("rouletteStage");
+  const wheel=document.getElementById("rouletteWheel");
+  const resultEl=document.getElementById("rouletteResult");
+  if(!stage || !wheel || !resultEl) return alert("ルーレット表示が見つからないｗ");
+
+  rouletteSpinning=true;
+  stage.classList.remove("hit");
+  resultEl.classList.remove("show");
+  resultEl.textContent="回転中…";
+
+  const winnerIndex=Math.floor(Math.random()*items.length);
+  const winner=items[winnerIndex];
+
+  rouletteRotation += 360*6 + Math.floor(Math.random()*360);
+  wheel.style.transform=`rotate(${rouletteRotation}deg)`;
+
+  setTimeout(()=>{
+    resultEl.textContent=winner;
+    resultEl.classList.add("show");
+    stage.classList.add("hit");
+    state.roulette.history=state.roulette.history||[];
+    state.roulette.history.unshift({
+      time:new Date().toLocaleTimeString("ja-JP"),
+      result:winner
+    });
+    state.roulette.history=state.roulette.history.slice(0,30);
+    save();
+    renderRoulette();
+    try{ playAlarm("sponsor"); }catch(e){}
+    rouletteSpinning=false;
+  },4200);
+}
+
+document.addEventListener("DOMContentLoaded",()=>renderRoulette());
 
 </script>
 
@@ -5565,107 +6096,175 @@ const firebaseConfig = { ... }
     renderRouletteSettings();
   }
 })();
-</script>
 
 
-<script>
+/* v75.6 Talk Rescue fullscreen - independent module */
 (function(){
-  const $talk = (id)=>document.getElementById(id);
-  const esc = (v)=>String(v ?? '').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  const pools={
-    chat:{
-      main:['最近買ってよかったもの','地味にテンション上がる瞬間','仕事中にふと思ったこと','最近ちょっと笑ったこと','大人になって変わった感覚','自分だけの変なこだわり','最近の小さい失敗'],
-      branch:['食べ物に例える','地元あるあるに寄せる','友達に言われたら笑う一言','今と昔で比べる','リスナーに二択で聞く','値段の話にする','配信者あるあるにする'],
-      leaf:['みんなはどう？','これあるある？','逆に嫌いな人いる？','今でもやる？','一番記憶あるの何？','コメントで一番変な例ちょうだい','それ自分だけ？']
+  const modes = {
+    zatsudan:{
+      label:"雑談モード",
+      trunks:["最近ちょっと笑ったこと","人に言うほどじゃないけど好きなもの","最近買ってよかったもの","今日のどうでもいいニュース","自分だけの変なこだわり"],
+      branches:["食べ物に逃げる","仕事あるあるにする","リスナーに二択で聞く","昔と今で比べる","ランキング形式にする"],
+      leaves:["みんなはどう？","あるあるある？","逆に嫌いなやつある？","一番記憶あるの何？","コメントで一個だけ教えて"]
     },
     memory:{
-      main:['昔ハマってたゲーム','学生時代の黒歴史','子どもの頃の謎ルール','初めて買ったCDや曲','昔好きだった食べ物','昔の自分に言いたいこと','初めてのバイトや仕事'],
-      branch:['初めてやった時の話','親や友達の影響','今やるとキツいもの','地域差','当時の流行','恥ずかしかった瞬間','今なら分かること'],
-      leaf:['みんな何ハマってた？','それ今でも覚えてる？','同世代いる？','一番古い記憶なに？','昔の流行で戻したいものある？','その頃の自分に一言言うなら？','給食で好きだったものは？']
+      label:"思い出モード",
+      trunks:["子どもの頃ハマったもの","学生時代の黒歴史","昔よく食べたもの","初めて買ったゲーム","昔の自分に言いたいこと"],
+      branches:["友達との思い出","家族にバレた話","地域差","当時の流行","今やるとキツい"],
+      leaves:["みんな昔なに流行ってた？","初めての○○覚えてる？","同世代いる？","今でも残ってる？","それ黒歴史？"]
     },
     love:{
-      main:['学生時代の勘違い','好きな人の前でやらかした話','モテると思ってた行動','異性に言われて覚えてる一言','恋愛じゃないけどドキッとした話','告白より緊張した瞬間','理想と現実の差'],
-      branch:['黒歴史寄りにする','友達の話にぼかす','青春あるあるにする','男女の違いにする','今なら笑える話にする','ドラマみたいに言い換える','勘違いあるあるにする'],
-      leaf:['みんなはやらかしたことある？','それ脈ありだと思う？','今ならどうする？','一番恥ずかしい青春ある？','友達に止められたことある？','恋バナ苦手勢いる？','これはセーフ？アウト？']
+      label:"恋バナモード",
+      trunks:["昔の勘違いエピソード","好きになる瞬間","モテると思ってた行動","青春っぽい失敗","理想と現実の差"],
+      branches:["友達に相談した話","LINEの距離感","服装の話","勘違いあるある","優しさの基準"],
+      leaves:["それ脈ありだと思う？","みんなならどうする？","これはセーフ？","逆に冷める瞬間は？","青春エピある？"]
     },
     midnight:{
-      main:['夜中に考えすぎること','人生で地味に大事だと思うこと','大人になって寂しくなったこと','寝る前の変な習慣','深夜に食べたくなるもの','昔の友達を思い出す瞬間','静かな時間にしたくなる話'],
-      branch:['少し真面目にする','昔話に寄せる','食べ物で軽くする','音楽の話にする','自分ルールにする','リスナーの生活感を聞く','明日の話に戻す'],
-      leaf:['夜更かし勢いる？','寝る前なにしてる？','深夜に食べるなら何？','こういう時ある？','明日何時起き？','静かな曲で好きなのある？','深夜テンションの失敗ある？']
+      label:"深夜モード",
+      trunks:["夜中に考えちゃうこと","人生で地味に覚えてる場面","大人になって分かったこと","最近少し疲れた話","静かに語れる好きなもの"],
+      branches:["昔の自分を掘る","音楽の話にする","眠れない夜の話","後悔と笑い話","ひとり時間"],
+      leaves:["深夜勢いる？","寝る前なに考える？","これ分かる人いる？","同じタイプいる？","明日休みの人？"]
     },
     chaos:{
-      main:['もし配信画面から急に鳩が出たら','一番くだらない必殺技名','コンビニ店員がラスボスだったら','猫が配信者だった時の初見挨拶','米を炊きすぎた事件','世界一どうでもいい大会','絶対に盛り上がらないイベント名'],
-      branch:['大喜利にする','リスナーに乗っける','罰ゲームに繋げる','セリフ化する','ランキング化する','急に真面目に考える','カジノ風にする'],
-      leaf:['一番バカな答えちょうだい','これ優勝だれ？','コメント欄で完成させて','逆にかっこよく言って','名前つけるなら？','それ商品化するなら？','次の企画にする？']
+      label:"カオスモード",
+      trunks:["絶対に盛り上がらないイベント名","もし配信部屋にゴリラが来たら","コンビニで起きたら怖いこと","変なルールを一個作る","今日から禁止されたら困るもの"],
+      branches:["大喜利にする","罰ゲーム化する","リスナーに丸投げ","一番くだらない答え募集","ゲームのステータス風にする"],
+      leaves:["一番バカな答えくれ","それ採用でいい？","もっとくだらなくして","優勝決めるか","コメント欄に任せた"]
     }
   };
-  const stateTalk={mode:'chat', memo:true, theme:'theme-cyber', clock:'right'};
-  function sample(arr,n=5){
-    const a=[...arr]; const out=[];
-    while(a.length && out.length<n){ out.push(a.splice(Math.floor(Math.random()*a.length),1)[0]); }
+  let currentMode = "zatsudan";
+  let memoOn = true;
+  const qs = (id)=>document.getElementById(id);
+  const esc = (s)=>String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  function pickFive(list){
+    const pool = [...list];
+    const out = [];
+    while(out.length < 5 && pool.length){
+      out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+    }
     return out;
   }
   function renderTalk(){
-    const pool=pools[stateTalk.mode]||pools.chat;
-    const main=$talk('talkMainList'), branch=$talk('talkBranchList'), leaf=$talk('talkLeafList');
-    if(main) main.innerHTML=sample(pool.main).map(x=>`<div class="talk-main-item">・${esc(x)}</div>`).join('');
-    if(branch) branch.innerHTML=sample(pool.branch).map(x=>`<div class="talk-item">${esc(x)}</div>`).join('');
-    if(leaf) leaf.innerHTML=sample(pool.leaf).map(x=>`<div class="talk-item">${esc(x)}</div>`).join('');
-    document.querySelectorAll('#talkRescue [data-talk-mode]').forEach(b=>b.classList.toggle('active', b.dataset.talkMode===stateTalk.mode));
-    const memo=$talk('talkMemoPanel'), grid=$talk('talkBottomGrid'), memoBtn=document.querySelector('#talkRescue [data-talk-action="memo"]');
-    if(memo) memo.classList.toggle('hidden', !stateTalk.memo);
-    if(grid) grid.classList.toggle('no-memo', !stateTalk.memo);
-    if(memoBtn) memoBtn.textContent=stateTalk.memo?'メモ OFF':'メモ ON';
-    const wrap=$talk('talkRescueWrap'); if(wrap) wrap.className='talk-rescue-wrap '+stateTalk.theme;
-    const clock=$talk('talkClock'); if(clock) clock.className='talk-clock '+stateTalk.clock;
-  }
-  function updateClock(){
-    const c=$talk('talkClock'); if(!c) return;
-    const d=new Date();
-    c.textContent=`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const m = modes[currentMode] || modes.zatsudan;
+    const overlay = qs("talkRescueOverlay");
+    if(!overlay) return;
+    overlay.classList.toggle("memo-on", memoOn);
+    qs("talkRescueModeLabel").textContent = m.label;
+    qs("talkRescueTrunks").innerHTML = pickFive(m.trunks).map(x=>`<div class="talk-rescue-card">${esc(x)}</div>`).join("");
+    qs("talkRescueBranches").innerHTML = pickFive(m.branches).map(x=>`<div>${esc(x)}</div>`).join("");
+    qs("talkRescueLeaves").innerHTML = pickFive(m.leaves).map(x=>`<div>${esc(x)}</div>`).join("");
+    document.querySelectorAll("[data-talk-mode]").forEach(btn=>{
+      btn.classList.toggle("active", btn.dataset.talkMode === currentMode);
+    });
+    const memoBtn = document.querySelector('[data-talk-action="memo"]');
+    if(memoBtn){
+      memoBtn.classList.toggle("active", memoOn);
+      memoBtn.textContent = memoOn ? "メモON" : "メモOFF";
+    }
   }
   function openTalk(){
-    if(typeof showScreen==='function') showScreen('talkRescue');
-    const sec=$talk('talkRescue'); if(sec) sec.classList.add('active');
-    renderTalk(); updateClock();
+    const overlay = qs("talkRescueOverlay");
+    if(!overlay) return;
+    overlay.classList.add("open");
+    overlay.setAttribute("aria-hidden","false");
+    renderTalk();
   }
   function closeTalk(){
-    const sec=$talk('talkRescue'); if(sec) sec.classList.remove('active');
-    if(typeof showScreen==='function') showScreen('home');
+    const overlay = qs("talkRescueOverlay");
+    if(!overlay) return;
+    overlay.classList.remove("open");
+    overlay.setAttribute("aria-hidden","true");
   }
-  document.addEventListener('click', function(e){
-    const open=e.target.closest('#openTalkRescue');
-    if(open){ e.preventDefault(); openTalk(); return; }
-    const root=$talk('talkRescue');
-    if(!root || !root.classList.contains('active')) return;
-    const modeBtn=e.target.closest('#talkRescue [data-talk-mode]');
-    if(modeBtn){ e.preventDefault(); stateTalk.mode=modeBtn.dataset.talkMode; renderTalk(); return; }
-    const actionBtn=e.target.closest('#talkRescue [data-talk-action]');
-    if(!actionBtn) return;
-    e.preventDefault();
-    const action=actionBtn.dataset.talkAction;
-    if(action==='memo'){ stateTalk.memo=!stateTalk.memo; renderTalk(); }
-    if(action==='refresh'){ renderTalk(); }
-    if(action==='settings'){ const p=$talk('talkSettingsPanel'); if(p) p.classList.toggle('open'); }
-    if(action==='exit'){ closeTalk(); }
-  }, true);
-  document.addEventListener('change', function(e){
-    if(e.target && e.target.id==='talkThemeSelect'){ stateTalk.theme=e.target.value; renderTalk(); }
-    if(e.target && e.target.id==='talkClockPosition'){ stateTalk.clock=e.target.value; renderTalk(); }
+  function updateClock(){
+    const c = qs("talkRescueClock");
+    if(!c) return;
+    const d = new Date();
+    c.textContent = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+  }
+  document.addEventListener("DOMContentLoaded", ()=>{
+    const openBtn = qs("openTalkRescue");
+    if(openBtn) openBtn.addEventListener("click", openTalk);
+    const actions = qs("talkRescueActions");
+    if(actions){
+      actions.addEventListener("click", (e)=>{
+        const modeBtn = e.target.closest("[data-talk-mode]");
+        const actionBtn = e.target.closest("[data-talk-action]");
+        if(modeBtn){
+          currentMode = modeBtn.dataset.talkMode;
+          renderTalk();
+          return;
+        }
+        if(actionBtn){
+          const a = actionBtn.dataset.talkAction;
+          if(a === "memo"){ memoOn = !memoOn; renderTalk(); }
+          if(a === "refresh"){ renderTalk(); }
+          if(a === "close"){ closeTalk(); }
+        }
+      });
+    }
+    document.addEventListener("keydown",(e)=>{
+      const overlay = qs("talkRescueOverlay");
+      if(!overlay || !overlay.classList.contains("open")) return;
+      if(e.key === "Escape") closeTalk();
+      if(e.key === " "){ e.preventDefault(); renderTalk(); }
+      if(e.key.toLowerCase() === "m"){ memoOn = !memoOn; renderTalk(); }
+      if(["1","2","3","4","5"].includes(e.key)){
+        currentMode = ["zatsudan","memory","love","midnight","chaos"][Number(e.key)-1];
+        renderTalk();
+      }
+    });
+    updateClock();
+    setInterval(updateClock,1000);
+    renderTalk();
   });
-  document.addEventListener('keydown', function(e){
-    const active=$talk('talkRescue')?.classList.contains('active');
-    if(!active) return;
-    if(e.key==='Escape'){ e.preventDefault(); closeTalk(); }
-    if(e.key===' '){ e.preventDefault(); renderTalk(); }
-    if(e.key.toLowerCase()==='m'){ e.preventDefault(); stateTalk.memo=!stateTalk.memo; renderTalk(); }
-    const map={1:'chat',2:'memory',3:'love',4:'midnight',5:'chaos'};
-    if(map[e.key]){ e.preventDefault(); stateTalk.mode=map[e.key]; renderTalk(); }
-  });
-  setInterval(updateClock, 1000);
-  updateClock();
 })();
+
 </script>
+
+<div class="talk-rescue-overlay memo-on" id="talkRescueOverlay" aria-hidden="true">
+  <div class="talk-rescue-frame">
+    <div class="talk-rescue-topbar">
+      <div class="talk-rescue-brand">TALK RESCUE MODE</div>
+      <div class="talk-rescue-clock" id="talkRescueClock">----/--/-- --:--</div>
+    </div>
+
+    <section class="talk-rescue-panel">
+      <div class="talk-rescue-panel-head">
+        <b>幹｜メインテーマ候補</b>
+        <span id="talkRescueModeLabel">雑談モード</span>
+      </div>
+      <div class="talk-rescue-main" id="talkRescueTrunks"></div>
+    </section>
+
+    <div class="talk-rescue-bottom">
+      <section class="talk-rescue-panel">
+        <div class="talk-rescue-panel-head"><b>枝｜サブテーマ候補</b><span>広げる</span></div>
+        <div class="talk-rescue-list" id="talkRescueBranches"></div>
+      </section>
+
+      <section class="talk-rescue-panel">
+        <div class="talk-rescue-panel-head"><b>葉｜発展候補</b><span>コメント誘導</span></div>
+        <div class="talk-rescue-list" id="talkRescueLeaves"></div>
+      </section>
+
+      <section class="talk-rescue-panel talk-rescue-memo">
+        <div class="talk-rescue-panel-head"><b>メモ</b><span>主用</span></div>
+        <textarea id="talkRescueMemo" placeholder="告知・拾いたいコメント・あとで話すこと"></textarea>
+      </section>
+    </div>
+
+    <div class="talk-rescue-actions" id="talkRescueActions">
+      <button type="button" data-talk-mode="zatsudan" class="active">雑談</button>
+      <button type="button" data-talk-mode="memory">思い出</button>
+      <button type="button" data-talk-mode="love">恋バナ</button>
+      <button type="button" data-talk-mode="midnight">深夜</button>
+      <button type="button" data-talk-mode="chaos">カオス</button>
+      <button type="button" data-talk-action="memo" class="active">メモON</button>
+      <button type="button" data-talk-action="refresh" class="primary">テーマ更新</button>
+      <button type="button" data-talk-action="close" class="danger">閉じる</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
