@@ -2174,8 +2174,8 @@ function fitBrushText(text){
 .talk-list{display:grid;gap:9px;overflow:auto;padding-right:2px}
 .talk-item{padding:10px 12px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.06);border-radius:15px;font-size:clamp(16px,1.45vw,24px);font-weight:850;line-height:1.28}
 .talk-memo-input{height:100%;min-height:190px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.1);color:#ffe9a6;border-radius:16px;padding:12px;font-weight:800;font-size:17px;resize:none}
-.talk-buttons{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center}
-.talk-buttons button,.talk-mini-btn{border:1px solid rgba(255,255,255,.14);background:#101827;color:white;border-radius:999px;padding:12px 17px;font-weight:1000;min-height:44px;cursor:pointer}
+.talk-buttons{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;position:relative;z-index:140;pointer-events:auto}
+.talk-buttons button,.talk-mini-btn{border:1px solid rgba(255,255,255,.14);background:#101827;color:white;border-radius:999px;padding:12px 17px;font-weight:1000;min-height:44px;cursor:pointer;pointer-events:auto}
 .talk-buttons button.active,.talk-mini-btn.primary{background:linear-gradient(135deg,var(--talk-main),#fff);color:#061018;box-shadow:0 0 18px var(--talk-glow)}
 .talk-mini-btn.danger{background:#3a1014;color:#fff}
 .talk-settings-panel{position:fixed;right:22px;bottom:86px;width:min(390px,calc(100vw - 44px));display:none;z-index:80;padding:16px;background:rgba(5,8,14,.94);border:1px solid var(--talk-main);border-radius:22px;box-shadow:0 0 30px var(--talk-glow)}
@@ -3403,6 +3403,63 @@ document.addEventListener("keydown",e=>{
   if(e.key==="Escape"){ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); showScreen("home"); }
 });
 
+
+
+/* v75.1: Talk Rescue click fix - ID globalsに頼らずイベント委任で確実に押せるようにする */
+function setTalkTheme(value){
+  const wrap=document.getElementById("talkRescueWrap");
+  if(wrap) wrap.className="talk-rescue-wrap "+(value||"theme-cyber");
+}
+function setTalkClockPos(value){
+  const clock=document.getElementById("talkClock");
+  if(clock) clock.className="talk-clock "+(value||"pos-right");
+}
+function setTalkMemoVisible(value){
+  talkMemoOn=value!=="off";
+  renderTalkRescue();
+}
+document.addEventListener("click", e=>{
+  const talkSection=document.getElementById("talkRescue");
+  const active=talkSection?.classList.contains("active");
+  if(!active) return;
+  const btn=e.target.closest("button");
+  if(!btn || !talkSection.contains(btn)) return;
+  e.preventDefault();
+  e.stopPropagation();
+  if(btn.dataset.talkMode){
+    talkMode=btn.dataset.talkMode;
+    renderTalkRescue();
+    return;
+  }
+  if(btn.id==="talkToggleMemo"){
+    talkMemoOn=!talkMemoOn;
+    const sel=document.getElementById("talkMemoSelect");
+    if(sel) sel.value=talkMemoOn?"on":"off";
+    renderTalkRescue();
+    return;
+  }
+  if(btn.id==="talkRefresh"){
+    renderTalkRescue();
+    return;
+  }
+  if(btn.id==="talkSettingsBtn"){
+    document.getElementById("talkSettingsPanel")?.classList.toggle("open");
+    return;
+  }
+  if(btn.id==="talkExit"){
+    if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+    showScreen("home");
+    return;
+  }
+}, true);
+document.addEventListener("change", e=>{
+  const talkSection=document.getElementById("talkRescue");
+  if(!talkSection?.classList.contains("active")) return;
+  const el=e.target;
+  if(el.id==="talkThemeSelect") setTalkTheme(el.value);
+  if(el.id==="talkClockPosSelect") setTalkClockPos(el.value);
+  if(el.id==="talkMemoSelect") setTalkMemoVisible(el.value);
+}, true);
 
 
 function renderHome(){
