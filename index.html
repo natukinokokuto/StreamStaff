@@ -2297,8 +2297,8 @@ function fitBrushText(text){
   inset:0;
   display:none;
   place-items:center;
-  z-index:10020;
-  background:rgba(0,0,0,.62);
+  z-index:30000;
+  background:rgba(0,0,0,.68);
   pointer-events:none;
 }
 .talk-chaos-warning.show{display:grid;animation:chaosWarnFade 2.4s ease forwards}
@@ -6404,6 +6404,11 @@ const firebaseConfig = { ... }
           const a = actionBtn.dataset.talkAction;
           if(a === "memo"){ memoOn = !memoOn; renderTalk(); }
           if(a === "refresh"){ renderTalk(); }
+          if(a === "settings"){
+            closeTalk();
+            if(typeof showScreen === "function") showScreen("settings");
+            else location.hash = "#settings";
+          }
           if(a === "close"){ closeTalk(); }
         }
       });
@@ -6470,6 +6475,7 @@ const firebaseConfig = { ... }
       <button type="button" data-talk-mode="chaos">カオス</button>
       <button type="button" data-talk-action="memo" class="active">メモON</button>
       <button type="button" data-talk-action="refresh" class="primary">テーマ更新</button>
+      <button type="button" data-talk-action="settings">設定</button>
       <button type="button" data-talk-action="close" class="danger">閉じる</button>
     </div>
   </div>
