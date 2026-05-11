@@ -2430,7 +2430,7 @@ function fitBrushText(text){
   border-color:#38bdf8;
   color:#bae6fd;
 }
-.monthly-controls{
+.monthly-controls,.yearly-controls{
   margin-top:12px;
   background:#0b1020;
   border:1px solid #263a63;
@@ -2898,6 +2898,19 @@ function fitBrushText(text){
             <input id="calendarMonthlyDay" type="number" min="1" max="31" value="1" placeholder="例：25">
             <div class="monthly-hint">※ 存在しない日付の場合、自動でその月の末日に設定されます。例：31日設定 → 2月は28日/29日、4月は30日。</div>
           </div>
+          <div class="yearly-controls">
+            <label class="check-line"><input type="checkbox" id="calendarYearlyEnabled"> 毎年予定として登録する <span>誕生日・周年向け</span></label>
+            <div class="row">
+              <label style="flex:1">毎年何月
+                <input id="calendarYearlyMonth" type="number" min="1" max="12" value="1" placeholder="例：9">
+              </label>
+              <label style="flex:1">毎年何日
+                <input id="calendarYearlyDay" type="number" min="1" max="31" value="1" placeholder="例：5">
+              </label>
+            </div>
+            <div class="monthly-hint">※ 存在しない日付の場合、自動でその月の末日に設定されます。例：4/31 → 4/30。</div>
+            <div class="leap-note">※ 2/29を毎年予定にした場合、平年では2/28に表示されます。</div>
+          </div>
           <div class="row" style="margin-top:10px">
             <button class="btn primary" id="addCalendarEvent">この日に追加</button>
             <button class="btn" id="todayCalendar">今日へ</button>
@@ -3093,6 +3106,29 @@ function fitBrushText(text){
       「中学生の修学旅行だけ」を避けたい場合は、まず単語単位で何を避けたいか考えて登録してください。
     </div>
     <label class="check-line" style="margin-top:10px"><input type="checkbox" id="hostLoveFantasyInput"> 恋愛トークNG寄り：恋バナは妄想シチュ中心にする <span>安全逃げ道</span></label>
+
+    <h3 style="margin:14px 0 8px">枠主プロフィール</h3>
+    <p class="muted">登録者詳細と同じように、枠主が話しやすい材料を入れておく。話題レスキューの候補にも混ざります。</p>
+    <label>好きな物（改行区切り）</label>
+    <textarea id="hostFavoriteThingsInput" placeholder="例：
+コンビニ
+深夜ラジオ
+VANS"></textarea>
+    <label>趣味（改行区切り）</label>
+    <textarea id="hostHobbiesInput" placeholder="例：
+ギター
+ダーツ
+ゲーム"></textarea>
+    <label>よく話すこと（改行区切り）</label>
+    <textarea id="hostFrequentTopicsInput" placeholder="例：
+仕事あるある
+地元トーク
+配信の裏話"></textarea>
+    <label>配信ジャンル（改行区切り）</label>
+    <textarea id="hostStreamGenresInput" placeholder="例：
+雑談
+ゲーム
+参加型"></textarea>
 
     <h3 style="margin:14px 0 8px">話題レスキュー表示設定</h3>
     <p class="muted">時計・背景・枠色・影をここで変更。恋バナはピンク枠固定、カオスは赤枠固定。</p>
@@ -3375,6 +3411,7 @@ const defaultState={
   },
   calendarEvents:[],
   monthlyEvents:[],
+  yearlyEvents:[],
   calendarTypes:[
     {name:"登録日",color:"#10b981"},
     {name:"返礼品獲得日",color:"#f59e0b"},
@@ -3458,6 +3495,7 @@ for (const k in defaultState.customGames) state.customGames[k] = state.customGam
 state.listeners = state.listeners || [];
 state.calendarEvents = state.calendarEvents || [];
 state.monthlyEvents = state.monthlyEvents || [];
+state.yearlyEvents = state.yearlyEvents || [];
 state.calendarTypes = state.calendarTypes || structuredClone(defaultState.calendarTypes || []);
 if(!state.calendarTypes.length) state.calendarTypes = structuredClone(defaultState.calendarTypes || []);
     if(!state.calendarTypes.some(t=>t.name==="誕生日")) state.calendarTypes.push({name:"誕生日",color:"#ec4899"});
@@ -4484,8 +4522,28 @@ function monthlyEventsForDate(date){
     sourceId:ev.id
   }));
 }
+function isLeapYear(y){ return (y%4===0 && y%100!==0) || (y%400===0); }
+function effectiveYearlyDate(year, month, day){
+  const m=Math.max(1,Math.min(12,Number(month)||1));
+  let d=Math.max(1,Math.min(31,Number(day)||1));
+  if(m===2 && d===29 && !isLeapYear(year)) d=28;
+  else d=Math.min(d,lastDayOfMonth(year,m-1));
+  return ymd(new Date(year,m-1,d));
+}
+function yearlyEventsForDate(date){
+  const y=Number(date.slice(0,4));
+  return (state.yearlyEvents||[]).filter(ev=>effectiveYearlyDate(y,ev.month,ev.day)===date).map(ev=>({
+    id:"yearly_"+ev.id+"_"+date,
+    date,
+    listener:ev.listener||"毎年予定",
+    type:ev.type||"毎年予定",
+    item:ev.item||"毎年予定",
+    yearly:true,
+    sourceId:ev.id
+  }));
+}
 function eventsForDate(date){
-  const evs=[...(state.calendarEvents||[]).filter(ev=>ev.date===date), ...monthlyEventsForDate(date)];
+  const evs=[...(state.calendarEvents||[]).filter(ev=>ev.date===date), ...monthlyEventsForDate(date), ...yearlyEventsForDate(date)];
   // registeredDate from listeners also shown, even if old data has no explicit event
   state.listeners.forEach(l=>{
     if(l.registeredDate===date && !evs.some(ev=>ev.listener===l.name && ev.type==="登録日")){
@@ -4625,7 +4683,7 @@ function renderSelectedDateEvents(){
       <b><span class="type-color-dot" style="background:${escapeAttr(getCalendarType(ev.type).color)}"></span> ${escapeHtml(ev.listener)}：${escapeHtml(ev.type)}</b>
       <div>${escapeHtml(ev.item)}</div>
       <div class="muted">${escapeHtml(ev.date)}</div>
-      ${String(ev.id||"").startsWith("auto_") || String(ev.id||"").startsWith("birthday_") ? "" : (ev.monthly ? `<button class="btn danger mini-btn" data-del-monthly="${escapeAttr(ev.sourceId)}" style="margin-top:8px">毎月予定を削除</button>` : `<button class="btn danger mini-btn" data-del-cal="${escapeAttr(ev.id)}" style="margin-top:8px">削除</button>`)}
+      ${String(ev.id||"").startsWith("auto_") || String(ev.id||"").startsWith("birthday_") ? "" : (ev.yearly ? `<button class="btn danger mini-btn" data-del-yearly="${escapeAttr(ev.sourceId)}" style="margin-top:8px">毎年予定を削除</button>` : (ev.monthly ? `<button class="btn danger mini-btn" data-del-monthly="${escapeAttr(ev.sourceId)}" style="margin-top:8px">毎月予定を削除</button>` : `<button class="btn danger mini-btn" data-del-cal="${escapeAttr(ev.id)}" style="margin-top:8px">削除</button>`))}
     </div>
   `).join("") || `<div class="event-item muted">この日の記録なし</div>`;
   selectedDateEvents.querySelectorAll("[data-del-cal]").forEach(btn=>btn.onclick=()=>{
@@ -4638,6 +4696,11 @@ function renderSelectedDateEvents(){
   selectedDateEvents.querySelectorAll("[data-del-monthly]").forEach(btn=>btn.onclick=()=>{
     if(!confirm("この毎月予定を削除する？")) return;
     state.monthlyEvents=(state.monthlyEvents||[]).filter(ev=>ev.id!==btn.dataset.delMonthly);
+    save();renderCalendar();renderHome();
+  });
+  selectedDateEvents.querySelectorAll("[data-del-yearly]").forEach(btn=>btn.onclick=()=>{
+    if(!confirm("この毎年予定を削除する？")) return;
+    state.yearlyEvents=(state.yearlyEvents||[]).filter(ev=>ev.id!==btn.dataset.delYearly);
     save();renderCalendar();renderHome();
   });
 }
@@ -4660,7 +4723,13 @@ if(window.addCalendarEvent) addCalendarEvent.onclick=()=>{
   const type=calendarType.value;
   const item=calendarItem.value.trim() || type;
   if(!listener)return;
-  if(window.calendarMonthlyEnabled && calendarMonthlyEnabled.checked){
+  if(window.calendarYearlyEnabled && calendarYearlyEnabled.checked){
+    const month=Math.max(1,Math.min(12,Number(calendarYearlyMonth.value)||1));
+    const day=Math.max(1,Math.min(31,Number(calendarYearlyDay.value)||1));
+    state.yearlyEvents=state.yearlyEvents || [];
+    state.yearlyEvents.push({id:uid("year"),month,day,listener,type,item});
+    calendarYearlyEnabled.checked=false;
+  }else if(window.calendarMonthlyEnabled && calendarMonthlyEnabled.checked){
     const day=Math.max(1,Math.min(31,Number(calendarMonthlyDay.value)||1));
     state.monthlyEvents=state.monthlyEvents || [];
     state.monthlyEvents.push({id:uid("mon"),day,listener,type,item});
@@ -5586,7 +5655,7 @@ const firebaseConfig = { ... }
     if(!Array.isArray(state.roulette.history)) state.roulette.history = [];
     if(!Array.isArray(state.roulette.bets)) state.roulette.bets = [];
     if(!Array.isArray(state.roulette.guestBetters)) state.roulette.guestBetters = [];
-    state.hostProfile = Object.assign({name:"", memo:"", ngWords:"", loveFantasy:false, talkSettings:{clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}}, state.hostProfile || {});
+    state.hostProfile = Object.assign({name:"", memo:"", ngWords:"", loveFantasy:false, favoriteThings:"", hobbies:"", frequentTopics:"", streamGenres:"", talkSettings:{clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}}, state.hostProfile || {});
     state.hostProfile.talkSettings = Object.assign({clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}, state.hostProfile.talkSettings || {});
 
     state.roulette.settings = Object.assign({
@@ -5925,12 +5994,20 @@ const firebaseConfig = { ... }
     const status = document.getElementById("hostProfileStatus");
     if(!nameInput || !memoInput || !status) return;
     ensureRouletteState();
-    state.hostProfile = Object.assign({name:"", memo:"", ngWords:"", loveFantasy:false, talkSettings:{clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}}, state.hostProfile || {});
+    state.hostProfile = Object.assign({name:"", memo:"", ngWords:"", loveFantasy:false, favoriteThings:"", hobbies:"", frequentTopics:"", streamGenres:"", talkSettings:{clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}}, state.hostProfile || {});
     state.hostProfile.talkSettings = Object.assign({clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}, state.hostProfile.talkSettings || {});
     nameInput.value = state.hostProfile.name || "";
     memoInput.value = state.hostProfile.memo || "";
     if(ngInput) ngInput.value = state.hostProfile.ngWords || "";
     if(loveInput) loveInput.checked = !!state.hostProfile.loveFantasy;
+    const favInput = document.getElementById("hostFavoriteThingsInput");
+    const hobbyInput = document.getElementById("hostHobbiesInput");
+    const frequentInput = document.getElementById("hostFrequentTopicsInput");
+    const genreInput = document.getElementById("hostStreamGenresInput");
+    if(favInput) favInput.value = state.hostProfile.favoriteThings || "";
+    if(hobbyInput) hobbyInput.value = state.hostProfile.hobbies || "";
+    if(frequentInput) frequentInput.value = state.hostProfile.frequentTopics || "";
+    if(genreInput) genreInput.value = state.hostProfile.streamGenres || "";
     const ts = state.hostProfile.talkSettings || {};
     const setVal = (id,val)=>{ const el=document.getElementById(id); if(el) el.value = val; };
     setVal("talkClockEnabledInput", ts.clockEnabled || "on");
@@ -5959,6 +6036,10 @@ const firebaseConfig = { ... }
     const memo = memoInput.value.trim();
     const ngWords = ngInput ? ngInput.value.trim() : "";
     const loveFantasy = loveInput ? !!loveInput.checked : false;
+    const favoriteThings = document.getElementById("hostFavoriteThingsInput")?.value.trim() || "";
+    const hobbies = document.getElementById("hostHobbiesInput")?.value.trim() || "";
+    const frequentTopics = document.getElementById("hostFrequentTopicsInput")?.value.trim() || "";
+    const streamGenres = document.getElementById("hostStreamGenresInput")?.value.trim() || "";
     const talkSettings = {
       clockEnabled: document.getElementById("talkClockEnabledInput")?.value || "on",
       clockPosition: document.getElementById("talkClockPositionInput")?.value || "right",
@@ -5969,7 +6050,7 @@ const firebaseConfig = { ... }
       glow: document.getElementById("talkGlowInput")?.value || "on"
     };
     if(!name){ alert("枠主名を入れてｗ"); return; }
-    state.hostProfile = {name:name, memo:memo, ngWords:ngWords, loveFantasy:loveFantasy, talkSettings:talkSettings};
+    state.hostProfile = {name:name, memo:memo, ngWords:ngWords, loveFantasy:loveFantasy, favoriteThings:favoriteThings, hobbies:hobbies, frequentTopics:frequentTopics, streamGenres:streamGenres, talkSettings:talkSettings};
     safeSave();
     renderHostProfileSettings();
     window.renderRoulette();
@@ -5979,7 +6060,7 @@ const firebaseConfig = { ... }
   function clearHostProfileFromSettings(){
     ensureRouletteState();
     if(!confirm("枠主情報を削除する？")) return;
-    state.hostProfile = {name:"", memo:"", ngWords:"", loveFantasy:false, talkSettings:{clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}};
+    state.hostProfile = {name:"", memo:"", ngWords:"", loveFantasy:false, favoriteThings:"", hobbies:"", frequentTopics:"", streamGenres:"", talkSettings:{clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}};
     safeSave();
     renderHostProfileSettings();
     window.renderRoulette();
@@ -6605,9 +6686,27 @@ const firebaseConfig = { ... }
     }
     return out;
   }
+  function hostProfileTalkItems(){
+    const hp = getHostProfile();
+    const raw = [hp.favoriteThings,hp.hobbies,hp.frequentTopics,hp.streamGenres].join("
+");
+    const items = raw.split(/
+|,/).map(x=>x.trim()).filter(Boolean);
+    const out = [];
+    items.forEach(x=>{
+      out.push(`枠主プロフィール：${x}の話`);
+      out.push(`${x}を始めた頃の話`);
+      out.push(`${x}で最近思ったこと`);
+    });
+    return out;
+  }
   function getModeData(){
     const m = modes[currentMode] || modes.zatsudan;
+    const hostItems = hostProfileTalkItems();
     if(currentMode === "love" && isLoveFantasy()) return Object.assign({}, m, {label:"恋バナモード（妄想寄り）", trunks:m.fantasyTrunks});
+    if(hostItems.length && ["zatsudan","memory","midnight"].includes(currentMode)){
+      return Object.assign({}, m, {trunks:[...hostItems, ...(m.trunks||[])]});
+    }
     return m;
   }
   function showChaosWarning(){
