@@ -2397,6 +2397,47 @@ function fitBrushText(text){
   font-size:13px;
   line-height:1.6;
 }
+
+
+/* v79 home notice + monthly recurring calendar */
+.notice-panel{
+  margin-top:14px;
+  background:linear-gradient(180deg,#101827,#0b0d13);
+  border:1px solid #38bdf855;
+  border-radius:18px;
+  padding:14px;
+}
+.notice-list{display:grid;gap:8px;margin-top:10px}
+.notice-item{
+  background:#08111f;
+  border:1px solid #1e3a5f;
+  border-radius:14px;
+  padding:10px;
+}
+.notice-date{font-weight:1000;color:#93c5fd;margin-bottom:4px}
+.notice-empty{color:var(--muted);padding:10px;background:#0b0d13;border:1px solid var(--line);border-radius:12px}
+.monthly-hint,.leap-note{
+  margin-top:8px;
+  background:#2a1907;
+  border:1px solid #f59e0b;
+  color:#fed7aa;
+  border-radius:12px;
+  padding:9px;
+  font-size:13px;
+}
+.leap-note{
+  background:#082f49;
+  border-color:#38bdf8;
+  color:#bae6fd;
+}
+.monthly-controls{
+  margin-top:12px;
+  background:#0b1020;
+  border:1px solid #263a63;
+  border-radius:14px;
+  padding:12px;
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -2458,6 +2499,16 @@ function fitBrushText(text){
           <h3 style="margin-top:16px">保存ログ</h3>
           <div id="homeLogs" class="history"></div>
         </div></div>
+      </div>
+      <div class="notice-panel">
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <h2 style="margin:0">📢 お知らせ</h2>
+            <p class="muted">カレンダーの明日から未来3日間の予定を自動表示。</p>
+          </div>
+          <button class="btn" id="openCalendarFromNotice" type="button">カレンダーへ</button>
+        </div>
+        <div id="homeNoticeList" class="notice-list"></div>
       </div>
     
 
@@ -2746,6 +2797,7 @@ function fitBrushText(text){
               <input id="detailBirthDay" type="number" min="1" max="31" placeholder="日">
               <span>日</span>
             </div>
+            <div id="detailLeapNote" class="leap-note" style="display:none">🎂 2/29生まれは、平年では2/28に誕生日表示されます。</div>
             <label>生まれ年（任意）</label>
             <input id="detailBirthYear" type="number" placeholder="未入力なら年齢不詳" min="1900" max="2100">
             <label>血液型</label>
@@ -2840,6 +2892,12 @@ function fitBrushText(text){
           <select id="calendarType"></select>
           <label>項目</label>
           <input id="calendarItem" placeholder="例：14日達成 個通30分 / 初回来店 / 約束した内容">
+          <div class="monthly-controls">
+            <label class="check-line"><input type="checkbox" id="calendarMonthlyEnabled"> 毎月予定として登録する <span>お知らせにも反映</span></label>
+            <label>毎月何日</label>
+            <input id="calendarMonthlyDay" type="number" min="1" max="31" value="1" placeholder="例：25">
+            <div class="monthly-hint">※ 存在しない日付の場合、自動でその月の末日に設定されます。例：31日設定 → 2月は28日/29日、4月は30日。</div>
+          </div>
           <div class="row" style="margin-top:10px">
             <button class="btn primary" id="addCalendarEvent">この日に追加</button>
             <button class="btn" id="todayCalendar">今日へ</button>
@@ -3316,6 +3374,7 @@ const defaultState={
     localMap:{}
   },
   calendarEvents:[],
+  monthlyEvents:[],
   calendarTypes:[
     {name:"登録日",color:"#10b981"},
     {name:"返礼品獲得日",color:"#f59e0b"},
@@ -3398,6 +3457,7 @@ state.customGames = state.customGames || structuredClone(defaultState.customGame
 for (const k in defaultState.customGames) state.customGames[k] = state.customGames[k] || structuredClone(defaultState.customGames[k]);
 state.listeners = state.listeners || [];
 state.calendarEvents = state.calendarEvents || [];
+state.monthlyEvents = state.monthlyEvents || [];
 state.calendarTypes = state.calendarTypes || structuredClone(defaultState.calendarTypes || []);
 if(!state.calendarTypes.length) state.calendarTypes = structuredClone(defaultState.calendarTypes || []);
     if(!state.calendarTypes.some(t=>t.name==="誕生日")) state.calendarTypes.push({name:"誕生日",color:"#ec4899"});
@@ -3543,7 +3603,23 @@ function renderHome(){
     : "話が止まった時の逃げ道";
   treeLeaf.textContent=state.tree.leaf;
   homeLogs.innerHTML=state.logs.slice(0,8).map(l=>`<div><b>${escapeHtml(l.title||"ログ")}</b><br><span class="muted">${escapeHtml(l.date)}</span><br>${escapeHtml(l.text)}</div>`).join("")||`<div>まだログなし</div>`;
+  renderHomeNotice();
 }
+function renderHomeNotice(){
+  if(!window.homeNoticeList) return;
+  const today=new Date();
+  const items=[];
+  for(let i=1;i<=3;i++){
+    const d=new Date(today.getFullYear(),today.getMonth(),today.getDate()+i);
+    const date=ymd(d);
+    const evs=eventsForDate(date);
+    if(evs.length){
+      items.push(`<div class="notice-item"><div class="notice-date">📅 ${escapeHtml(date)}</div>${evs.map(ev=>`<div>・${escapeHtml(ev.listener)}：${escapeHtml(ev.item||ev.type)} <span class="muted">${escapeHtml(ev.type||"")}</span></div>`).join("")}</div>`);
+    }
+  }
+  homeNoticeList.innerHTML=items.join("") || `<div class="notice-empty">明日から3日間の予定はありません。</div>`;
+}
+if(window.openCalendarFromNotice) openCalendarFromNotice.onclick=()=>showScreen("calendar");
 autoTree.onclick=()=>{state.tree={trunk:pick(trunks),branch:makeBranchPack(),leaf:pick(leaves)};save();renderHome()}
 nextBranch.onclick=()=>{state.tree.branch=makeBranchPack();save();renderHome()}
 branchToLeaf.onclick=()=>{state.tree.leaf=state.tree.branch;state.logs.unshift({date:new Date().toLocaleString("ja-JP"),title:"葉っぱ保存",text:state.tree.branch});save();renderHome()}
@@ -3879,6 +3955,7 @@ function renderListenerDetail(){
   detailAge.textContent=displayAge(l);
   detailSinceFirst.textContent=dateDiffText(l.firstVisitDate || l.registeredDate);
   detailBloodView.textContent=l.bloodType || "-";
+  if(window.detailLeapNote) detailLeapNote.style.display=isLeapBirthday(l.birthday) ? "block" : "none";
   const f=l.favorites || {};
   favProject.value=f.project || "";
   favGame.value=f.game || "";
@@ -3979,6 +4056,7 @@ function renderMemo(){
       </div>
       <p class="muted">${l.nickname ? "@" + escapeHtml(l.nickname) + " / " : ""}ログボ ${currentLogboCount(l)}日 / ${state.logboMonth}</p>
       ${l.birthday ? `<p class="muted">🎂 誕生日 ${escapeHtml(l.birthday)}</p>` : ""}
+      ${isLeapBirthday(l.birthday) ? `<div class="leap-note">🎂 うるう日生まれ：平年は2/28扱いで表示します。</div>` : ""}
       <p class="muted">年齢 ${displayAge(l)} / 初来枠から ${dateDiffText(l.firstVisitDate || l.registeredDate)}</p>
       ${renderSeedList(l,i)}
       <div class="penalty-box">
@@ -4376,8 +4454,38 @@ function ymd(d){
 }
 function monthStart(d){return new Date(d.getFullYear(),d.getMonth(),1)}
 function addMonths(d,n){return new Date(d.getFullYear(),d.getMonth()+n,1)}
+function lastDayOfMonth(year,monthIndex){return new Date(year, monthIndex+1, 0).getDate()}
+function isLeapYear(year){return (year%4===0 && year%100!==0) || year%400===0}
+function birthdayMatchesDate(birthday,date){
+  if(!birthday) return false;
+  const current=date.slice(5).replace("-","/");
+  if(birthday==="02/29"){
+    const y=Number(date.slice(0,4));
+    return isLeapYear(y) ? current==="02/29" : current==="02/28";
+  }
+  return current===birthday;
+}
+function isLeapBirthday(birthday){return birthday==="02/29";}
+function effectiveMonthlyDate(year,monthIndex,day){
+  const d=Math.max(1,Math.min(31,Number(day)||1));
+  const last=lastDayOfMonth(year,monthIndex);
+  return ymd(new Date(year,monthIndex,Math.min(d,last)));
+}
+function monthlyEventsForDate(date){
+  const y=Number(date.slice(0,4));
+  const m=Number(date.slice(5,7))-1;
+  return (state.monthlyEvents||[]).filter(ev=>effectiveMonthlyDate(y,m,ev.day)===date).map(ev=>({
+    id:"monthly_"+ev.id+"_"+date,
+    date,
+    listener:ev.listener||"毎月予定",
+    type:ev.type||"毎月予定",
+    item:ev.item||"毎月予定",
+    monthly:true,
+    sourceId:ev.id
+  }));
+}
 function eventsForDate(date){
-  const evs=(state.calendarEvents||[]).filter(ev=>ev.date===date);
+  const evs=[...(state.calendarEvents||[]).filter(ev=>ev.date===date), ...monthlyEventsForDate(date)];
   // registeredDate from listeners also shown, even if old data has no explicit event
   state.listeners.forEach(l=>{
     if(l.registeredDate===date && !evs.some(ev=>ev.listener===l.name && ev.type==="登録日")){
@@ -4386,10 +4494,9 @@ function eventsForDate(date){
   });
   state.listeners.forEach(l=>{
     if(l.birthday){
-      const md=l.birthday;
-      const current=date.slice(5).replace("-","/");
-      if(current===md && !evs.some(ev=>ev.listener===l.name && ev.type==="誕生日")){
-        evs.push({id:"birthday_"+l.name+"_"+date,date,listener:l.name,type:"誕生日",item:"🎂 誕生日"});
+      if(birthdayMatchesDate(l.birthday,date) && !evs.some(ev=>ev.listener===l.name && ev.type==="誕生日")){
+        const note=isLeapBirthday(l.birthday) ? "🎂 誕生日（2/29生まれ：平年は2/28扱いで表示）" : "🎂 誕生日";
+        evs.push({id:"birthday_"+l.name+"_"+date,date,listener:l.name,type:"誕生日",item:note});
       }
     }
   });
@@ -4518,7 +4625,7 @@ function renderSelectedDateEvents(){
       <b><span class="type-color-dot" style="background:${escapeAttr(getCalendarType(ev.type).color)}"></span> ${escapeHtml(ev.listener)}：${escapeHtml(ev.type)}</b>
       <div>${escapeHtml(ev.item)}</div>
       <div class="muted">${escapeHtml(ev.date)}</div>
-      ${String(ev.id||"").startsWith("auto_") || String(ev.id||"").startsWith("birthday_") ? "" : `<button class="btn danger mini-btn" data-del-cal="${escapeAttr(ev.id)}" style="margin-top:8px">削除</button>`}
+      ${String(ev.id||"").startsWith("auto_") || String(ev.id||"").startsWith("birthday_") ? "" : (ev.monthly ? `<button class="btn danger mini-btn" data-del-monthly="${escapeAttr(ev.sourceId)}" style="margin-top:8px">毎月予定を削除</button>` : `<button class="btn danger mini-btn" data-del-cal="${escapeAttr(ev.id)}" style="margin-top:8px">削除</button>`)}
     </div>
   `).join("") || `<div class="event-item muted">この日の記録なし</div>`;
   selectedDateEvents.querySelectorAll("[data-del-cal]").forEach(btn=>btn.onclick=()=>{
@@ -4527,6 +4634,11 @@ function renderSelectedDateEvents(){
     if(target && target.type==="ペナルティー") applyCalendarPenalty(target.listener,-1);
     state.calendarEvents=state.calendarEvents.filter(ev=>ev.id!==btn.dataset.delCal);
     save();renderCalendar();renderMemo();renderBonus();
+  });
+  selectedDateEvents.querySelectorAll("[data-del-monthly]").forEach(btn=>btn.onclick=()=>{
+    if(!confirm("この毎月予定を削除する？")) return;
+    state.monthlyEvents=(state.monthlyEvents||[]).filter(ev=>ev.id!==btn.dataset.delMonthly);
+    save();renderCalendar();renderHome();
   });
 }
 if(window.prevMonth) prevMonth.onclick=()=>{calendarCursor=addMonths(calendarCursor,-1);renderCalendar();}
@@ -4548,16 +4660,23 @@ if(window.addCalendarEvent) addCalendarEvent.onclick=()=>{
   const type=calendarType.value;
   const item=calendarItem.value.trim() || type;
   if(!listener)return;
-  state.calendarEvents.push({id:uid("cal"),date:selectedCalendarDate,listener,type,item});
-  if(type==="登録日"){
-    const l=state.listeners.find(x=>x.name===listener);
-    if(l) l.registeredDate=selectedCalendarDate;
-  }
-  if(type==="ペナルティー"){
-    applyCalendarPenalty(listener,1);
+  if(window.calendarMonthlyEnabled && calendarMonthlyEnabled.checked){
+    const day=Math.max(1,Math.min(31,Number(calendarMonthlyDay.value)||1));
+    state.monthlyEvents=state.monthlyEvents || [];
+    state.monthlyEvents.push({id:uid("mon"),day,listener,type,item});
+    calendarMonthlyEnabled.checked=false;
+  }else{
+    state.calendarEvents.push({id:uid("cal"),date:selectedCalendarDate,listener,type,item});
+    if(type==="登録日"){
+      const l=state.listeners.find(x=>x.name===listener);
+      if(l) l.registeredDate=selectedCalendarDate;
+    }
+    if(type==="ペナルティー"){
+      applyCalendarPenalty(listener,1);
+    }
   }
   calendarItem.value="";
-  save();renderCalendar();renderMemo();renderBonus();
+  save();renderCalendar();renderMemo();renderBonus();renderHome();
 }
 
 
