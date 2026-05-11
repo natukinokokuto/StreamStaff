@@ -3062,6 +3062,13 @@ function fitBrushText(text){
   </div>
 
 <script>
+// v75.4 safety helper: used by old and new renderers
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, function(m){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m];
+  });
+}
+
 const KEY="stream_manager_integrated_v1";
 function ym(d){
   const y=d.getFullYear();
@@ -5750,5 +5757,127 @@ const firebaseConfig = { ... }
   }
 })();
 </script>
+
+<script>
+/* v75.4 TALK RESCUE final hotfix: render topics + controls */
+(function(){
+  const pools={
+    chat:{
+      trunks:["最近ちょっと笑ったこと","人に言うほどじゃないけど好きなもの","今日のどうでもいいニュース","最近買ってよかったもの","自分だけの変なこだわり","配信中に決めたい謎ルール","最近ちょっと成長したこと"],
+      branches:["食べ物に例える","ダーツに例える","リスナーに二択で聞く","地域差に広げる","仕事あるあるにする","ランキング形式にする","逆に嫌いなものを聞く"],
+      leaves:["みんなはどう？","あるあるある？","一番近い経験ある？","逆にこれは無理？","コメントで一言ちょうだい","今でもやる？","どっち派？"]
+    },
+    memory:{
+      trunks:["昔ハマってたゲーム","学生時代の黒歴史","子どもの頃の謎ルール","昔好きだった食べ物","初めて買った思い出の物","昔の自分に言いたいこと","地元の思い出"],
+      branches:["初めてやった時","親の影響","友達との思い出","今やるとキツい","地域差","流行ってた理由","当時の自分の勘違い"],
+      leaves:["みんな何ハマってた？","今でも覚えてる？","一番記憶あるの何？","同世代いる？","逆に通ってない人いる？","懐かしい単語ある？","当時いくらだった？"]
+    },
+    love:{
+      trunks:["勘違いして恥ずかしかった話","青春っぽい思い出","モテると思ってた謎行動","友達の恋バナあるある","異性に言われて覚えてる一言","好きなタイプの変化","告白じゃないけど緊張した瞬間"],
+      branches:["学生時代に戻す","服装の話に逃げる","友達目線で話す","勘違いあるあるにする","理想と現実に分ける","失敗談にする","笑える黒歴史にする"],
+      leaves:["これ分かる人いる？","逆にされたらどう？","みんなの黒歴史ある？","これはセーフ？","同性目線だとどう？","一番ダサい行動は？","今ならどうする？"]
+    },
+    night:{
+      trunks:["深夜にだけ考えること","大人になって分かったこと","昔より楽になったこと","最近ちょっと疲れたこと","静かな時間にしたい話","人生で地味に効いた言葉","寝る前の謎ルーティン"],
+      branches:["少し真面目にする","笑い話に戻す","昔話に逃げる","リスナーの習慣を聞く","朝と夜で比べる","自分の変化を話す","次の日の話に繋げる"],
+      leaves:["夜型いる？","寝る前何してる？","こういう時ある？","今の自分に一言なら？","明日何ある？","深夜テンションあるあるは？","静かに聞いてる人いる？"]
+    },
+    chaos:{
+      trunks:["一番くだらない自慢","もし急に魔法が使えたら","配信中に起きたら困る事件","変なランキングを作る","ありえない店名を考える","動物が配信者だったら","今日から謎ルールを作る"],
+      branches:["全員巻き込む","大喜利にする","罰ゲームに繋げる","ルーレット行きにする","名前だけ募集する","一番ダサくする","逆にかっこよくする"],
+      leaves:["一番バカな答え募集","優勝コメント決めよう","これ名前つけるなら？","採用されたらログ行き","誰かもっとひどいのある？","今のなし？あり？","次枠の企画にする？"]
+    }
+  };
+  let mode='chat';
+  let memoOn=true;
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  function pickMany(arr,n){
+    const pool=[...arr], out=[];
+    while(out.length<n && pool.length){ out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]); }
+    return out;
+  }
+  function applyMemo(){
+    const grid=$('talkBottomGrid'), panel=$('talkMemoPanel'), btn=$('talkToggleMemo'), sel=$('talkMemoSelect');
+    if(grid) grid.classList.toggle('memo-off', !memoOn);
+    if(panel){ panel.classList.toggle('talk-hidden', !memoOn); panel.style.display=memoOn ? '' : 'none'; }
+    if(btn){ btn.classList.toggle('active', memoOn); btn.textContent=memoOn ? 'メモ ON' : 'メモ OFF'; }
+    if(sel) sel.value=memoOn ? 'on' : 'off';
+  }
+  function updateClock(){
+    const el=$('talkClock'); if(!el) return;
+    const now=new Date();
+    const y=now.getFullYear(), mo=String(now.getMonth()+1).padStart(2,'0'), d=String(now.getDate()).padStart(2,'0');
+    const h=String(now.getHours()).padStart(2,'0'), mi=String(now.getMinutes()).padStart(2,'0');
+    el.textContent=`${y}/${mo}/${d} ${h}:${mi}`;
+  }
+  function render(){
+    const p=pools[mode] || pools.chat;
+    const trunk=$('talkTrunkList'), branch=$('talkBranchList'), leaf=$('talkLeafList');
+    if(trunk) trunk.innerHTML=pickMany(p.trunks,5).map(x=>`<div class="talk-main-item">・${esc(x)}</div>`).join('');
+    if(branch) branch.innerHTML=pickMany(p.branches,5).map(x=>`<div class="talk-item">${esc(x)}</div>`).join('');
+    if(leaf) leaf.innerHTML=pickMany(p.leaves,5).map(x=>`<div class="talk-item">${esc(x)}</div>`).join('');
+    document.querySelectorAll('#talkRescue [data-talk-mode]').forEach(b=>b.classList.toggle('active', b.dataset.talkMode===mode));
+    applyMemo();
+    updateClock();
+  }
+  function openTalk(){
+    try{ if(typeof stopChinBgm==='function') stopChinBgm(); }catch(e){}
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    const sec=$('talkRescue'); if(sec) sec.classList.add('active');
+    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+    render();
+    if(sec && sec.requestFullscreen) sec.requestFullscreen().catch(()=>{});
+  }
+  function closeTalk(){
+    if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+    const settings=$('talkSettingsPanel'); if(settings) settings.classList.remove('open');
+    if(typeof showScreen==='function') showScreen('home');
+    else {
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      const home=$('home'); if(home) home.classList.add('active');
+    }
+  }
+  // Override old global functions used by older listeners.
+  window.renderTalkRescue=render;
+  window.updateTalkClock=updateClock;
+  window.openTalkRescueMode=openTalk;
+  window.setTalkMode=function(m){ mode=m||'chat'; render(); };
+  window.refreshTalkThemeOnly=render;
+  window.toggleTalkMemo=function(){ memoOn=!memoOn; applyMemo(); };
+  window.toggleTalkSettings=function(){ const p=$('talkSettingsPanel'); if(p) p.classList.toggle('open'); };
+  window.closeTalkRescueMode=closeTalk;
+
+  function bind(){
+    const open=$('openTalkRescue');
+    if(open) open.onclick=function(e){ e.preventDefault(); e.stopPropagation(); openTalk(); };
+
+    const root=$('talkRescue');
+    if(root){
+      root.addEventListener('click', function(e){
+        const target=e.target.closest('button');
+        if(!target) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if(target.dataset.talkMode){ mode=target.dataset.talkMode; render(); return; }
+        if(target.id==='talkRefresh'){ render(); return; }
+        if(target.id==='talkToggleMemo'){ memoOn=!memoOn; applyMemo(); return; }
+        if(target.id==='talkSettingsBtn'){ const p=$('talkSettingsPanel'); if(p) p.classList.toggle('open'); return; }
+        if(target.id==='talkExit'){ closeTalk(); return; }
+      }, true);
+    }
+
+    const theme=$('talkThemeSelect');
+    if(theme) theme.onchange=function(){ const wrap=$('talkRescueWrap'); if(wrap) wrap.className='talk-rescue-wrap '+theme.value; };
+    const pos=$('talkClockPosSelect');
+    if(pos) pos.onchange=function(){ const el=$('talkClock'); if(el) el.className='talk-clock '+pos.value; };
+    const memo=$('talkMemoSelect');
+    if(memo) memo.onchange=function(){ memoOn=memo.value==='on'; applyMemo(); };
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind); else bind();
+  setInterval(updateClock,1000);
+})();
+</script>
+
 </body>
 </html>
