@@ -100,6 +100,12 @@
       box-shadow:0 0 0 3px #21d4fd33;
       background:#f4fdff;
     }
+
+    .cal-day.selected{
+      outline:3px solid #7c3aed;
+      outline-offset:-3px;
+      box-shadow:0 0 0 3px #7c3aed33, 0 8px 22px #00000018;
+    }
     .cal-day.sat .cal-num{color:#2196f3}
     .cal-day.sun .cal-num{color:#ff4d5e}
     .cal-week{
@@ -5863,6 +5869,7 @@ function renderCalendar(){
     cells+=`<button class="cal-day 
       ${d.getMonth()!==m?"out":""}
       ${date===today?"today":""}
+      ${date===selectedCalendarDate?"selected":""}
       ${(dow===0 || isHoliday)?"sun":dow===6?"sat":""}
       " data-cal-date="${date}">
       <div class="cal-num">${d.getDate()}</div>${marks}${more}
