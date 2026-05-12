@@ -5084,7 +5084,7 @@ function renderRewards(){
   rewardEditor.querySelectorAll("[data-del]").forEach(btn=>btn.onclick=()=>{state.rewards.splice(Number(btn.dataset.del),1);save();renderBonus();renderMemo()});
 }
 addReward.onclick=()=>{state.rewards.push({days:1,name:"新しい達成品"});state.rewards.sort((a,b)=>a.days-b.days);save();renderBonus()}
-addListener.onclick=()=>{const name=prompt("常連名");if(!name)return;const today=ymd(new Date());state.listeners.push({name,days:[],logboByMonth:{[state.logboMonth]:[]},memo:"",penalty:0,registeredDate:today});selectedListener=state.listeners.length-1;state.calendarEvents.push({id:uid("cal"),date:today,listener:name,type:"登録日",item:"常連登録"});save();renderBonus();renderMemo();renderCalendar()}
+addListener.onclick=()=>{const name=prompt("常連名");if(!name)return;const today=ymd(new Date());state.listeners.push({name,days:[],logboByMonth:{[state.logboMonth]:[]},memo:"",penalty:0,registeredDate:today,updatedAt:new Date().toISOString(),searchYomi:"",searchTags:""});selectedListener=state.listeners.length-1;state.calendarEvents.push({id:uid("cal"),date:today,listener:name,type:"登録日",item:"常連登録"});save();renderBonus();renderMemo();renderCalendar()}
 function deleteListener(index){
   const l=state.listeners[index];
   if(!l)return;
@@ -5344,6 +5344,7 @@ if(window.saveListenerDetail) saveListenerDetail.onclick=()=>{
     teaseLine:favTeaseLine.value.trim()
   };
   l.topicSeeds=generateTopicSeeds(l);
+  l.updatedAt=new Date().toISOString();
   if(l.firstVisitDate) l.registeredDate=l.firstVisitDate;
 
   if(oldName!==newName){
@@ -7290,6 +7291,7 @@ const firebaseConfig = { ... }
         memo:"ルーレットのゲスト追加から自動登録",
         penalty:0,
         registeredDate:today,
+        updatedAt:new Date().toISOString(),
         birthday:"",
         searchYomi:"",
         searchTags:"",
@@ -8612,9 +8614,21 @@ const firebaseConfig = { ... }
     try{ raw=raw.replace(/[^\p{L}\p{N}ー々〆〤]/gu,""); }catch(e){ raw=raw.replace(/[^0-9a-zぁ-んァ-ン一-龯ー々〆〤]/g,""); }
     return raw;
   }
-  function listenerSearchHaystack(l){
-    return [l.name,l.nickname,l.searchYomi,l.searchTags,l.memo,(l.topicSeeds||[]).join(' '), JSON.stringify(l.favorites||{})].map(regularSearchNormalize).join(' ');
+  function listenerSearchTokens(l){
+    const parts=[l.name,l.nickname,l.searchYomi,l.searchTags,l.memo,(l.topicSeeds||[]).join(' ')];
+    if(l && l.favorites) parts.push(Object.values(l.favorites).join(' '));
+    return parts.join(' ').split(/[\s,、，/／・|｜]+/).map(regularSearchNormalize).filter(Boolean);
   }
+  function listenerMatchesRegularSearch(l, query){
+    const q=regularSearchNormalize(query);
+    if(!q) return true;
+    const tokens=listenerSearchTokens(l||{});
+    // ルーレットと同じ検索ルール：1文字は先頭一致、2文字以上は先頭一致＋部分一致。
+    if(q.length<=1) return tokens.some(function(t){ return t.indexOf(q)===0; });
+    return tokens.some(function(t){ return t.indexOf(q)===0 || t.indexOf(q)>=0; });
+  }
+  function touchListener(l){ if(l) l.updatedAt = new Date().toISOString(); }
+  function listenerUpdatedKey(l){ return String((l && (l.updatedAt || l.modifiedAt || l.lastUpdated || l.registeredDate)) || ""); }
   function listenerSortKey(l){ return String((l && (l.searchYomi || l.kana || l.name)) || ""); }
   function ensureRegularToolbar(){
     const grid=document.getElementById("memoGrid");
@@ -8625,12 +8639,17 @@ const firebaseConfig = { ... }
     bar.innerHTML=''
       + '<input id="regularMemoSearch" placeholder="常連検索" style="flex:1;min-width:180px">'
       + '<select id="regularMemoSort">'
+      + '<option value="updated">最終更新日順</option>'
       + '<option value="kana">50音順</option>'
       + '<option value="recent">最近追加</option>'
       + '<option value="birthday">誕生日近い順</option>'
       + '</select>';
     grid.parentNode.insertBefore(bar, grid);
-    regularMemoSearch.addEventListener("input", function(){ window.__regularMemoSearch=this.value; const pos=this.selectionStart||this.value.length; renderMemo(); const next=document.getElementById("regularMemoSearch"); if(next){ next.focus(); try{next.setSelectionRange(pos,pos);}catch(e){} } });
+    regularMemoSearch.value = window.__regularMemoSearch || "";
+    regularMemoSearch.addEventListener("compositionstart", function(){ window.__regularMemoSearchComposing=true; });
+    regularMemoSearch.addEventListener("compositionend", function(){ window.__regularMemoSearchComposing=false; window.__regularMemoSearch=this.value; renderMemo(); });
+    regularMemoSearch.addEventListener("input", function(e){ window.__regularMemoSearch=this.value; if(window.__regularMemoSearchComposing || (e && e.isComposing)) return; renderMemo(); });
+    regularMemoSort.value = window.__regularMemoSort || "updated";
     regularMemoSort.addEventListener("change", function(){ window.__regularMemoSort=this.value; renderMemo(); });
   }
   function daysUntilBirthday(l){
@@ -8681,12 +8700,13 @@ const firebaseConfig = { ... }
   }
   function getSortedListeners(){
     const search=regularSearchNormalize(String(window.__regularMemoSearch || "").trim());
-    const sort=window.__regularMemoSort || "kana";
+    const sort=window.__regularMemoSort || "updated";
     let arr=(state.listeners||[]).map(function(l,i){ return {l:l,i:i}; });
     if(search){
-      arr=arr.filter(function(x){ return listenerSearchHaystack(x.l||{}).includes(search); });
+      arr=arr.filter(function(x){ return listenerMatchesRegularSearch(x.l||{}, search); });
     }
-    if(sort==="recent") arr.sort(function(a,b){ return String(b.l.registeredDate||"").localeCompare(String(a.l.registeredDate||"")); });
+    if(sort==="updated") arr.sort(function(a,b){ return listenerUpdatedKey(b.l).localeCompare(listenerUpdatedKey(a.l)) || listenerSortKey(a.l).localeCompare(listenerSortKey(b.l),'ja'); });
+    else if(sort==="recent") arr.sort(function(a,b){ return String(b.l.registeredDate||"").localeCompare(String(a.l.registeredDate||"")); });
     else if(sort==="birthday") arr.sort(function(a,b){ return daysUntilBirthday(a.l)-daysUntilBirthday(b.l); });
     else arr.sort(function(a,b){ return listenerSortKey(a.l).localeCompare(listenerSortKey(b.l),'ja'); });
     return arr;
@@ -8732,9 +8752,9 @@ const firebaseConfig = { ... }
     }).join('') || '<div class="card"><div class="inner muted">常連なし</div></div>';
 
     grid.querySelectorAll('[data-toggle-regular]').forEach(function(btn){ btn.onclick=function(){ const box=grid.querySelector('[data-regular-fold="'+btn.dataset.toggleRegular+'"]'); if(box){ box.classList.toggle('open'); btn.textContent=box.classList.contains('open')?'閉じる':'開く'; } }; });
-    grid.querySelectorAll('textarea[data-memo]').forEach(function(t){ t.onchange=function(){ state.listeners[Number(t.dataset.memo)].memo=t.value; save(); }; });
-    grid.querySelectorAll('input[data-search-yomi]').forEach(function(inp){ inp.onchange=function(){ state.listeners[Number(inp.dataset.searchYomi)].searchYomi=inp.value.trim(); save(); }; });
-    grid.querySelectorAll('input[data-search-tags]').forEach(function(inp){ inp.onchange=function(){ state.listeners[Number(inp.dataset.searchTags)].searchTags=inp.value.trim(); save(); }; });
+    grid.querySelectorAll('textarea[data-memo]').forEach(function(t){ t.onchange=function(){ const l=state.listeners[Number(t.dataset.memo)]; l.memo=t.value; touchListener(l); save(); renderMemo(); }; });
+    grid.querySelectorAll('input[data-search-yomi]').forEach(function(inp){ inp.onchange=function(){ const l=state.listeners[Number(inp.dataset.searchYomi)]; l.searchYomi=inp.value.trim(); touchListener(l); save(); renderMemo(); }; });
+    grid.querySelectorAll('input[data-search-tags]').forEach(function(inp){ inp.onchange=function(){ const l=state.listeners[Number(inp.dataset.searchTags)]; l.searchTags=inp.value.trim(); touchListener(l); save(); renderMemo(); }; });
     grid.querySelectorAll('[data-refresh-seeds]').forEach(function(btn){ btn.onclick=function(){ refreshTopicSeeds(Number(btn.dataset.refreshSeeds)); }; });
     grid.querySelectorAll('[data-open-detail]').forEach(function(btn){ btn.onclick=function(){ openListenerDetail(Number(btn.dataset.openDetail)); }; });
     grid.querySelectorAll('[data-delete-memo-listener]').forEach(function(btn){ btn.onclick=function(){ deleteListener(Number(btn.dataset.deleteMemoListener)); }; });
