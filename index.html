@@ -2775,7 +2775,30 @@ function fitBrushText(text){
     <div class="row"><button class="btn primary" onclick="rollSerifGame()">回す</button><button class="btn" onclick="showScreen('games')">戻る</button></div>
   </div></div>
 </section>
-<section id="reloGame" class="screen"><div class="card"><div class="inner"><h2>🍻 レロレロ酒場</h2><p class="muted">和製英語・横文字を重点追加。噛まずに言えるか勝負。</p><div class="big-output" id="reloPreview">アジェンダ</div><div class="row"><button class="btn primary" onclick="rollStageGame('relo','reloPreview')">回す</button><button class="btn" onclick="showScreen('games')">戻る</button></div></div></div></section>
+<section id="reloGame" class="screen"><div class="card"><div class="inner">
+  <h2>🍻 レロレロ酒場</h2>
+  <p class="muted">お題を「ラリルレロ」だけで読んで、リスナーが元の言葉を当てるゲーム。</p>
+  <div class="mini-panel" style="border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:12px;margin:10px 0;background:rgba(255,255,255,.04)">
+    <b>ルール</b>
+    <div class="muted" style="margin-top:6px;line-height:1.7">
+      ① 枠主は正解を確認する。<br>
+      ② 正解の言葉をラリルレロだけに変えて読む。<br>
+      ③ リスナーはコメントで元の言葉を当てる。<br>
+      ※ 回答モードではラリルレロ表記を画面に出して、みんなで発音しながら考えられる。
+    </div>
+  </div>
+  <div class="row" style="gap:8px;align-items:center">
+    <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="reloMode" value="host" checked onchange="renderReloMode()"> 枠主読み上げ</label>
+    <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="reloMode" value="answer" onchange="renderReloMode()"> 回答モード</label>
+  </div>
+  <div class="big-output" id="reloPreview">ラリルレロ酒場へようこそ</div>
+  <p class="muted" id="reloHint">枠主読み上げ：正解は枠主だけ確認して、ラリルレロで読んでね。</p>
+  <div id="reloAnswerBox" class="mini-panel" style="display:none;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:12px;margin:10px 0;background:rgba(255,255,255,.04)">
+    <div class="muted">正解</div>
+    <div id="reloAnswer" style="font-size:22px;font-weight:800">---</div>
+  </div>
+  <div class="row"><button class="btn primary" onclick="rollReloGame()">回す</button><button class="btn" onclick="toggleReloAnswer()">正解表示</button><button class="btn" onclick="showScreen('games')">戻る</button></div>
+</div></div></section>
 <section id="animalGame" class="screen"><div class="card"><div class="inner">
   <h2>🐾 動物なりきり大喜利</h2>
   <p class="muted">出た動物になりきって質問に答えるゲーム。苦手な人は語尾だけでもOK！ 自分のことを動物化して答えてもOK。</p>
@@ -4685,13 +4708,58 @@ function renderPrivateAnimalList(){
 }
 setTimeout(()=>{ renderPrivateAnimalList(); if(document.getElementById('animalVisual')) renderAnimalCard(builtInAnimalData[0], '最近ハマってることは？'); },0);
 
+
+let currentReloAnswer = "";
+function kanaToRero(text){
+  const seq=['ラ','リ','ル','レ','ロ'];
+  let i=0;
+  return String(text||'').split('').map(ch=>{
+    if(/[ぁ-んァ-ン一-龯々〆ヵヶA-Za-z0-9]/.test(ch)){
+      const r=seq[i%seq.length]; i++; return r;
+    }
+    if(/\s/.test(ch)) return ' ';
+    return ch;
+  }).join('');
+}
+function getReloMode(){
+  return document.querySelector('input[name="reloMode"]:checked')?.value || 'host';
+}
+function renderReloMode(){
+  const hint=document.getElementById('reloHint');
+  const ans=document.getElementById('reloAnswerBox');
+  const mode=getReloMode();
+  if(hint) hint.textContent = mode==='host' ? '枠主読み上げ：正解は枠主だけ確認して、ラリルレロで読んでね。' : '回答モード：ラリルレロ表記を画面に出して、みんなで元の言葉を当てよう。';
+  if(ans) ans.style.display='none';
+  if(currentReloAnswer) {
+    const prev=document.getElementById('reloPreview');
+    if(prev) prev.textContent = mode==='host' ? `お題を引いた！枠主は正解表示で確認して読んでね` : kanaToRero(currentReloAnswer);
+  }
+}
+function rollReloGame(){
+  currentReloAnswer = pick(state.customGames.relo || []) || 'アジェンダ';
+  const mode=getReloMode();
+  const prev=document.getElementById('reloPreview');
+  const ans=document.getElementById('reloAnswer');
+  const box=document.getElementById('reloAnswerBox');
+  if(prev) prev.textContent = mode==='host' ? 'お題を引いた！枠主は正解表示で確認して読んでね' : kanaToRero(currentReloAnswer);
+  if(ans) ans.textContent=currentReloAnswer;
+  if(box) box.style.display='none';
+}
+function toggleReloAnswer(){
+  if(!currentReloAnswer) rollReloGame();
+  const ans=document.getElementById('reloAnswer');
+  const box=document.getElementById('reloAnswerBox');
+  if(ans) ans.textContent=currentReloAnswer;
+  if(box) box.style.display = box.style.display==='none' ? 'block' : 'none';
+}
+
 const gameData={
   animal:{label:"動物",roll:()=>{ rollAnimalGame(); return `🐾 動物なりきり大喜利を表示したよ`; }},
   ogiri:{label:"大喜利",roll:()=>`🧠 大喜利：${pick(state.customGames.ogiri)}`},
   line:{label:"セリフ",roll:()=>`🎭 セリフ：${pick(state.customGames.line)}`},
   itsu:{label:"いつ誰",roll:()=>`🧩 ${pick(state.customGames.when)} ${pick(state.customGames.who)} ${pick(state.customGames.where)} ${pick(state.customGames.what)}`},
   bob:{label:"ボブ",roll:()=>`📘 ボブジテン：${pick(state.customGames.bob)} ※カタカナ禁止で説明`},
-  relo:{label:"酒場",roll:()=>`🍻 レロレロ酒場：${pick(state.customGames.relo)} を噛まずに言える？`}
+  relo:{label:"酒場",roll:()=>{ rollReloGame(); return "🍻 レロレロ酒場を表示したよ"; }}
 };
 function rollStageGame(key, targetId){
   if(key==='line' && targetId==='serifPreview'){ rollSerifGame(); return; }
