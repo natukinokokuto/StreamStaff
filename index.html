@@ -2625,6 +2625,13 @@ function fitBrushText(text){
   padding:10px;
 }
 
+
+/* v121 なりきりラジオDJ */
+.radio-dj-stage{min-height:70vh;padding:24px;border-radius:28px;border:2px solid rgba(57,208,255,.75);background:radial-gradient(circle at top left,rgba(57,208,255,.18),transparent 32%),linear-gradient(135deg,#060b18,#101827 55%,#140b20);box-shadow:0 0 34px rgba(57,208,255,.25),inset 0 0 30px rgba(255,255,255,.04)}
+.radio-dj-onair{display:inline-flex;gap:8px;align-items:center;padding:8px 14px;border-radius:999px;background:rgba(239,68,68,.18);border:1px solid rgba(248,113,113,.45);font-weight:900;letter-spacing:.12em;color:#fecaca}
+.radio-dj-post{margin-top:20px;padding:22px;border-radius:24px;background:rgba(2,6,23,.62);border:1px solid rgba(148,163,184,.28);box-shadow:inset 0 0 24px rgba(0,0,0,.22)}
+.radio-dj-rn{font-size:clamp(20px,3vw,34px);font-weight:900;color:#fef3c7;margin-bottom:8px}.radio-dj-meta{color:#93c5fd;font-weight:700;margin-bottom:14px}.radio-dj-letter{font-size:clamp(22px,3.6vw,44px);line-height:1.55;font-weight:800;white-space:pre-wrap}.radio-dj-controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.radio-dj-history{margin-top:12px;color:#cbd5e1}.radio-dj-category{background:#111827;border:1px solid rgba(148,163,184,.35);color:#e5e7eb;border-radius:14px;padding:10px 12px}.radio-dj-small{font-size:13px;color:#94a3b8}.radio-dj-fav{color:#fde68a;font-weight:900}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -2733,6 +2740,7 @@ function fitBrushText(text){
 <div class="grid" style="margin-top:14px">
   <div class="tool-item"><div class="tool-title">🎭 セリフ</div><button class="btn" onclick="showScreen('serifGame')">開く</button></div>
   <div class="tool-item"><div class="tool-title">🍻 レロレロ酒場</div><button class="btn" onclick="showScreen('reloGame')">開く</button></div>
+  <div class="tool-item"><div class="tool-title">📻 なりきりラジオDJ</div><button class="btn" onclick="showScreen('radioDjGame'); if(window.renderRadioDj) renderRadioDj();">開く</button></div>
   <div class="tool-item"><div class="tool-title">🐼 動物</div><button class="btn" onclick="showScreen('animalGame')">開く</button></div>
   <div class="tool-item"><div class="tool-title">😂 いつ誰</div><button class="btn" onclick="showScreen('itsudareGame')">開く</button></div>
   <div class="tool-item"><div class="tool-title">🧠 大喜利</div><button class="btn" onclick="showScreen('ogiriGame')">開く</button></div>
@@ -2869,6 +2877,42 @@ function fitBrushText(text){
   </div>
   <div class="row"><button class="btn primary" onclick="rollAnimalGame()">動物を出す</button><button class="btn" onclick="searchAnimalData(true)">語尾一覧</button><button class="btn" onclick="showScreen('games')">戻る</button></div>
 </div></div></section>
+
+<section id="radioDjGame" class="screen">
+  <div class="card"><div class="inner radio-dj-stage">
+    <div class="row" style="justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="radio-dj-onair">● NOW ON AIR</div>
+        <h2 style="margin:14px 0 4px">📻 なりきりラジオDJ</h2>
+        <p class="muted">ランダムなお便りを読んで、枠主がラジオDJっぽく答えるトーク特化ミニゲーム。</p>
+      </div>
+      <button class="btn" onclick="showScreen('games')">ゲーム一覧へ戻る</button>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <select id="radioDjCategory" class="radio-dj-category">
+        <option value="all">全部混ぜ</option>
+        <option value="midnight">深夜ラジオ</option>
+        <option value="talk">雑談</option>
+        <option value="silly">どうでもいい質問</option>
+        <option value="worry">お悩み相談</option>
+        <option value="chaos">カオス</option>
+        <option value="host">枠主プロフィール寄せ</option>
+      </select>
+      <button class="btn primary" id="radioDjNextBtn" type="button">次のお便り</button>
+      <button class="btn" id="radioDjPrevBtn" type="button">← 前へ</button>
+      <button class="btn" id="radioDjForwardBtn" type="button">次へ →</button>
+      <button class="btn" id="radioDjFavBtn" type="button">★お気に入り</button>
+    </div>
+    <div class="radio-dj-post">
+      <div class="radio-dj-rn" id="radioDjRn">RN：深夜のカフェオレ</div>
+      <div class="radio-dj-meta" id="radioDjMeta">どうでもいい質問 / 20〜30代っぽい</div>
+      <div class="radio-dj-letter" id="radioDjLetter">風呂でどこから洗うタイプですか？</div>
+    </div>
+    <div class="radio-dj-history" id="radioDjHistory">履歴 0 / 0</div>
+    <p class="radio-dj-small">※枕詞と質問/相談はカテゴリごとに結び付け。温度差事故を減らして、ラジオ投稿っぽく出します。</p>
+  </div></div>
+</section>
+
 <section id="itsudareGame" class="screen"><div class="card"><div class="inner"><h2>😂 いつ誰ゲーム</h2><p class="muted">いつ・誰が・どこで・何をしたを大量追加。</p><div class="big-output" id="itsuPreview">深夜3時に校長先生がコンビニで踊ってた</div><div class="row"><button class="btn primary" onclick="rollStageGame('itsu','itsuPreview')">回す</button><button class="btn" onclick="showScreen('games')">戻る</button></div></div></div></section>
 <section id="ogiriGame" class="screen"><div class="card"><div class="inner"><h2>🧠 大喜利アリーナ</h2><p class="muted">コメント参加しやすい配信向けお題を追加。</p><div class="big-output" id="ogiriPreview">絶対流行らないスマホ機能とは？</div><div class="row"><button class="btn primary" onclick="rollStageGame('ogiri','ogiriPreview')">回す</button><button class="btn" onclick="showScreen('games')">戻る</button></div></div></div></section>
 <section id="bobuGame" class="screen"><div class="card"><div class="inner"><h2>📘 ボブジテン</h2><p class="muted">カタカナ禁止説明向け単語を増量。</p><div class="big-output" id="bobuPreview">Wi‑Fiをカタカナ禁止で説明せよ</div><div class="row"><button class="btn primary" onclick="rollStageGame('bob','bobuPreview')">回す</button><button class="btn" onclick="showScreen('games')">戻る</button></div></div></div></section>
@@ -3278,6 +3322,26 @@ function fitBrushText(text){
     <button class="btn primary" onclick="showScreen('enduranceTool')" type="button">開く</button>
   </div>
 </div>
+
+<div class="tool-item" style="margin-bottom:12px;background:#1a1018;border-color:#f59e0b">
+  <div class="row" style="justify-content:space-between">
+    <div>
+      <div class="tool-title">🎟️ くじ引き</div>
+      <div class="muted">一番くじ風。賞・本数・ラストワンを自由設定してぺりぺり演出。</div>
+    </div>
+    <button class="btn primary" onclick="showScreen('kujiTool')" type="button">開く</button>
+  </div>
+</div>
+
+<div class="tool-item" style="margin-bottom:12px;background:#0f172a;border-color:#22c55e">
+  <div class="row" style="justify-content:space-between">
+    <div>
+      <div class="tool-title">🧩 耐久タイル</div>
+      <div class="muted">星座・都道府県・自由テーマを手動で埋める配信用タイル。</div>
+    </div>
+    <button class="btn primary" onclick="showScreen('tileTool')" type="button">開く</button>
+  </div>
+</div>
           
 
 <div class="tool-item" style="margin-bottom:12px;background:#111022;border-color:#6d28d9">
@@ -3377,13 +3441,148 @@ function fitBrushText(text){
     </div>
   </div>
 
+</section>
+
+
+<section id="tileTool" class="screen">
+  <div class="card"><div class="inner">
+    <div class="row" style="justify-content:space-between;align-items:flex-start">
+      <div>
+        <h2 style="margin:0">🧩 耐久タイル</h2>
+        <p class="muted">入室者の星座・都道府県・企画条件などを、枠主が手動で確認して埋めていくタイル。SEなし。</p>
+      </div>
+      <button class="btn" onclick="showScreen('tools')" type="button">道具へ戻る</button>
+    </div>
+
+    <div class="grid two" style="margin-top:14px">
+      <div class="card"><div class="inner">
+        <h3 style="margin-top:0">設定</h3>
+        <label>タイトル</label>
+        <input id="tileBoardTitle" placeholder="例：47都道府県耐久 / 今日の枠ビンゴ">
+        <label style="margin-top:10px">モード</label>
+        <div class="row" style="margin-top:8px">
+          <button class="btn primary" id="tileModeNormalBtn" type="button">耐久タイル</button>
+          <button class="btn" id="tileModeBingoBtn" type="button">ビンゴモード</button>
+          <label style="display:flex;align-items:center;gap:6px;margin:0;font-weight:800"><input id="tileBingoFree" type="checkbox">中央FREE</label>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <select id="tilePresetSelect">
+            <option value="zodiac">12星座</option>
+            <option value="prefectures">47都道府県</option>
+            <option value="blood">血液型</option>
+            <option value="blank25">空白25マス</option>
+            <option value="bingoAchieve">ビンゴ：達成系</option>
+            <option value="bingoMiss">ビンゴ：ミス系</option>
+            <option value="bingoChaos">ビンゴ：カオス系</option>
+            <option value="bingoTalk">ビンゴ：雑談系</option>
+          </select>
+          <button class="btn primary" id="tileApplyPresetBtn" type="button">プリセット作成</button>
+        </div>
+        <div class="row" id="tileBingoQuickRow" style="margin-top:10px">
+          <button class="btn" data-bingo-generate="achieve" type="button">達成系をランダム作成</button>
+          <button class="btn" data-bingo-generate="miss" type="button">ミス系をランダム作成</button>
+          <button class="btn" data-bingo-generate="chaos" type="button">カオス系をランダム作成</button>
+          <button class="btn" data-bingo-generate="talk" type="button">雑談系をランダム作成</button>
+        </div>
+        <p class="muted">自由作成は1行につき1タイル。ビンゴは25マスに整えて使います。既存タイルは上書きされます。</p>
+        <textarea id="tileCustomText" rows="6" placeholder="北海道
+青森
+岩手"></textarea>
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" id="tileApplyCustomBtn" type="button">自由タイル作成</button>
+          <button class="btn" id="tileAddOneBtn" type="button">1マス追加</button>
+          <button class="btn danger" id="tileResetBtn" type="button">埋め状態リセット</button>
+        </div>
+      </div></div>
+      <div class="card"><div class="inner">
+        <h3 style="margin-top:0">進捗</h3>
+        <div id="tileProgressText" style="font-size:34px;font-weight:950">0 / 0</div>
+        <div style="height:14px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:10px">
+          <div id="tileProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#22c55e,#a3e635)"></div>
+        </div>
+        <div id="tileBingoStats" style="margin-top:10px;font-size:22px;font-weight:950;display:none">BINGO 0 / REACH 0</div>
+        <p class="muted" style="margin-top:10px">タイル本体を押すと「埋まり/未達成」を切り替え。ビンゴモードでは縦・横・斜めを自動判定します。</p>
+      </div></div>
+    </div>
+
+    <div class="card" style="margin-top:14px"><div class="inner">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <h3 id="tileBoardHeading" style="margin:0">耐久タイル</h3>
+        <div class="muted" id="tileBoardSub">手動管理</div>
+      </div>
+      <div id="tileGrid" style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;align-items:stretch"></div>
+      <div style="margin-top:18px;border-top:1px solid rgba(255,255,255,.10);padding-top:14px">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h4 style="margin:0">タイル管理</h4>
+          <span class="muted">名前編集・削除はこちら</span>
+        </div>
+        <div id="tileManageList" style="margin-top:10px;display:grid;gap:8px"></div>
+      </div>
+    </div></div>
+  </div></div>
+</section>
+
+<section id="kujiTool" class="screen">
+  <div class="card"><div class="inner">
+    <div class="row" style="justify-content:space-between;align-items:flex-start">
+      <div>
+        <h2 style="margin:0">🎟️ くじ引き</h2>
+        <p class="muted">一番くじ風の配信用くじ。賞名・本数・色・ラストワン賞を自由に設定。</p>
+      </div>
+      <button class="btn" onclick="showScreen('tools')" type="button">道具へ戻る</button>
+    </div>
+
+    <div class="kuji-stage" style="margin-top:14px;padding:18px;border:1px solid rgba(245,158,11,.45);border-radius:22px;background:linear-gradient(135deg,#17100b,#25131c);box-shadow:0 16px 40px rgba(0,0,0,.28)">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div>
+          <div class="muted">現在の残り</div>
+          <div id="kujiTotalRemain" style="font-size:34px;font-weight:950">0本</div>
+        </div>
+        <div style="text-align:right">
+          <div class="muted">ラストワン</div>
+          <div id="kujiLastOneStatus" style="font-size:18px;font-weight:900">設定なし</div>
+        </div>
+      </div>
+      <div id="kujiTicket" style="margin:18px auto 10px;max-width:520px;min-height:210px;border-radius:28px;background:repeating-linear-gradient(135deg,#fff7ed 0,#fff7ed 14px,#fed7aa 14px,#fed7aa 28px);color:#3b1b08;display:flex;align-items:center;justify-content:center;text-align:center;font-size:34px;font-weight:950;box-shadow:inset 0 0 0 4px rgba(120,53,15,.15),0 14px 34px rgba(0,0,0,.3);overflow:hidden;position:relative">
+        <div id="kujiTicketText">ぺりぺり待機中</div>
+      </div>
+      <div class="row" style="justify-content:center">
+        <button class="btn primary" id="kujiDrawBtn" type="button" style="font-size:22px;padding:14px 26px">ぺりぺりする</button>
+        <button class="btn" id="kujiResetDrawsBtn" type="button">引いた履歴リセット</button>
+      </div>
+    </div>
+
+    <div class="grid two" style="margin-top:14px">
+      <div class="card"><div class="inner">
+        <h3 style="margin-top:0">賞の設定</h3>
+        <div class="row">
+          <input id="kujiPrizeName" placeholder="賞名 例：A賞 / 神賞 / ハズレ">
+          <input id="kujiPrizeCount" type="number" min="1" value="1" style="max-width:90px" placeholder="本数">
+          <input id="kujiPrizeColor" type="color" value="#f59e0b" style="max-width:70px">
+          <button class="btn primary" id="kujiAddPrizeBtn" type="button">賞追加</button>
+        </div>
+        <div id="kujiPrizeList" style="margin-top:12px"></div>
+      </div></div>
+      <div class="card"><div class="inner">
+        <h3 style="margin-top:0">ラストワン賞</h3>
+        <p class="muted">最後の1本を引いた時に一緒に表示されるおまけ賞。</p>
+        <div class="row">
+          <input id="kujiLastOneName" placeholder="例：ラストワン賞 / 主の直筆サイン">
+          <button class="btn primary" id="kujiSaveLastOneBtn" type="button">保存</button>
+        </div>
+        <h3>履歴</h3>
+        <div id="kujiHistoryList" style="max-height:260px;overflow:auto"></div>
+      </div></div>
+    </div>
+  </div></div>
+</section>
+
   <audio id="alarm_hato1" src="assets/hato1.mp3"></audio>
   <audio id="alarm_closed" src="assets/closed.mp3"></audio>
   <audio id="alarm_sponsor" src="assets/sponsor.mp3"></audio>
   <audio id="alarm_alarm_clock" src="assets/alarm_clock.mp3"></audio>
   <audio id="alarm_wall_clock" src="assets/wall_clock.mp3"></audio>
   <audio id="alarm_hato2" src="assets/hato2.mp3"></audio>
-</section>
 
 
 <section id="enduranceTool" class="screen">
@@ -3751,6 +3950,7 @@ VANS"></textarea>
 <audio id="seRouletteCoin" src="assets/roulette/スロットマシーン・コイン排出.mp3"></audio>
 <audio id="seRouletteResult" src="assets/roulette/ニュースタイトル表示4.mp3"></audio>
 <audio id="seRoulettePolice" src="assets/roulette/パトカー.mp3"></audio>
+<audio id="seKujiPeel" src="assets/kami_peri.m4a"></audio>
 
     <audio id="bgmChin" src="assets/bgm_wapop.mp3" loop></audio>
 
@@ -3870,6 +4070,22 @@ const defaultState={
         {id:"ed_btn_2",name:"NGワード +10秒",value:10,unit:"seconds",color:"#fb7185"},
         {id:"ed_btn_3",name:"コメント +1",value:1,unit:"count",color:"#a78bfa"}
       ]
+    },
+    kuji:{
+      prizes:[
+        {id:"kuji_a",name:"A賞",count:1,drawn:0,color:"#f59e0b"},
+        {id:"kuji_b",name:"B賞",count:2,drawn:0,color:"#38bdf8"},
+        {id:"kuji_c",name:"C賞",count:5,drawn:0,color:"#a78bfa"},
+        {id:"kuji_hazure",name:"ハズレ",count:10,drawn:0,color:"#64748b"}
+      ],
+      lastOne:"ラストワン賞",
+      history:[]
+    },
+    tiles:{
+      title:"12星座コンプ",
+      mode:"normal",
+      free:false,
+      items:["牡羊座","牡牛座","双子座","蟹座","獅子座","乙女座","天秤座","蠍座","射手座","山羊座","水瓶座","魚座"].map((name,i)=>({id:"tile_zodiac_"+i,name,done:false}))
     }
   },
   customGames:{
@@ -3905,6 +4121,16 @@ if(typeof state.tools.endurance.timerDuration !== "number") state.tools.enduranc
 if(typeof state.tools.endurance.timerRemaining !== "number") state.tools.endurance.timerRemaining = state.tools.endurance.timerDuration;
 if(typeof state.tools.endurance.counterGoal !== "number") state.tools.endurance.counterGoal = 100;
 if(typeof state.tools.endurance.counterValue !== "number") state.tools.endurance.counterValue = 0;
+state.tools.kuji = state.tools.kuji || structuredClone(defaultState.tools.kuji);
+state.tools.kuji.prizes = state.tools.kuji.prizes || [];
+state.tools.kuji.history = state.tools.kuji.history || [];
+state.tools.kuji.prizes.forEach(p=>{ if(typeof p.drawn!=="number") p.drawn=0; if(!p.color) p.color="#f59e0b"; });
+state.tools.tiles = state.tools.tiles || structuredClone(defaultState.tools.tiles);
+state.tools.tiles.items = state.tools.tiles.items || [];
+if(!state.tools.tiles.mode) state.tools.tiles.mode = 'normal';
+if(typeof state.tools.tiles.free !== 'boolean') state.tools.tiles.free = false;
+state.tools.tiles.items.forEach((t,i)=>{ if(!t.id) t.id=uid('tile'); if(typeof t.done!=="boolean") t.done=false; if(!t.name) t.name=`タイル${i+1}`; });
+
 state.chin = state.chin || structuredClone(defaultState.chin);
 state.chin.diceCount = state.chin.diceCount || 3;
 state.chin.diceNames = state.chin.diceNames || structuredClone(defaultState.chin.diceNames);
@@ -4893,6 +5119,8 @@ function showScreen(id){
   if(id==="calendar") renderCalendar();
   if(id==="tools") renderTools();
   if(id==="enduranceTool") renderEnduranceTool();
+  if(id==="kujiTool") renderKujiTool();
+  if(id==="tileTool") renderTileTool();
   if(id==="chinchiro"){ renderChinMode(); startChinBgm(); }
 }
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>showScreen(b.dataset.screen)));
@@ -6436,6 +6664,239 @@ function renderRoulette(){
   }
 }
 
+
+
+
+const tilePresets={
+  zodiac:["牡羊座","牡牛座","双子座","蟹座","獅子座","乙女座","天秤座","蠍座","射手座","山羊座","水瓶座","魚座"],
+  prefectures:["北海道","青森","岩手","宮城","秋田","山形","福島","茨城","栃木","群馬","埼玉","千葉","東京","神奈川","新潟","富山","石川","福井","山梨","長野","岐阜","静岡","愛知","三重","滋賀","京都","大阪","兵庫","奈良","和歌山","鳥取","島根","岡山","広島","山口","徳島","香川","愛媛","高知","福岡","佐賀","長崎","熊本","大分","宮崎","鹿児島","沖縄"],
+  blood:["A型","B型","O型","AB型"],
+  blank25:Array.from({length:25},(_,i)=>`マス${i+1}`),
+  bingoAchieve:["初見さんが来る","コメント10件突破","ギフトが飛ぶ","同接目標達成","常連が来る","質問コメントが来る","笑いが起きる","話題が広がる","企画が成功する","リスナー同士が会話","スクショタイム成功","高評価が増える","フォローが増える","いいツッコミが来る","名前を呼べる","昔話が出る","おすすめを聞かれる","今日の名言が出る","水分補給できる","予定時間まで続く","新しい話題が出る","誰かを褒める","サムネを褒められる","配信設定が安定","締めの挨拶成功"],
+  bingoMiss:["噛む","漢字を読み間違える","言い間違える","話が脱線する","水を飲み忘れる","同じ話をする","コメントを見逃す","操作を間違える","名前を呼び間違える","マイク確認を忘れる","画面を間違える","ツッコミ遅れる","急に黙る","謎の間が生まれる","説明が長くなる","笑って進まない","ルールを忘れる","ボタンを押し間違える","時間を見失う","言葉が出てこない","読み上げ失敗","急に素になる","予定と違うことする","自分で自分にツッコむ","締めを噛む"],
+  bingoChaos:["急に歌う","謎の例え話が出る","コメント欄が困惑","ルーレット事故る","話題が迷子になる","急に名言っぽくなる","飯テロが始まる","変なテンションになる","急に反省会","誰かが暴走する","謎ルール追加","カオスな流れになる","笑いすぎて止まる","急に小声になる","想定外の展開","無駄に熱弁する","ボケが渋滞する","全員で乗っかる","急に茶番開始","謎の勝負が始まる","コメントで大喜利開始","変なあだ名が生まれる","ツッコミ不在","枠主が迷言を残す","最後だけ綺麗に終わる"],
+  bingoTalk:["好きな食べ物の話","地元トーク","最近買った物","昔の流行り","仕事の話","ファッションの話","音楽の話","ゲームの話","アニメの話","コンビニの話","ラーメンの話","恋バナ未満の話","失敗談","子どもの頃の話","休日の過ごし方","旅行したい場所","おすすめを聞く","リスナーの地域話","季節の話","健康の話","家電の話","ペットの話","名前の由来","配信あるある","今日の締めトーク"]
+};
+const bingoCategoryMap={achieve:'bingoAchieve',miss:'bingoMiss',chaos:'bingoChaos',talk:'bingoTalk'};
+function shuffleArray(arr){ return [...arr].sort(()=>Math.random()-.5); }
+function createBingoItems(category){
+  const key=bingoCategoryMap[category]||'bingoAchieve';
+  return shuffleArray(tilePresets[key]).slice(0,25);
+}
+function bingoLines(items){
+  const lines=[];
+  for(let r=0;r<5;r++) lines.push([0,1,2,3,4].map(c=>r*5+c));
+  for(let c=0;c<5;c++) lines.push([0,1,2,3,4].map(r=>r*5+c));
+  lines.push([0,6,12,18,24],[4,8,12,16,20]);
+  const doneAt=i=>!!(items[i]&&items[i].done);
+  let bingo=0, reach=0;
+  const bingoSet=new Set(), reachSet=new Set();
+  lines.forEach(line=>{
+    const n=line.filter(doneAt).length;
+    if(n===5){ bingo++; line.forEach(i=>bingoSet.add(i)); }
+    else if(n===4){ reach++; line.filter(i=>!doneAt(i)).forEach(i=>reachSet.add(i)); }
+  });
+  return {bingo,reach,bingoSet,reachSet};
+}
+function normalizeBingoItems(t){
+  t.items=t.items||[];
+  if(t.mode==='bingo'){
+    while(t.items.length<25) t.items.push({id:uid('tile'),name:`マス${t.items.length+1}`,done:false});
+    if(t.items.length>25) t.items=t.items.slice(0,25);
+    if(t.free && t.items[12]){ t.items[12].name=t.items[12].name||'FREE'; t.items[12].done=true; }
+  }
+}
+function tileState(){
+  state.tools = state.tools || {};
+  state.tools.tiles = state.tools.tiles || structuredClone(defaultState.tools.tiles);
+  state.tools.tiles.items = state.tools.tiles.items || [];
+  return state.tools.tiles;
+}
+function setTileItems(title, names, mode){
+  const t=tileState();
+  t.title=title || t.title || "耐久タイル";
+  if(mode) t.mode=mode;
+  t.items=(names||[]).map((name,i)=>({id:uid('tile'),name:String(name||`タイル${i+1}`).trim()||`タイル${i+1}`,done:false}));
+  normalizeBingoItems(t);
+  save();
+  renderTileTool();
+}
+function renderTileTool(){
+  const t=tileState();
+  normalizeBingoItems(t);
+  const isBingo=t.mode==='bingo';
+  const items=t.items||[];
+  const done=items.filter(x=>x.done).length;
+  const total=items.length;
+  const pct=total ? Math.round(done/total*100) : 0;
+  const b=isBingo ? bingoLines(items) : {bingo:0,reach:0,bingoSet:new Set(),reachSet:new Set()};
+  if(window.tileBoardTitle) tileBoardTitle.value=t.title||"";
+  if(window.tileBoardHeading) tileBoardHeading.textContent=t.title||(isBingo?'今日の枠ビンゴ':'耐久タイル');
+  if(window.tileBoardSub) tileBoardSub.textContent=isBingo?`BINGO ${b.bingo} / REACH ${b.reach}`:`${done} / ${total} 達成`;
+  if(window.tileProgressText) tileProgressText.textContent=isBingo?`${done} / ${total}（${pct}%）  BINGO ${b.bingo} / REACH ${b.reach}`:`${done} / ${total}（${pct}%）`;
+  if(window.tileProgressBar) tileProgressBar.style.width=pct+"%";
+  if(window.tileBingoStats){ tileBingoStats.style.display=isBingo?'block':'none'; tileBingoStats.textContent=`BINGO ${b.bingo} / REACH ${b.reach}`; }
+  if(window.tileBingoFree){ tileBingoFree.checked=!!t.free; tileBingoFree.disabled=!isBingo; }
+  if(window.tileModeNormalBtn){ tileModeNormalBtn.className='btn '+(!isBingo?'primary':''); }
+  if(window.tileModeBingoBtn){ tileModeBingoBtn.className='btn '+(isBingo?'primary':''); }
+  if(window.tileBingoQuickRow) tileBingoQuickRow.style.display=isBingo?'flex':'none';
+  if(window.tileGrid){
+    tileGrid.style.gridTemplateColumns=isBingo?'repeat(5, minmax(0, 1fr))':'repeat(auto-fill,minmax(92px,1fr))';
+    tileGrid.innerHTML=items.map((it,i)=>{
+      const isFree=isBingo && t.free && i===12;
+      const lineDone=b.bingoSet.has(i);
+      const lineReach=b.reachSet.has(i);
+      const border=lineDone?'rgba(250,204,21,.95)':(it.done?'rgba(34,197,94,.95)':(lineReach?'rgba(251,191,36,.8)':'rgba(255,255,255,.16)'));
+      const bg=lineDone?'linear-gradient(135deg,rgba(250,204,21,.45),rgba(245,158,11,.22))':(it.done?'linear-gradient(135deg,rgba(34,197,94,.34),rgba(132,204,22,.20))':'rgba(15,23,42,.78)');
+      const mark=isFree?'FREE':(it.done?'✅':'');
+      return `<button class="tile-cell ${it.done?'done':''} ${lineDone?'bingo-line':''}" data-tile-toggle="${i}" type="button" style="aspect-ratio:1/1;width:100%;border-radius:14px;border:2px solid ${border};background:${bg};box-shadow:${lineDone?'0 0 26px rgba(250,204,21,.30), inset 0 0 0 1px rgba(255,255,255,.12)':(it.done?'0 0 22px rgba(34,197,94,.22), inset 0 0 0 1px rgba(255,255,255,.10)':'inset 0 0 0 1px rgba(255,255,255,.04)')};display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;cursor:pointer;font-weight:950;word-break:break-word;color:#fff;line-height:1.16;overflow:hidden;position:relative;font-size:${isBingo?'clamp(11px,1.6vw,16px)':'16px'}">
+        <span>${mark?`<b style="display:block;color:${lineDone?'#fef3c7':'#bbf7d0'};font-size:13px;margin-bottom:3px">${mark}</b>`:''}${escapeHtml(it.name||'')}</span>
+      </button>`;
+    }).join('') || '<p class="muted">タイルがありません。プリセットか自由入力で作成してね。</p>';
+    tileGrid.querySelectorAll('[data-tile-toggle]').forEach(el=>el.onclick=()=>{ const i=Number(el.dataset.tileToggle); if(isBingo && t.free && i===12) return; items[i].done=!items[i].done; save(); renderTileTool(); });
+  }
+  if(window.tileManageList){
+    tileManageList.innerHTML=items.map((it,i)=>`
+      <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;background:rgba(15,23,42,.58);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:8px">
+        <input data-tile-name="${i}" value="${escapeHtml(it.name||'')}" aria-label="タイル名" ${isBingo&&t.free&&i===12?'disabled':''}>
+        <button class="btn mini-btn" data-tile-edit="${i}" type="button" ${isBingo&&t.free&&i===12?'disabled':''}>反映</button>
+        <button class="btn mini-btn danger" data-tile-del="${i}" type="button" ${isBingo&&t.free&&i===12?'disabled':''}>削除</button>
+      </div>`).join('') || '<p class="muted">管理するタイルがありません。</p>';
+    tileManageList.querySelectorAll('[data-tile-name]').forEach(inp=>{
+      inp.onchange=()=>{ const i=Number(inp.dataset.tileName); if(items[i]){items[i].name=inp.value.trim()||items[i].name; save(); renderTileTool();} };
+    });
+    tileManageList.querySelectorAll('[data-tile-edit]').forEach(btn=>btn.onclick=()=>{ const i=Number(btn.dataset.tileEdit); const inp=tileManageList.querySelector(`[data-tile-name="${i}"]`); if(items[i] && inp){items[i].name=inp.value.trim()||items[i].name; save(); renderTileTool();} });
+    tileManageList.querySelectorAll('[data-tile-del]').forEach(btn=>btn.onclick=()=>{ const i=Number(btn.dataset.tileDel); if(items[i] && confirm(`${items[i].name} を削除する？`)){items.splice(i,1); normalizeBingoItems(t); save(); renderTileTool();} });
+  }
+}
+if(window.tileBoardTitle) tileBoardTitle.onchange=()=>{tileState().title=tileBoardTitle.value.trim()||'耐久タイル'; save(); renderTileTool();};
+if(window.tileModeNormalBtn) tileModeNormalBtn.onclick=()=>{const t=tileState(); t.mode='normal'; save(); renderTileTool();};
+if(window.tileModeBingoBtn) tileModeBingoBtn.onclick=()=>{const t=tileState(); t.mode='bingo'; if(!t.title||t.title==='耐久タイル') t.title='今日の枠ビンゴ'; normalizeBingoItems(t); save(); renderTileTool();};
+if(window.tileBingoFree) tileBingoFree.onchange=()=>{const t=tileState(); t.free=tileBingoFree.checked; if(t.free && t.items[12]){t.items[12].name='FREE';t.items[12].done=true;} save(); renderTileTool();};
+if(window.tileApplyPresetBtn) tileApplyPresetBtn.onclick=()=>{ const key=tilePresetSelect.value||'zodiac'; const titleMap={zodiac:'12星座コンプ',prefectures:'47都道府県制覇',blood:'血液型コンプ',blank25:'空白25マス',bingoAchieve:'達成系ビンゴ',bingoMiss:'ミス系ビンゴ',bingoChaos:'カオス系ビンゴ',bingoTalk:'雑談系ビンゴ'}; const mode=key.startsWith('bingo')?'bingo':'normal'; if(confirm('現在のタイルを上書きしてプリセットを作成する？')) setTileItems(titleMap[key]||'耐久タイル', tilePresets[key]||tilePresets.zodiac, mode); };
+if(window.tileApplyCustomBtn) tileApplyCustomBtn.onclick=()=>{ const names=(tileCustomText.value||'').split(/\n+/).map(x=>x.trim()).filter(Boolean); if(!names.length){alert('1行につき1タイルで入力してね'); return;} if(confirm('現在のタイルを上書きして自由タイルを作成する？')) setTileItems(tileBoardTitle.value.trim()||(tileState().mode==='bingo'?'自由ビンゴ':'自由耐久タイル'), names, tileState().mode); };
+if(window.tileAddOneBtn) tileAddOneBtn.onclick=()=>{ const t=tileState(); if(t.mode==='bingo' && (t.items||[]).length>=25){alert('ビンゴモードは25マス固定だよ'); return;} const name=prompt('追加するタイル名', `タイル${(t.items||[]).length+1}`); if(name!==null && name.trim()){t.items.push({id:uid('tile'),name:name.trim(),done:false}); save(); renderTileTool();} };
+if(window.tileResetBtn) tileResetBtn.onclick=()=>{ const t=tileState(); if(confirm('埋め状態だけリセットする？')){(t.items||[]).forEach((x,i)=>x.done=!!(t.mode==='bingo'&&t.free&&i===12)); save(); renderTileTool();} };
+document.querySelectorAll('[data-bingo-generate]').forEach(btn=>btn.onclick=()=>{ const cat=btn.dataset.bingoGenerate; const titles={achieve:'達成系ビンゴ',miss:'ミス系ビンゴ',chaos:'カオス系ビンゴ',talk:'雑談系ビンゴ'}; if(confirm(`${titles[cat]||'ビンゴ'}をランダム作成する？`)) setTileItems(titles[cat]||'今日の枠ビンゴ', createBingoItems(cat), 'bingo'); });
+
+function kujiState(){
+  state.tools = state.tools || {};
+  state.tools.kuji = state.tools.kuji || structuredClone(defaultState.tools.kuji);
+  state.tools.kuji.prizes = state.tools.kuji.prizes || [];
+  state.tools.kuji.history = state.tools.kuji.history || [];
+  return state.tools.kuji;
+}
+function kujiRemainingPrize(p){ return Math.max(0,(Number(p.count)||0)-(Number(p.drawn)||0)); }
+function kujiTotalRemaining(){ return kujiState().prizes.reduce((sum,p)=>sum+kujiRemainingPrize(p),0); }
+function renderKujiTool(){
+  const k=kujiState();
+  const total=kujiTotalRemaining();
+  if(window.kujiTotalRemain) kujiTotalRemain.textContent = total + "本";
+  if(window.kujiLastOneStatus) kujiLastOneStatus.textContent = (k.lastOne||"設定なし") + (total===1 && k.lastOne ? " / 次で発動圏内" : "");
+  if(window.kujiTicketText && !kujiTicketText.dataset.locked){
+    kujiTicketText.textContent = total>0 ? "ぺりぺり待機中" : "くじ終了！";
+    if(window.kujiTicket){
+      kujiTicket.style.background='repeating-linear-gradient(135deg,#fff7ed 0,#fff7ed 14px,#fed7aa 14px,#fed7aa 28px)';
+      kujiTicket.style.boxShadow='inset 0 0 0 4px rgba(120,53,15,.15),0 14px 34px rgba(0,0,0,.3)';
+      kujiTicket.style.transform='scale(1) rotate(0deg)';
+    }
+  }
+  if(window.kujiPrizeList){
+    kujiPrizeList.innerHTML = k.prizes.map((p,i)=>{
+      const remain=kujiRemainingPrize(p);
+      const pct=(Number(p.count)||0)>0 ? Math.round((remain/(Number(p.count)||1))*100) : 0;
+      return `<div class="tool-item" style="margin-bottom:8px;border-color:${p.color||'#f59e0b'};background:rgba(15,23,42,.55)">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <div style="min-width:180px">
+            <input value="${escapeHtml(p.name||'賞')}" data-kuji-name="${i}" style="font-weight:900">
+            <div class="muted">残り ${remain} / ${p.count||0}本</div>
+          </div>
+          <input type="number" min="0" value="${p.count||0}" data-kuji-count="${i}" style="max-width:90px">
+          <input type="color" value="${p.color||'#f59e0b'}" data-kuji-color="${i}" style="max-width:70px">
+          <button class="btn mini-btn" data-kuji-plus="${i}" type="button">+1戻す</button>
+          <button class="btn mini-btn danger" data-kuji-del="${i}" type="button">削除</button>
+        </div>
+        <div style="height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:8px"><div style="height:100%;width:${pct}%;background:${p.color||'#f59e0b'}"></div></div>
+      </div>`;
+    }).join('') || '<p class="muted">賞がまだありません。まず賞を追加してね。</p>';
+    kujiPrizeList.querySelectorAll('[data-kuji-name]').forEach(inp=>inp.onchange=()=>{k.prizes[Number(inp.dataset.kujiName)].name=inp.value.trim()||'賞';save();renderKujiTool();});
+    kujiPrizeList.querySelectorAll('[data-kuji-count]').forEach(inp=>inp.onchange=()=>{const p=k.prizes[Number(inp.dataset.kujiCount)];p.count=Math.max(0,Number(inp.value)||0);p.drawn=Math.min(p.drawn||0,p.count);save();renderKujiTool();});
+    kujiPrizeList.querySelectorAll('[data-kuji-color]').forEach(inp=>inp.onchange=()=>{k.prizes[Number(inp.dataset.kujiColor)].color=inp.value;save();renderKujiTool();});
+    kujiPrizeList.querySelectorAll('[data-kuji-plus]').forEach(btn=>btn.onclick=()=>{const p=k.prizes[Number(btn.dataset.kujiPlus)];p.drawn=Math.max(0,(p.drawn||0)-1);save();renderKujiTool();});
+    kujiPrizeList.querySelectorAll('[data-kuji-del]').forEach(btn=>btn.onclick=()=>{const i=Number(btn.dataset.kujiDel); if(confirm(`${k.prizes[i].name} を削除する？`)){k.prizes.splice(i,1);save();renderKujiTool();}});
+  }
+  if(window.kujiHistoryList){
+    kujiHistoryList.innerHTML = (k.history||[]).slice().reverse().map((h,idx)=>`<div class="tool-item" style="margin-bottom:6px"><b>${escapeHtml(h.prize||'')}</b>${h.lastOne?` <span style="color:#fbbf24;font-weight:900">+ ${escapeHtml(h.lastOne)}</span>`:''}<div class="muted">${escapeHtml(h.time||'')}</div></div>`).join('') || '<p class="muted">まだ履歴なし。</p>';
+  }
+  if(window.kujiLastOneName) kujiLastOneName.value = k.lastOne || '';
+  if(window.kujiDrawBtn) kujiDrawBtn.disabled = total<=0;
+}
+function playKujiPeelSe(){
+  const a = document.getElementById("seKujiPeel");
+  if(!a) return;
+  try{
+    const seVol = Number((state.settings && state.settings.seVolume) ?? (state.roulette && state.roulette.settings && state.roulette.settings.seVolume) ?? 80);
+    a.volume = Math.max(0, Math.min(1, seVol/100));
+    a.currentTime = 0;
+    a.play().catch(()=>{});
+  }catch(e){}
+}
+
+function drawKuji(){
+  const k=kujiState();
+  const pool=[];
+  k.prizes.forEach((p,i)=>{ for(let n=0;n<kujiRemainingPrize(p);n++) pool.push(i); });
+  if(!pool.length){ alert('くじが全部なくなった！'); renderKujiTool(); return; }
+  const before=pool.length;
+  const idx=pool[Math.floor(Math.random()*pool.length)];
+  const prize=k.prizes[idx];
+  prize.drawn=(prize.drawn||0)+1;
+  const after=before-1;
+  const lastOne = after===0 ? (k.lastOne||'') : '';
+  const time=new Date().toLocaleString('ja-JP');
+  k.history=k.history||[];
+  k.history.push({prize:prize.name,lastOne,time});
+  if(k.history.length>100) k.history=k.history.slice(-100);
+  save();
+  if(window.kujiTicketText){
+    playKujiPeelSe();
+    kujiTicketText.dataset.locked='1';
+    kujiTicketText.innerHTML='<div style="font-size:32px">ぺり…</div><div class="muted" style="color:#7c2d12;font-size:14px;margin-top:6px">ゆっくり開封中</div>';
+    if(window.kujiTicket){
+      kujiTicket.style.transform='scale(1.02) rotate(-1deg)';
+      kujiTicket.style.boxShadow='inset 0 0 0 4px rgba(120,53,15,.15),0 20px 46px rgba(251,146,60,.28)';
+    }
+    setTimeout(()=>{ kujiTicketText.innerHTML='<div style="font-size:36px">ぺりぺり…</div><div style="height:8px;margin:12px auto 0;max-width:260px;background:linear-gradient(90deg,#92400e 0%,#f59e0b 55%,#fff7ed 55%);border-radius:999px"></div>'; },420);
+    setTimeout(()=>{ kujiTicketText.innerHTML='<div style="font-size:34px">もう少し…！</div><div style="height:8px;margin:12px auto 0;max-width:260px;background:linear-gradient(90deg,#92400e 0%,#f59e0b 82%,#fff7ed 82%);border-radius:999px"></div>'; },900);
+    setTimeout(()=>{
+      const remainAfter = kujiRemainingPrize(prize);
+      const totalAfter = kujiTotalRemaining();
+      const resultLabel = escapeHtml(prize.name || '賞');
+      const resultColor = prize.color || '#f59e0b';
+      kujiTicketText.innerHTML = `
+        <div style="width:100%;padding:10px 14px">
+          <div style="display:inline-block;padding:5px 14px;border-radius:999px;background:#3b1b08;color:#fff7ed;font-size:16px;letter-spacing:.08em;margin-bottom:8px">今回の結果</div>
+          <div style="font-size:82px;line-height:.95;font-weight:1000;color:${resultColor};text-shadow:0 4px 0 rgba(255,255,255,.78),0 10px 22px rgba(0,0,0,.18);-webkit-text-stroke:2px rgba(59,27,8,.28);word-break:break-word">${resultLabel}</div>
+          ${lastOne?`<div style="margin:10px auto 0;display:inline-block;padding:8px 14px;border-radius:14px;background:#fbbf24;color:#3b1b08;font-size:28px;font-weight:1000;box-shadow:0 8px 18px rgba(180,83,9,.25)">ラストワン：${escapeHtml(lastOne)}</div>`:''}
+          <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;font-size:15px;color:#7c2d12;font-weight:900">
+            <span style="padding:5px 10px;border-radius:999px;background:rgba(255,247,237,.75)">この賞 残り ${remainAfter}本</span>
+            <span style="padding:5px 10px;border-radius:999px;background:rgba(255,247,237,.75)">全体 残り ${totalAfter}本</span>
+          </div>
+        </div>`;
+      if(window.kujiTicket){
+        kujiTicket.style.transform='scale(1.01) rotate(0deg)';
+        kujiTicket.style.background=`linear-gradient(135deg,#fff7ed 0%,#ffedd5 58%,${resultColor}33 100%)`;
+        kujiTicket.style.boxShadow=`inset 0 0 0 5px ${resultColor},0 24px 54px ${resultColor}55`;
+      }
+      delete kujiTicketText.dataset.locked;
+      renderKujiTool();
+    },1450);
+  } else renderKujiTool();
+}
+if(window.kujiDrawBtn) kujiDrawBtn.onclick=drawKuji;
+if(window.kujiAddPrizeBtn) kujiAddPrizeBtn.onclick=()=>{const k=kujiState(); k.prizes.push({id:uid('kuji'),name:(kujiPrizeName.value||'新しい賞').trim(),count:Math.max(1,Number(kujiPrizeCount.value)||1),drawn:0,color:kujiPrizeColor.value||'#f59e0b'}); kujiPrizeName.value=''; save(); renderKujiTool();};
+if(window.kujiSaveLastOneBtn) kujiSaveLastOneBtn.onclick=()=>{kujiState().lastOne=(kujiLastOneName.value||'').trim(); save(); renderKujiTool();};
+if(window.kujiResetDrawsBtn) kujiResetDrawsBtn.onclick=()=>{if(confirm('引いた本数と履歴をリセットする？')){const k=kujiState(); k.prizes.forEach(p=>p.drawn=0); k.history=[]; save(); renderKujiTool();}};
 
 function renderTools(){
   setupToolCollapse();
@@ -8778,6 +9239,37 @@ const firebaseConfig = { ... }
   }else{
     document.addEventListener("DOMContentLoaded", function(){ try{ renderMemo(); }catch(e){ console.warn(e); } });
   }
+})();
+</script>
+
+
+<script>
+(function(){
+const ageRns={
+ student:['放課後エナドリ戦士','テスト前の消しゴム','部活帰りの肉まん','文化祭の余り係','朝練サボり隊','給食じゃんけん王'],
+ young:['深夜のカフェオレ','既読スルー研究家','コンビニ前のため息','休日の二度寝職人','サウナ上がりのラムネ','終電ギリギリ侍'],
+ adult:['MDウォークマン世代','着メロを信じた男','ガラケーのストラップ','平成の待ち受け職人','レンタルビデオ返却係','ポケベル鳴らしたい'],
+ chaos:['唐揚げ錬金術師','冷蔵庫の住民','枕カバー2号','湯船の哲学者','迷子のチャーハン','右足だけ靴下']
+};
+const banks={
+ midnight:{label:'深夜ラジオ',ages:['young','adult'],prefix:['深夜にコンビニへ行った帰りにふと思ったんですが、','眠れなくて天井を見てたら考えすぎちゃって、','夜中に急に昔のことを思い出して、','寝る前だけ妙に素直になるタイプなんですが、','風呂上がりにぼーっとしてたら、'],q:['ひとり時間って何をして過ごしますか？','昔の自分に今なら何て声をかけますか？','大人になってから好きになったものってありますか？','考えすぎる夜ってどうやって抜け出しますか？','深夜に食べるなら何が一番罪ですか？']},
+ talk:{label:'雑談',ages:['student','young','adult'],prefix:['最近ちょっとだけ生活が変わりまして、','友達と話してて気になったんですが、','休みの日にふと思ったんですけど、','最近まわりで流行ってるものがあって、','なんとなく気分転換したくて、'],q:['最近ハマってることはありますか？','休日の理想の過ごし方は何ですか？','地元の好きなところってありますか？','買ってよかったものありますか？','昔は苦手だったけど今は好きなものありますか？']},
+ silly:{label:'どうでもいい質問',ages:['student','young','adult','chaos'],prefix:['人生に関係ないんですけど、','友達と揉めるほどではないんですが、','どうでもいいのに気になって眠れません。','家でひとりで考えてたんですが、','コメント欄なら決着つくと思って送ります。'],q:['風呂でどこから洗うタイプですか？','カレーは混ぜる派ですか？そのまま派ですか？','ポテトは細い派ですか？太い派ですか？','コンビニ入ったら最初どこ見ますか？','寝る時、足だけ布団から出しますか？','グミは噛みますか？溶かしますか？','冷蔵庫を開けて何も取らずに閉めることありますか？','イヤホンは片耳派ですか？両耳派ですか？','目玉焼きには何かけますか？','ラーメンの海苔はいつ食べますか？','歯磨き中に歩き回るタイプですか？','靴下は右から履きますか？左からですか？']},
+ worry:{label:'お悩み相談',ages:['student','young','adult'],prefix:['ちょっとだけ相談です。','誰かに聞いてほしくてメールしました。','最近モヤモヤしていることがあって、','たいした悩みじゃないかもしれませんが、','自分だけかもしれないんですが、'],q:['飽き性で何も続きません。どうしたらいいですか？','人に気を使いすぎて疲れます。どう切り替えますか？','好きなことを仕事にするのってありだと思いますか？','友達との距離感がたまに難しいです。どうしてますか？','失敗を引きずるタイプです。切り替え方ありますか？','やる気が出ない日に最低限やることってありますか？']},
+ chaos:{label:'カオス',ages:['chaos'],prefix:['さっき冷蔵庫と目が合いました。','夢の中でカラスに説教されました。','唐揚げを見てたら人生が分からなくなりました。','右の靴下だけ反抗期です。','うちのクッションが全部を知ってる顔をしています。'],q:['唐揚げはおかずですか？主役ですか？','人生を調味料で例えるなら何ですか？','もし冷蔵庫が喋ったら最初に何て言われたいですか？','布団から出る時の必殺技名をつけるなら？','世界で一番弱そうな魔法名を考えてください。']},
+ host:{label:'枠主プロフィール寄せ',ages:['young','adult'],prefix:['プロフィールを見て気になったんですが、','最近配信を見てて思ったんですが、','枠主さんに聞いてみたいことがあります。','自分も始めてみたいなと思っていて、'],q:['最近いちばんハマってることは何ですか？','好きなものを長く楽しむコツってありますか？','趣味を始める時、最初に何からやりますか？','配信で話しやすいテーマって何ですか？','自分らしさってどうやって出してますか？']}
+};
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function hostWords(){try{const h=window.state&&state.hostProfile||{};let arr=[];['favoriteThings','hobbies','frequentTopics','streamGenres'].forEach(k=>{if(Array.isArray(h[k]))arr.push(...h[k]);else if(typeof h[k]==='string')arr.push(...h[k].split(/\n+/));}); return arr.map(x=>String(x).trim()).filter(Boolean);}catch(e){return []}}
+function makeRadioMail(cat){let keys=Object.keys(banks); if(!cat||cat==='all') cat=pick(keys); const b=banks[cat]||banks.talk; const age=pick(b.ages); const rn=pick(ageRns[age]||ageRns.young); let pre=pick(b.prefix), q=pick(b.q); const hw=hostWords(); if(cat==='host'&&hw.length){const w=pick(hw); pre=`最近「${w}」が気になっていて、`; q=`${(state.hostProfile&&state.hostProfile.name)||'枠主'}さんは${w}のどんなところが好きですか？`;}
+ return {rn:`RN：${rn}`,meta:`${b.label} / ${age==='student'?'学生っぽい':age==='adult'?'30〜40代っぽい':age==='chaos'?'年齢不詳':'20〜30代っぽい'}`,letter:pre+'\n'+q,fav:false,cat};}
+function radioState(){window.state=window.state||{}; state.radioDj=state.radioDj||{history:[],index:-1}; return state.radioDj;}
+window.renderRadioDj=function(){const rs=radioState(); const cur=rs.history[rs.index]||makeRadioMail('silly'); if(rs.index<0){rs.history.push(cur);rs.index=0;if(window.save)save();}
+ const set=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=v}; set('radioDjRn',cur.rn+(cur.fav?' ★':'')); set('radioDjMeta',cur.meta); set('radioDjLetter',cur.letter); set('radioDjHistory',`履歴 ${rs.index+1} / ${rs.history.length}`); const fav=document.getElementById('radioDjFavBtn'); if(fav) fav.textContent=cur.fav?'★お気に入り解除':'★お気に入り';};
+window.nextRadioDj=function(){const sel=document.getElementById('radioDjCategory'); const cur=makeRadioMail(sel?sel.value:'all'); const rs=radioState(); rs.history=rs.history.slice(0,rs.index+1); rs.history.push(cur); rs.index=rs.history.length-1; if(window.save)save(); renderRadioDj();};
+window.moveRadioDj=function(d){const rs=radioState(); if(!rs.history.length)return; rs.index=Math.max(0,Math.min(rs.history.length-1,rs.index+d)); if(window.save)save(); renderRadioDj();};
+window.toggleRadioFav=function(){const rs=radioState(); const cur=rs.history[rs.index]; if(cur){cur.fav=!cur.fav;if(window.save)save();renderRadioDj();}};
+document.addEventListener('DOMContentLoaded',function(){const n=document.getElementById('radioDjNextBtn'),p=document.getElementById('radioDjPrevBtn'),f=document.getElementById('radioDjForwardBtn'),fav=document.getElementById('radioDjFavBtn'),cat=document.getElementById('radioDjCategory'); if(n)n.onclick=nextRadioDj; if(p)p.onclick=()=>moveRadioDj(-1); if(f)f.onclick=()=>moveRadioDj(1); if(fav)fav.onclick=toggleRadioFav; if(cat)cat.onchange=nextRadioDj; try{renderRadioDj()}catch(e){}});
 })();
 </script>
 
