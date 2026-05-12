@@ -3179,7 +3179,7 @@ function fitBrushText(text){
         <div class="card"><div class="inner">
           <h2 id="selectedDateTitle">日付メモ</h2>
           <p class="muted">登録日・返礼品獲得日・自由メモをここで管理。常連メモに自動同期される。</p>
-          <label>対象常連</label>
+          <label>対象（枠主 / 常連）</label>
           <select id="calendarListener"></select>
           <label>種類</label>
           <select id="calendarType"></select>
@@ -3454,6 +3454,14 @@ function fitBrushText(text){
 
   <label>表示メモ</label>
   <input id="hostMemoInput" placeholder="例：枠主チップ / 主催者">
+
+  <label>枠主の誕生日（カレンダー/お知らせ用・任意）</label>
+  <div class="birthday-row">
+    <input id="hostBirthMonthInput" type="number" min="1" max="12" placeholder="月">
+    <span>/</span>
+    <input id="hostBirthDayInput" type="number" min="1" max="31" placeholder="日">
+  </div>
+  <div class="leap-note" id="hostLeapNote" style="display:none">🎂 2/29生まれ：平年は2/28扱いでカレンダー表示します。</div>
 
   <div class="host-talk-settings">
     <h3 style="margin:0 0 8px">話題レスキュー用プロフィール</h3>
@@ -5713,6 +5721,19 @@ function yearlyEventsForDate(date){
     sourceId:ev.id
   }));
 }
+function getCalendarHostName(){
+  const h=state.hostProfile || {};
+  return String(h.name || "").trim();
+}
+function getCalendarTargets(){
+  const hostName=getCalendarHostName();
+  const targets=[];
+  if(hostName) targets.push({name:hostName,label:"★ " + hostName + "（枠主）",host:true});
+  (state.listeners||[]).forEach(l=>{
+    if(l && l.name) targets.push({name:l.name,label:l.name,host:false});
+  });
+  return targets;
+}
 function eventsForDate(date){
   const evs=[...(state.calendarEvents||[]).filter(ev=>ev.date===date), ...monthlyEventsForDate(date), ...yearlyEventsForDate(date)];
   // registeredDate from listeners also shown, even if old data has no explicit event
@@ -5729,6 +5750,12 @@ function eventsForDate(date){
       }
     }
   });
+  const hostName=getCalendarHostName();
+  const hostBirthday=state.hostProfile && state.hostProfile.birthday ? state.hostProfile.birthday : "";
+  if(hostName && hostBirthday && birthdayMatchesDate(hostBirthday,date) && !evs.some(ev=>ev.listener===hostName && ev.type==="誕生日")){
+    const note=isLeapBirthday(hostBirthday) ? "🎂 枠主誕生日（2/29生まれ：平年は2/28扱いで表示）" : "🎂 枠主誕生日";
+    evs.push({id:"birthday_host_"+date,date,listener:hostName,type:"誕生日",item:note,host:true});
+  }
   return evs;
 }
 function calendarMemoList(listenerName){
@@ -5795,7 +5822,7 @@ function renderCalendar(){
   const y=calendarCursor.getFullYear();
   const m=calendarCursor.getMonth();
   calendarTitle.textContent=`${y}年 ${m+1}月`;
-  calendarListener.innerHTML=state.listeners.map(l=>`<option value="${escapeAttr(l.name)}">${escapeHtml(l.name)}</option>`).join("");
+  calendarListener.innerHTML=getCalendarTargets().map(t=>`<option value="${escapeAttr(t.name)}">${escapeHtml(t.label)}</option>`).join("");
   renderCalendarTypeOptions();
   renderCalendarTypeEditor();
   selectedDateTitle.textContent=`${selectedCalendarDate} の記録`;
@@ -6946,7 +6973,7 @@ const firebaseConfig = { ... }
     if(!Array.isArray(state.roulette.history)) state.roulette.history = [];
     if(!Array.isArray(state.roulette.bets)) state.roulette.bets = [];
     if(!Array.isArray(state.roulette.guestBetters)) state.roulette.guestBetters = [];
-    state.hostProfile = Object.assign({name:"", memo:"", ngWords:"", loveFantasy:false, favoriteThings:"", hobbies:"", frequentTopics:"", streamGenres:"", talkSettings:{clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}}, state.hostProfile || {});
+    state.hostProfile = Object.assign({name:"", memo:"", birthday:"", ngWords:"", loveFantasy:false, favoriteThings:"", hobbies:"", frequentTopics:"", streamGenres:"", talkSettings:{clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}}, state.hostProfile || {});
     state.hostProfile.talkSettings = Object.assign({clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}, state.hostProfile.talkSettings || {});
 
     state.roulette.settings = Object.assign({
@@ -7518,10 +7545,17 @@ const firebaseConfig = { ... }
     const status = document.getElementById("hostProfileStatus");
     if(!nameInput || !memoInput || !status) return;
     ensureRouletteState();
-    state.hostProfile = Object.assign({name:"", memo:"", ngWords:"", loveFantasy:false, favoriteThings:"", hobbies:"", frequentTopics:"", streamGenres:"", talkSettings:{clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}}, state.hostProfile || {});
+    state.hostProfile = Object.assign({name:"", memo:"", birthday:"", ngWords:"", loveFantasy:false, favoriteThings:"", hobbies:"", frequentTopics:"", streamGenres:"", talkSettings:{clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}}, state.hostProfile || {});
     state.hostProfile.talkSettings = Object.assign({clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}, state.hostProfile.talkSettings || {});
     nameInput.value = state.hostProfile.name || "";
     memoInput.value = state.hostProfile.memo || "";
+    const hostBd=splitBirthday(state.hostProfile.birthday || "");
+    const hostBirthMonthInput=document.getElementById("hostBirthMonthInput");
+    const hostBirthDayInput=document.getElementById("hostBirthDayInput");
+    if(hostBirthMonthInput) hostBirthMonthInput.value=hostBd.month || "";
+    if(hostBirthDayInput) hostBirthDayInput.value=hostBd.day || "";
+    const hostLeapNote=document.getElementById("hostLeapNote");
+    if(hostLeapNote) hostLeapNote.style.display=isLeapBirthday(state.hostProfile.birthday || "") ? "block" : "none";
     if(ngInput) ngInput.value = state.hostProfile.ngWords || "";
     if(loveInput) loveInput.checked = !!state.hostProfile.loveFantasy;
     const favInput = document.getElementById("hostFavoriteThingsInput");
@@ -7543,7 +7577,7 @@ const firebaseConfig = { ... }
     setVal("talkGlowInput", ts.glow || "on");
     const ngCount = String(state.hostProfile.ngWords||"").split(/\n|,/).map(x=>x.trim()).filter(Boolean).length;
     if(state.hostProfile.name){
-      status.innerHTML = '<span class="host-profile-badge">★ ' + esc(state.hostProfile.name) + '</span>' + (state.hostProfile.memo ? '　' + esc(state.hostProfile.memo) : '') + (ngCount ? '<br><span class="muted">NGワード ' + ngCount + '件 / レスキューに反映</span>' : '') + '<br><span class="muted">レスキュー表示設定：保存済み</span>';
+      status.innerHTML = '<span class="host-profile-badge">★ ' + esc(state.hostProfile.name) + '</span>' + (state.hostProfile.memo ? '　' + esc(state.hostProfile.memo) : '') + (state.hostProfile.birthday ? '<br><span class="muted">🎂 誕生日 ' + esc(state.hostProfile.birthday) + ' / カレンダー対象</span>' : '') + (ngCount ? '<br><span class="muted">NGワード ' + ngCount + '件 / レスキューに反映</span>' : '') + '<br><span class="muted">レスキュー表示設定：保存済み</span>';
     }else{
       status.textContent = "未登録";
     }
@@ -7574,9 +7608,11 @@ const firebaseConfig = { ... }
       glow: document.getElementById("talkGlowInput")?.value || "on"
     };
     if(!name){ alert("枠主名を入れてｗ"); return; }
-    state.hostProfile = {name:name, memo:memo, ngWords:ngWords, loveFantasy:loveFantasy, favoriteThings:favoriteThings, hobbies:hobbies, frequentTopics:frequentTopics, streamGenres:streamGenres, talkSettings:talkSettings};
+    state.hostProfile = {name:name, memo:memo, birthday:formatBirthday(document.getElementById("hostBirthMonthInput")?.value, document.getElementById("hostBirthDayInput")?.value), ngWords:ngWords, loveFantasy:loveFantasy, favoriteThings:favoriteThings, hobbies:hobbies, frequentTopics:frequentTopics, streamGenres:streamGenres, talkSettings:talkSettings};
     safeSave();
     renderHostProfileSettings();
+    if(typeof renderCalendar==="function") renderCalendar();
+    if(typeof renderHome==="function") renderHome();
     window.renderRoulette();
     alert("枠主情報を保存した！");
   }
@@ -7584,9 +7620,11 @@ const firebaseConfig = { ... }
   function clearHostProfileFromSettings(){
     ensureRouletteState();
     if(!confirm("枠主情報を削除する？")) return;
-    state.hostProfile = {name:"", memo:"", ngWords:"", loveFantasy:false, favoriteThings:"", hobbies:"", frequentTopics:"", streamGenres:"", talkSettings:{clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}};
+    state.hostProfile = {name:"", memo:"", birthday:"", ngWords:"", loveFantasy:false, favoriteThings:"", hobbies:"", frequentTopics:"", streamGenres:"", talkSettings:{clockEnabled:"on", clockPosition:"right", neonColor:"#39d0ff", bgTheme:"cyber", font:"system", shadow:"on", glow:"on"}};
     safeSave();
     renderHostProfileSettings();
+    if(typeof renderCalendar==="function") renderCalendar();
+    if(typeof renderHome==="function") renderHome();
     window.renderRoulette();
   }
 
