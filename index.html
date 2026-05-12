@@ -8614,22 +8614,34 @@ const firebaseConfig = { ... }
     try{ raw=raw.replace(/[^\p{L}\p{N}ー々〆〤]/gu,""); }catch(e){ raw=raw.replace(/[^0-9a-zぁ-んァ-ン一-龯ー々〆〤]/g,""); }
     return raw;
   }
-  function listenerSearchTokens(l){
-    const parts=[l.name,l.nickname,l.searchYomi,l.searchTags,l.memo,(l.topicSeeds||[]).join(' ')];
-    if(l && l.favorites) parts.push(Object.values(l.favorites).join(' '));
+  function splitRegularTokens(parts){
     return parts.join(' ').split(/[\s,、，/／・|｜]+/).map(regularSearchNormalize).filter(Boolean);
+  }
+  function listenerSearchTokens(l){
+    // 常連メモ検索は「名前系」と「検索補助欄」を中心にする。
+    // メモ・話題の種・好きな物まで毎回見ると、1文字検索で関係ない人が出しゃばるため除外。
+    const base=[l && l.name, l && l.nickname, l && l.searchYomi, l && l.searchTags];
+    return splitRegularTokens(base);
   }
   function listenerMatchesRegularSearch(l, query){
     const q=regularSearchNormalize(query);
     if(!q) return true;
     const tokens=listenerSearchTokens(l||{});
-    // ルーレットと同じ検索ルール：1文字は先頭一致、2文字以上は先頭一致＋部分一致。
+    // 1文字検索は完全に先頭一致だけ。例：「か」でミホが出る誤爆を防ぐ。
     if(q.length<=1) return tokens.some(function(t){ return t.indexOf(q)===0; });
-    return tokens.some(function(t){ return t.indexOf(q)===0 || t.indexOf(q)>=0; });
+    // 2文字以上も基本は先頭一致。タグだけは「深夜 雑談」のような複数語検索用に部分一致も許可。
+    return tokens.some(function(t){ return t.indexOf(q)===0 || (t.length>=2 && t.indexOf(q)>=0); });
   }
   function touchListener(l){ if(l) l.updatedAt = new Date().toISOString(); }
-  function listenerUpdatedKey(l){ return String((l && (l.updatedAt || l.modifiedAt || l.lastUpdated || l.registeredDate)) || ""); }
-  function listenerSortKey(l){ return String((l && (l.searchYomi || l.kana || l.name)) || ""); }
+  function ensureListenerUpdatedAt(){
+    let changed=false;
+    (state.listeners||[]).forEach(function(l){
+      if(l && !l.updatedAt){ l.updatedAt = l.registeredDate || l.firstVisitDate || todayYmd(); changed=true; }
+    });
+    if(changed){ try{ save(); }catch(e){} }
+  }
+  function listenerUpdatedKey(l){ return String((l && (l.updatedAt || l.modifiedAt || l.lastUpdated || l.registeredDate || l.firstVisitDate)) || ""); }
+  function listenerSortKey(l){ return regularSearchNormalize(String((l && (l.searchYomi || l.kana || l.name)) || "")); }
   function ensureRegularToolbar(){
     const grid=document.getElementById("memoGrid");
     if(!grid || document.getElementById("regularMemoToolbar")) return;
@@ -8699,16 +8711,17 @@ const firebaseConfig = { ... }
     return "予定なし";
   }
   function getSortedListeners(){
+    ensureListenerUpdatedAt();
     const search=regularSearchNormalize(String(window.__regularMemoSearch || "").trim());
     const sort=window.__regularMemoSort || "updated";
     let arr=(state.listeners||[]).map(function(l,i){ return {l:l,i:i}; });
     if(search){
       arr=arr.filter(function(x){ return listenerMatchesRegularSearch(x.l||{}, search); });
     }
-    if(sort==="updated") arr.sort(function(a,b){ return listenerUpdatedKey(b.l).localeCompare(listenerUpdatedKey(a.l)) || listenerSortKey(a.l).localeCompare(listenerSortKey(b.l),'ja'); });
+    if(sort==="updated") arr.sort(function(a,b){ return listenerUpdatedKey(b.l).localeCompare(listenerUpdatedKey(a.l)) || listenerSortKey(a.l).localeCompare(listenerSortKey(b.l),'ja', {numeric:true, sensitivity:"base"}); });
     else if(sort==="recent") arr.sort(function(a,b){ return String(b.l.registeredDate||"").localeCompare(String(a.l.registeredDate||"")); });
     else if(sort==="birthday") arr.sort(function(a,b){ return daysUntilBirthday(a.l)-daysUntilBirthday(b.l); });
-    else arr.sort(function(a,b){ return listenerSortKey(a.l).localeCompare(listenerSortKey(b.l),'ja'); });
+    else arr.sort(function(a,b){ return listenerSortKey(a.l).localeCompare(listenerSortKey(b.l),'ja', {numeric:true, sensitivity:"base"}); });
     return arr;
   }
   window.renderMemo=function(){
