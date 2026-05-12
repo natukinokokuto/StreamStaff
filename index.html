@@ -2782,9 +2782,9 @@ function fitBrushText(text){
     <b>ルール</b>
     <div class="muted" style="margin-top:6px;line-height:1.7">
       ① 枠主は正解を確認する。<br>
-      ② 正解の言葉をラリルレロだけに変えて読む。<br>
+      ② 正解の言葉を母音に合わせてラリルレロだけに変えて読む（ン・ー・ッはそのまま）。<br>
       ③ リスナーはコメントで元の言葉を当てる。<br>
-      ※ 回答モードではラリルレロ表記を画面に出して、みんなで発音しながら考えられる。
+      ※ 例：ウインカー → ルリンラー。回答モードではラリルレロ表記を画面に出して、みんなで発音しながら考えられる。
     </div>
   </div>
   <div class="row" style="gap:8px;align-items:center">
@@ -4710,16 +4710,44 @@ setTimeout(()=>{ renderPrivateAnimalList(); if(document.getElementById('animalVi
 
 
 let currentReloAnswer = "";
+const RELO_READING_MAP = {"マーボー豆腐": "マーボードウフ", "チャンジャ": "チャンジャ", "鮭とば": "サケトバ", "たこわさ": "タコワサ", "だし巻きたまご": "ダシマキタマゴ", "枝豆": "エダマメ", "焼きナス": "ヤキナス", "冷やしトマト": "ヒヤシトマト", "もつ鍋": "モツナベ", "軟骨のから揚げ": "ナンコツノカラアゲ", "サラリーマン": "サラリーマン", "オーダーメイド": "オーダーメイド", "ガソリンスタンド": "ガソリンスタンド", "コンセント": "コンセント", "ノートパソコン": "ノートパソコン", "キーホルダー": "キーホルダー", "ベビーカー": "ベビーカー", "ペットボトル": "ペットボトル", "フライドポテト": "フライドポテト", "シュークリーム": "シュークリーム", "ホットケーキ": "ホットケーキ", "アイスコーヒー": "アイスコーヒー", "モーニングコール": "モーニングコール", "クレーム": "クレーム", "リフォーム": "リフォーム", "リサイクルショップ": "リサイクルショップ", "バイキング": "バイキング", "コインランドリー": "コインランドリー", "パワハラ": "パワハラ", "セクハラ": "セクハラ", "ノンアル": "ノンアル", "テイクアウト": "テイクアウト", "テーブルチャージ": "テーブルチャージ", "フリーダイヤル": "フリーダイヤル", "ワンピース": "ワンピース", "スキンシップ": "スキンシップ", "マイブーム": "マイブーム", "リベンジ": "リベンジ", "レベルアップ": "レベルアップ", "スキルアップ": "スキルアップ", "サインペン": "サインペン", "シャープペン": "シャープペン", "ビニール袋": "ビニールブクロ", "ダンボール": "ダンボール", "ホームセンター": "ホームセンター", "ゲームセンター": "ゲームセンター", "ライブハウス": "ライブハウス", "タレント": "タレント", "アイドル": "アイドル", "グラビア": "グラビア", "テンション": "テンション", "ハイテンション": "ハイテンション", "ローテンション": "ローテンション", "ナイーブ": "ナイーブ", "ドンマイ": "ドンマイ", "ファイト": "ファイト", "サービスエリア": "サービスエリア", "バックミラー": "バックミラー", "ウインカー": "ウインカー", "フロントガラス": "フロントガラス", "ハンドルキーパー": "ハンドルキーパー", "キッチンペーパー": "キッチンペーパー", "サランラップ": "サランラップ", "電子レンジ": "デンシレンジ", "オーブントースター": "オーブントースター", "フリーサイズ": "フリーサイズ", "オーバーオール": "オーバーオール", "マンツーマン": "マンツーマン", "キャッチコピー": "キャッチコピー", "イメージチェンジ": "イメージチェンジ", "スキンヘッド": "スキンヘッド", "モーニングセット": "モーニングセット", "カンニング": "カンニング", "アルバイト": "アルバイト", "パート": "パート", "サラダバー": "サラダバー", "ドリンクバー": "ドリンクバー", "ソフトクリーム": "ソフトクリーム", "タッチパネル": "タッチパネル", "セルフレジ": "セルフレジ", "ガードマン": "ガードマン", "ベテラン": "ベテラン", "デッドボール": "デッドボール", "ナイター": "ナイター", "ゲームオーバー": "ゲームオーバー"};
+function normalizeReloReading(text){
+  return String(text||'')
+    .replace(/[ぁ-ん]/g, ch => String.fromCharCode(ch.charCodeAt(0) + 0x60))
+    .replace(/ヴ/g,'ブ');
+}
+function reloVowelToRa(vowel){
+  return {a:'ラ', i:'リ', u:'ル', e:'レ', o:'ロ'}[vowel] || '';
+}
+function kanaCharVowel(ch){
+  if('アカサタナハマヤラワガザダバパァャヮ'.includes(ch)) return 'a';
+  if('イキシチニヒミリヰギジヂビピィ'.includes(ch)) return 'i';
+  if('ウクスツヌフムユルグズヅブプゥュ'.includes(ch)) return 'u';
+  if('エケセテネヘメレヱゲゼデベペェ'.includes(ch)) return 'e';
+  if('オコソトノホモヨロヲゴゾドボポォョ'.includes(ch)) return 'o';
+  return '';
+}
 function kanaToRero(text){
-  const seq=['ラ','リ','ル','レ','ロ'];
-  let i=0;
-  return String(text||'').split('').map(ch=>{
-    if(/[ぁ-んァ-ン一-龯々〆ヵヶA-Za-z0-9]/.test(ch)){
-      const r=seq[i%seq.length]; i++; return r;
+  const raw=String(text||'');
+  const src=normalizeReloReading(RELO_READING_MAP[raw] || raw);
+  const smallVowels={'ャ':'a','ュ':'u','ョ':'o','ァ':'a','ィ':'i','ゥ':'u','ェ':'e','ォ':'o'};
+  let out='';
+  for(let i=0;i<src.length;i++){
+    const ch=src[i];
+    const next=src[i+1];
+    if(ch==='ン'){ out+='ン'; continue; }
+    if(ch==='ー' || ch==='ッ' || ch===' ' || ch==='　'){ out+=ch; continue; }
+    if(smallVowels[next] && kanaCharVowel(ch)){
+      out+=reloVowelToRa(smallVowels[next]);
+      i++;
+      continue;
     }
-    if(/\s/.test(ch)) return ' ';
-    return ch;
-  }).join('');
+    if(smallVowels[ch]){ out+=reloVowelToRa(smallVowels[ch]); continue; }
+    const vowel=kanaCharVowel(ch);
+    if(vowel){ out+=reloVowelToRa(vowel); continue; }
+    out+=ch;
+  }
+  return out;
 }
 function getReloMode(){
   return document.querySelector('input[name="reloMode"]:checked')?.value || 'host';
