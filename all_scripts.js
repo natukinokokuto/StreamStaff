@@ -2215,11 +2215,113 @@ document.addEventListener("DOMContentLoaded",()=>renderRoulette());
     window.__rouletteShowScreenPatched = true;
   }
 
+  function kanaSortNames(list){
+    return (list || []).slice().sort(function(a,b){
+      return String(a || "").localeCompare(String(b || ""), "ja", {numeric:true, sensitivity:"base"});
+    });
+  }
+
+  function activeListenerNames(){
+    return Array.isArray(state.listeners)
+      ? state.listeners.map(function(l){ return l && l.name; }).filter(Boolean)
+      : [];
+  }
+
+  function syncRouletteGuestsWithRegulars(){
+    ensureRouletteState();
+    const active = new Set(activeListenerNames());
+    const hostName = state.hostProfile && state.hostProfile.name ? state.hostProfile.name : "";
+
+    // 常連メモに存在しないゲストは、ルーレット側の候補・ベットから自動的に消す。
+    state.roulette.guestBetters = Array.from(new Set(state.roulette.guestBetters || [])).filter(function(name){
+      return active.has(name);
+    });
+
+    const validBetters = new Set((hostName ? [hostName] : []).concat(activeListenerNames()));
+    state.roulette.bets = (state.roulette.bets || []).filter(function(b){
+      return b && validBetters.has(b.name);
+    });
+  }
+
   function getBetters(){
     ensureRouletteState();
-    const host = state.hostProfile && state.hostProfile.name ? [state.hostProfile.name] : [];
-    const listeners = Array.isArray(state.listeners) ? state.listeners.map(function(l){ return l.name; }).filter(Boolean) : [];
-    return Array.from(new Set(host.concat(listeners).concat(state.roulette.guestBetters || [])));
+    syncRouletteGuestsWithRegulars();
+    const hostName = state.hostProfile && state.hostProfile.name ? state.hostProfile.name : "";
+    const listeners = kanaSortNames(Array.from(new Set(activeListenerNames())).filter(function(name){ return name && name !== hostName; }));
+    return hostName ? [hostName].concat(listeners) : listeners;
+  }
+
+  function normalizeRouletteSearchText(value){
+    const kanjiKanaHints = {
+      "亜":"あ", "阿":"あ", "愛":"あい", "藍":"あい", "青":"あお", "葵":"あおい",
+      "伊":"い", "井":"い", "衣":"い", "宇":"う", "江":"え", "英":"えい", "大":"おお",
+      "加":"か", "香":"か", "花":"か", "華":"か", "神":"かみ", "木":"き", "菊":"きく",
+      "久":"く", "黒":"くろ", "小":"こ", "五":"ご", "佐":"さ", "咲":"さ", "桜":"さくら",
+      "白":"しろ", "鈴":"すず", "瀬":"せ", "高":"たか", "田":"た", "千":"ち", "月":"つき",
+      "中":"なか", "七":"なな", "西":"にし", "野":"の", "橋":"はし", "原":"はら",
+      "東":"ひがし", "藤":"ふじ", "北":"ほく", "星":"ほし", "松":"まつ", "美":"み",
+      "南":"みなみ", "宮":"みや", "村":"むら", "本":"もと", "山":"やま", "雪":"ゆき",
+      "吉":"よし", "良":"りょう", "林":"りん", "和":"わ"
+    };
+    let raw = String(value || "").normalize("NFKC").toLowerCase();
+    raw = raw.replace(/[ァ-ン]/g, function(ch){ return String.fromCharCode(ch.charCodeAt(0) - 0x60); });
+    raw = raw.replace(/\s+/g, "");
+    let hinted = "";
+    for(let i=0;i<raw.length;i++){
+      const ch = raw[i];
+      hinted += ch + (kanjiKanaHints[ch] || "");
+    }
+    return hinted;
+  }
+
+  function rouletteGuestMatchesSearch(name, query){
+    const q = normalizeRouletteSearchText(query);
+    if(!q) return true;
+    return normalizeRouletteSearchText(name).includes(q);
+  }
+
+  function rouletteLastBetSortedNames(names){
+    const base = kanaSortNames(names);
+    const rank = new Map();
+    (state.roulette.bets || []).forEach(function(b, i){ if(b && b.name) rank.set(b.name, i); });
+    return base.sort(function(a,b){
+      const ar = rank.has(a) ? rank.get(a) : -1;
+      const br = rank.has(b) ? rank.get(b) : -1;
+      if(ar !== br) return br - ar;
+      return String(a || "").localeCompare(String(b || ""), "ja", {numeric:true, sensitivity:"base"});
+    });
+  }
+
+  function addListenerFromRouletteGuest(name){
+    ensureRouletteState();
+    const clean = String(name || "").trim();
+    if(!clean) return;
+    state.listeners = Array.isArray(state.listeners) ? state.listeners : [];
+    const exists = state.listeners.some(function(l){ return l && l.name === clean; });
+    if(!exists){
+      const today = (typeof ymd === "function") ? ymd(new Date()) : new Date().toISOString().slice(0,10);
+      state.listeners.push({
+        name:clean,
+        days:[],
+        logboByMonth:{},
+        memo:"ルーレットのゲスト追加から自動登録",
+        penalty:0,
+        registeredDate:today,
+        birthday:"",
+        rouletteGuest:true
+      });
+    }
+  }
+
+  function removeRouletteGuestEverywhere(name){
+    ensureRouletteState();
+    const clean = String(name || "").trim();
+    if(!clean) return;
+    state.roulette.guestBetters = (state.roulette.guestBetters || []).filter(function(n){ return n !== clean; });
+    state.roulette.bets = (state.roulette.bets || []).filter(function(b){ return b.name !== clean; });
+    if(Array.isArray(state.listeners)){
+      state.listeners = state.listeners.filter(function(l){ return !(l && l.name === clean && l.rouletteGuest === true); });
+    }
   }
 
   function isHostBetter(name){
@@ -2356,6 +2458,7 @@ document.addEventListener("DOMContentLoaded",()=>renderRoulette());
     const grid = document.getElementById("rouletteNumberBetGrid");
     const select = document.getElementById("rouletteBetterSelect");
     const list = document.getElementById("rouletteBetList");
+    const guestList = document.getElementById("rouletteGuestList");
 
     if(grid && !grid.dataset.ready){
       grid.innerHTML = Array.from({length:36}, function(_,i){
@@ -2376,6 +2479,7 @@ document.addEventListener("DOMContentLoaded",()=>renderRoulette());
           }).join("")
         : '<option value="">登録者なし</option>';
       if(current) select.value = current;
+      if(window.__rouletteSelectedBetter) select.value = window.__rouletteSelectedBetter;
     }
 
     document.querySelectorAll("[data-bet]").forEach(function(cell){
@@ -2408,6 +2512,52 @@ document.addEventListener("DOMContentLoaded",()=>renderRoulette());
       list.innerHTML = state.roulette.bets.map(function(b,i){
         return '<div class="roulette-bet-row"><span><b>' + esc(b.name) + '</b> → ' + esc(betLabel(b.bet)) + ' <span class="roulette-tag">' + betOdds(b.bet) + '</span></span><button class="btn danger mini-btn" data-del-bet="' + i + '" type="button">削除</button></div>';
       }).join("") || '<div class="muted">まだベットなし</div>';
+    }
+
+    if(guestList){
+      syncRouletteGuestsWithRegulars();
+      const q = String(window.__rouletteGuestSearch || "").trim();
+      const sortMode = window.__rouletteGuestSort || "kana";
+      const allBetters = getBetters();
+      const hostName = state.hostProfile && state.hostProfile.name ? state.hostProfile.name : "";
+      const hostShown = hostName && rouletteGuestMatchesSearch(hostName, q) ? [hostName] : [];
+      let listeners = activeListenerNames().filter(function(name){ return name && name !== hostName; });
+      listeners = Array.from(new Set(listeners));
+      listeners = sortMode === "last" ? rouletteLastBetSortedNames(listeners) : kanaSortNames(listeners);
+      const shownListeners = listeners.filter(function(name){ return rouletteGuestMatchesSearch(name, q); });
+      const shown = hostShown.concat(shownListeners);
+      guestList.innerHTML = allBetters.length
+        ? '<div class="roulette-guest-tools" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">'
+          + '<input id="rouletteGuestSearch" placeholder="あ / ア / 亜 でも探せる" value="' + esc(window.__rouletteGuestSearch || "") + '" style="flex:1;min-width:180px">'
+          + '<select id="rouletteGuestSort" style="min-width:140px">'
+          + '<option value="kana"' + (sortMode === "kana" ? " selected" : "") + '>50音順</option>'
+          + '<option value="last"' + (sortMode === "last" ? " selected" : "") + '>最終ベット順</option>'
+          + '</select>'
+          + '<span class="muted">枠主は常に一番上 / 常連メモ連動</span>'
+          + '</div>'
+          + '<div class="muted">追加済み：</div>'
+          + '<div class="roulette-guest-picker" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">'
+          + (shown.length ? shown.map(function(name){
+              const isHost = isHostBetter(name);
+              const selected = select && select.value === name;
+              return '<button class="roulette-tag ' + (isHost ? 'host-chip ' : '') + (selected ? 'selected ' : '') + '" data-select-roulette-better="' + esc(name) + '" type="button" style="display:inline-block;margin:2px 4px 2px 0;cursor:pointer">' + esc(isHost ? '★ ' + name + '（枠主）' : name) + '</button>';
+            }).join('') : '<span class="muted">該当なし</span>')
+          + '</div>'
+        : '<div class="muted">ゲスト追加すると常連メモと選択肢に自動追加。常連から削除した人はここにも残らないよ</div>';
+      const guestSearch = document.getElementById("rouletteGuestSearch");
+      if(guestSearch){
+        guestSearch.oninput = function(){
+          window.__rouletteGuestSearch = this.value;
+          renderBetBoard();
+        };
+      }
+      const guestSort = document.getElementById("rouletteGuestSort");
+      if(guestSort){
+        guestSort.onchange = function(){
+          window.__rouletteGuestSort = this.value || "kana";
+          renderBetBoard();
+        };
+      }
     }
   }
 
@@ -2785,8 +2935,11 @@ document.addEventListener("DOMContentLoaded",()=>renderRoulette());
     if(t.id === "rouletteCasinoMode"){
       ensureRouletteState();
       state.roulette.mode = "casino";
+      const resultEl = document.getElementById("rouletteResult");
+      if(resultEl){ resultEl.classList.remove("show"); resultEl.textContent = "READY"; }
       safeSave();
       window.renderRoulette();
+      renderWheel();
       renderZoom("CASINO", "BET PLEASE", false);
       return;
     }
@@ -2807,11 +2960,37 @@ document.addEventListener("DOMContentLoaded",()=>renderRoulette());
 
     if(t.id === "addRouletteGuestBetter"){
       ensureRouletteState();
-      const name = prompt("ベットに置く名前");
+      const rawName = prompt("ベットに置く名前");
+      const name = rawName ? rawName.trim() : "";
       if(!name) return;
-      state.roulette.guestBetters.push(name);
+      state.roulette.guestBetters = state.roulette.guestBetters || [];
+      if(!state.roulette.guestBetters.includes(name)) state.roulette.guestBetters.push(name);
+      addListenerFromRouletteGuest(name);
       safeSave();
+      if(typeof renderMemo === "function") renderMemo();
       window.renderRoulette();
+      return;
+    }
+
+    if(t.dataset && t.dataset.delRouletteGuest !== undefined){
+      ensureRouletteState();
+      const name = t.dataset.delRouletteGuest;
+      if(!confirm(name + " をゲスト/常連メモから削除する？")) return;
+      removeRouletteGuestEverywhere(name);
+      safeSave();
+      if(typeof renderMemo === "function") renderMemo();
+      window.renderRoulette();
+      return;
+    }
+
+    if(t.dataset && t.dataset.selectRouletteBetter !== undefined){
+      const select = document.getElementById("rouletteBetterSelect");
+      const name = t.dataset.selectRouletteBetter;
+      if(select){
+        select.value = name;
+        window.__rouletteSelectedBetter = name;
+      }
+      renderBetBoard();
       return;
     }
 
@@ -2843,6 +3022,17 @@ document.addEventListener("DOMContentLoaded",()=>renderRoulette());
         return;
       }
 
+      if((state.roulette.bets || []).some(function(b){ return b.bet === bet; })){
+        playAudio("seRoulettePolice", true);
+        alert("この種類にはもうベット済み！1種類につき1ベットまでだよｗ");
+        return;
+      }
+
+      const alreadyBet = (state.roulette.bets || []).some(function(b){ return b && b.name === name && b.bet === bet; });
+      if(alreadyBet){
+        alert("同じ人は同じ種類に1ベットまでだよｗ");
+        return;
+      }
       state.roulette.bets.push({ name:name, bet:bet });
       safeSave();
       window.renderRoulette();

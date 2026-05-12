@@ -28,6 +28,7 @@
     .nav button.active,.btn.primary{background:linear-gradient(135deg,#e8f8ff,#fff);color:#05070a;border-color:#fff}
     .btn.danger{background:#3a1014;border-color:#7f2028}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
     .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
     .card{background:linear-gradient(180deg,#141822,#0f1118);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 20px 60px #0008;overflow:hidden}
     .card .inner{padding:16px}
@@ -235,6 +236,7 @@ function fitBrushText(text){
       .grid,.chinchiro-wrap{grid-template-columns:1fr}
       .grid3{grid-template-columns:1fr 1fr 1fr}
       .game-tabs{grid-template-columns:repeat(4,1fr);gap:5px}
+      .grid2{grid-template-columns:1fr}
       .game-tabs button{font-size:12px;padding:10px 4px}
       .ch-stage{min-height:430px}
       .rule-panel{display:block}
@@ -2055,6 +2057,33 @@ function fitBrushText(text){
   margin-right:2px;
   color:#fde68a;
 }
+
+/* v106 roulette guest picker: host sticky + searchable host profile */
+#rouletteGuestPicker.roulette-guest-picker{
+  max-height:240px;
+  overflow-y:auto;
+  display:block !important;
+  padding:2px 2px 4px;
+}
+.roulette-host-sticky{
+  position:sticky;
+  top:0;
+  z-index:10;
+  padding:4px 0 7px;
+  margin-bottom:6px;
+  background:linear-gradient(180deg,rgba(15,23,42,.98),rgba(15,23,42,.92));
+  border-bottom:1px solid rgba(56,189,248,.35);
+  backdrop-filter:blur(8px);
+}
+.roulette-listener-flow{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.roulette-tag.selected{
+  outline:2px solid #facc15;
+  box-shadow:0 0 0 3px rgba(250,204,21,.18),0 0 14px rgba(250,204,21,.45);
+}
 .host-profile-badge{
   display:inline-flex;
   align-items:center;
@@ -2438,6 +2467,158 @@ function fitBrushText(text){
   padding:12px;
 }
 
+
+.animal-panel{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:stretch;margin-top:12px}.animal-card{border:1px solid var(--line);border-radius:18px;padding:14px;background:rgba(255,255,255,.04)}.animal-visual{min-height:180px;display:flex;align-items:center;justify-content:center;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.02));font-size:72px;margin-bottom:10px;overflow:hidden;position:relative}.animal-visual img{width:100%;height:100%;min-height:180px;object-fit:cover;display:block}.animal-visual .animal-fallback{font-size:72px}.animal-visual.silhouette{filter:brightness(.08) contrast(1.4);text-shadow:0 0 0 #111}.animal-visual.name-only{font-size:72px}.animal-photo-note{font-size:11px;color:var(--muted);margin-top:-4px;margin-bottom:8px}.animal-name{font-size:26px;font-weight:900;margin:4px 0}.animal-tags{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.animal-tags span{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:4px 8px;background:rgba(255,255,255,.05)}.animal-question{font-size:22px;font-weight:800;line-height:1.45;padding:14px;border-radius:16px;background:rgba(255,255,255,.05);margin:10px 0}.animal-rulebox{line-height:1.7}.animal-search-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}.animal-results{max-height:190px;overflow:auto;margin-top:8px;border-radius:14px;border:1px solid var(--line);padding:8px;background:rgba(0,0,0,.12)}.animal-result{display:flex;justify-content:space-between;gap:8px;padding:8px;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer}.animal-result-main{display:flex;gap:10px;align-items:center}.animal-thumb{width:42px;height:42px;border-radius:10px;object-fit:cover;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);flex:0 0 auto}.animal-thumb-fallback{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);font-size:24px;border:1px solid rgba(255,255,255,.12);flex:0 0 auto}.animal-result:last-child{border-bottom:0}.animal-result:hover{background:rgba(255,255,255,.06)}.animal-small{font-size:12px;color:var(--muted)}.private-animal-form{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.private-animal-form .mini-title{font-weight:900;margin-bottom:8px}.private-animal-list{max-height:150px;overflow:auto;margin-top:8px;border:1px solid var(--line);border-radius:14px;padding:8px;background:rgba(255,255,255,.03)}.private-animal-item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px;border-bottom:1px solid rgba(255,255,255,.08)}.private-animal-item:last-child{border-bottom:0}.private-animal-item button{padding:6px 8px;font-size:12px}.animal-source-badge{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:3px 7px;background:rgba(255,255,255,.06);color:var(--muted)}
+@media(max-width:800px){.animal-panel{grid-template-columns:1fr}.animal-visual{min-height:130px;font-size:58px}}
+
+
+/* v97 regular memo compact one-line cards */
+#memoGrid.regular-one-list{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:12px!important;
+}
+.regular-toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  margin:0 0 12px;
+}
+.regular-toolbar input,.regular-toolbar select{
+  min-height:40px;
+}
+.regular-compact-card .inner{
+  padding:14px!important;
+}
+.regular-compact-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+}
+.regular-compact-name{
+  font-size:20px;
+  font-weight:950;
+  line-height:1.2;
+}
+.regular-topic-blue{
+  margin-top:8px;
+  background:#e0f2fe;
+  border:1px solid #7dd3fc;
+  color:#075985;
+  border-radius:12px;
+  padding:9px 10px;
+  font-size:14px;
+  font-weight:850;
+  line-height:1.45;
+}
+.regular-next-plan{
+  margin-top:7px;
+  color:#a7b0c0;
+  font-size:13px;
+}
+.regular-detail-fold{
+  display:none;
+  margin-top:12px;
+  border-top:1px solid var(--line);
+  padding-top:12px;
+}
+.regular-detail-fold.open{display:block}
+.regular-detail-fold textarea{min-height:90px}
+
+
+/* v107 endurance count-up timer */
+.endurance-stage{
+  display:grid;
+  gap:16px;
+}
+.endurance-tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.endurance-tabs button.active{
+  background:linear-gradient(135deg,#8b5cf6,#06b6d4);
+  color:white;
+  border-color:transparent;
+}
+.endurance-display{
+  --endurance-progress:0%;
+  position:relative;
+  overflow:hidden;
+  background:radial-gradient(circle at center,#111827,#020617 72%);
+  border:1px solid #334155;
+  border-radius:26px;
+  padding:28px 18px;
+  text-align:center;
+  box-shadow:0 20px 70px #0006,inset 0 0 48px #38bdf822;
+}
+.endurance-display.goal-ring::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:26px;
+  padding:5px;
+  background:conic-gradient(from -90deg,#22d3ee var(--endurance-progress),#1e293b var(--endurance-progress) 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+.endurance-display.goal-complete::before{
+  background:conic-gradient(from -90deg,#facc15 0 100%);
+}
+.endurance-title{
+  font-size:18px;
+  font-weight:900;
+  color:#c4b5fd;
+}
+.endurance-main{
+  font-size:clamp(56px,14vw,148px);
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:.04em;
+  margin:10px 0;
+  text-shadow:0 0 34px #38bdf866;
+}
+.endurance-sub{
+  color:#94a3b8;
+  font-weight:800;
+}
+.endurance-display.warning{
+  animation:enduranceRedBlink .8s ease-in-out infinite;
+  border-color:#ef4444;
+}
+@keyframes enduranceRedBlink{
+  0%,100%{box-shadow:0 0 32px #ef444433,inset 0 0 48px #ef444422}
+  50%{box-shadow:0 0 70px #ef4444aa,inset 0 0 70px #ef444466;background:#210606}
+}
+.endurance-button-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;
+}
+.endurance-hit-btn{
+  min-height:72px;
+  font-size:18px;
+  font-weight:1000;
+}
+.endurance-config{
+  display:grid;
+  gap:10px;
+  background:#08111f;
+  border:1px solid #243853;
+  border-radius:18px;
+  padding:14px;
+}
+.endurance-action-card{
+  background:#0f172a;
+  border:1px solid #26364f;
+  border-radius:14px;
+  padding:10px;
+}
+
 </style>
 
 <link rel="icon" type="image/png" href="icon_streamstaff_final.png">
@@ -2542,21 +2723,126 @@ function fitBrushText(text){
   </div>
 </div>
 
-          <div class="game-tabs" id="gameTabs"></div>
-          <div class="big-output game-result" id="gameResult">🎲 種類を選んで「回す」</div>
-          <div class="row">
-            <button class="btn primary" id="rollGame">回す</button>
-            <button class="btn" id="saveGameLog">ログに残す</button>
-          </div>
-        </div></div>
-        <div class="card"><div class="inner">
-          <h2>履歴</h2>
-          <div id="gameHistory" class="history"></div>
+          
+<div class="grid" style="margin-top:14px">
+  <div class="tool-item"><div class="tool-title">🎭 セリフ</div><button class="btn" onclick="showScreen('serifGame')">開く</button></div>
+  <div class="tool-item"><div class="tool-title">🍻 レロレロ酒場</div><button class="btn" onclick="showScreen('reloGame')">開く</button></div>
+  <div class="tool-item"><div class="tool-title">🐼 動物</div><button class="btn" onclick="showScreen('animalGame')">開く</button></div>
+  <div class="tool-item"><div class="tool-title">😂 いつ誰</div><button class="btn" onclick="showScreen('itsudareGame')">開く</button></div>
+  <div class="tool-item"><div class="tool-title">🧠 大喜利</div><button class="btn" onclick="showScreen('ogiriGame')">開く</button></div>
+  <div class="tool-item"><div class="tool-title">📘 ボブジテン</div><button class="btn" onclick="showScreen('bobuGame')">開く</button></div>
+</div>
+<p class="muted" style="margin-top:14px">各ゲームは「開く」から専用画面で遊べます。</p>
         </div></div>
       </div>
     </section>
 
     
+
+
+<section id="serifGame" class="screen">
+  <div class="card"><div class="inner">
+    <h2>🎭 セリフステージ</h2>
+    <p class="muted">ジャンル・対象・BAN回避レベルを選んで回せる配信特化セリフ。下ネタON相当でも直球は禁止、匂わせと伏せ字で安全寄せ。</p>
+    <div class="grid2">
+      <label>ジャンル<select id="serifGenre">
+        <option value="all">全部混ぜ</option><option value="confess">告白・罰ゲーム</option><option value="ikemen">イケボ</option><option value="gal">ギャル</option><option value="yankee">ヤンキー</option><option value="host">ホスト</option><option value="chuni">中二病</option><option value="kimo">キモおもろ</option><option value="streamer">配信者</option><option value="meme">ネットミーム</option><option value="wasei">和製英語地獄</option><option value="ossan">おっさん</option>
+      </select></label>
+      <label>セリフ対象<select id="serifTarget">
+        <option value="common">共通</option><option value="male">男向け</option><option value="female">女向け</option><option value="random">ランダム</option>
+      </select></label>
+      <label>BAN回避レベル<select id="serifLevel">
+        <option value="1">Lv1 安全</option><option value="2">Lv2 ちょい攻め</option><option value="3" selected>Lv3 深夜ノリ</option><option value="4">Lv4 ギリ匂わせ</option>
+      </select></label>
+      <label>抽選範囲<select id="serifIncludeLower">
+        <option value="yes" selected>選択Lv以下も含める</option><option value="no">選択Lvのみ</option>
+      </select></label>
+      <label>声色<select id="serifVoice">
+        <option value="random">ランダム</option><option value="normal">指定なし</option><option value="whisper">囁き</option><option value="ikemen">イケボ</option><option value="yankee">ヤンキー</option><option value="anime">アニメ主人公</option><option value="old">老人</option><option value="robot">ロボ</option>
+      </select></label>
+      <label>BANガード<select id="serifGuard">
+        <option value="normal" selected>標準：匂わせで止める</option><option value="strong">強：さらに薄める</option>
+      </select></label>
+    </div>
+    <div class="big-output" id="serifPreview">「帰り道、あと一駅だけ遠回りしない？」</div>
+    <p class="muted" id="serifMeta">Lv3 / 共通 / 告白・罰ゲーム</p>
+    <div class="row"><button class="btn primary" onclick="rollSerifGame()">回す</button><button class="btn" onclick="showScreen('games')">戻る</button></div>
+  </div></div>
+</section>
+<section id="reloGame" class="screen"><div class="card"><div class="inner"><h2>🍻 レロレロ酒場</h2><p class="muted">和製英語・横文字を重点追加。噛まずに言えるか勝負。</p><div class="big-output" id="reloPreview">アジェンダ</div><div class="row"><button class="btn primary" onclick="rollStageGame('relo','reloPreview')">回す</button><button class="btn" onclick="showScreen('games')">戻る</button></div></div></div></section>
+<section id="animalGame" class="screen"><div class="card"><div class="inner">
+  <h2>🐾 動物なりきり大喜利</h2>
+  <p class="muted">出た動物になりきって質問に答えるゲーム。苦手な人は語尾だけでもOK！ 自分のことを動物化して答えてもOK。</p>
+  <div class="grid two">
+    <label>難易度<select id="animalDifficulty">
+      <option value="easy">かんたん：有名動物中心</option>
+      <option value="normal" selected>ふつう：ちょい珍しめまで</option>
+      <option value="hard">高難易度：何この動物ｗ</option>
+      <option value="chaos">カオス：全部混ぜ</option>
+    </select></label>
+    <label>遊び方<select id="animalPlayMode">
+      <option value="simple">語尾だけでもOK</option>
+      <option value="role" selected>なりきり</option>
+      <option value="gachi">ガチなりきり</option>
+      <option value="nohint">名前だけで想像</option>
+    </select></label>
+    <label>画像表示<select id="animalImageMode">
+      <option value="real" selected>リアル画像</option>
+      <option value="emoji">絵文字（画像NG時用）</option>
+      <option value="silhouette">リアル画像シルエット</option>
+      <option value="name">名前のみ</option>
+    </select></label>
+    <label>質問カテゴリ<select id="animalQuestionCategory">
+      <option value="random" selected>ランダム</option><option value="self">自分のこと</option><option value="stream">配信</option><option value="love">恋愛</option><option value="daily">日常</option><option value="chaos">カオス</option>
+    </select></label>
+    <label>抽選データ<select id="animalSourceMode">
+      <option value="all" selected>内蔵＋プライベート</option>
+      <option value="builtIn">内蔵動物のみ</option>
+      <option value="private">プライベート動物のみ</option>
+    </select></label>
+  </div>
+  <div class="animal-panel">
+    <div class="animal-card">
+      <div class="animal-visual" id="animalVisual"><span class="animal-fallback">🐱</span></div>
+      <div class="animal-photo-note" id="animalPhotoNote">リアル画像表示ON：通信環境により絵文字に戻る場合あり</div>
+      <div class="animal-name" id="animalName">猫</div>
+      <div class="animal-tags" id="animalTags"><span>かんたん</span><span>語尾：にゃ</span></div>
+      <p class="muted" id="animalHint">ヒント：自由気まま。人の作業を邪魔しがち。</p>
+      <div class="animal-question" id="animalQuestion">最近ハマってることは？</div>
+      <p class="muted" id="animalGuide">例：テレビゲームにゃ〜 / 暖かい場所で寝ることにゃ</p>
+    </div>
+    <div class="animal-card animal-rulebox">
+      <b>ルール</b><br>
+      ① 出た動物になったつもりで質問に答える<br>
+      ② ガチで知らなくても想像でOK<br>
+      ③ 苦手なら語尾だけでOK：「〜にゃ」「〜ワン」「〜コン」<br>
+      ④ 自分のことを動物っぽく答えてもOK<br>
+      ⑤ リアル画像はURL登録方式。初期状態でも各動物に画像URL入り<br>
+      ⑥ プライベート動物は画像URL・画像アップロード対応。人を入れればものまね枠にも使える<br>
+      ⑦ 内蔵のみ / プライベートのみ / 両方 で抽選切替OK
+      <div class="animal-search-row"><input id="animalSearch" placeholder="動物名・語尾・特徴で検索 例：にゃ / コン / かわいい"><button class="btn" onclick="searchAnimalData()">検索</button></div>
+      <div class="animal-results" id="animalSearchResults"><div class="animal-small">検索すると語尾候補や特徴を確認できる。</div></div>
+      <div class="private-animal-form">
+        <div class="mini-title">➕ プライベート動物を追加</div>
+        <div class="grid two">
+          <input id="privateAnimalName" placeholder="名前 例：うちの猫 / 常連Aさん">
+          <input id="privateAnimalSuffix" placeholder="語尾 例：にゃ / だべ / です">
+          <select id="privateAnimalDiff"><option value="easy">かんたん</option><option value="normal" selected>ふつう</option><option value="hard">高難易度</option><option value="chaos">カオス</option></select>
+          <input id="privateAnimalTags" placeholder="特徴タグ 例：かわいい,ものまね,身内ネタ">
+        </div>
+        <input id="privateAnimalHint" placeholder="一言特徴 例：よく寝る。コメント欄に急に現れる。" style="margin-top:8px;width:100%">
+        <input id="privateAnimalImageUrl" placeholder="画像URL 例：https://example.com/cat.jpg（空でもOK）" style="margin-top:8px;width:100%">
+        <input id="privateAnimalImage" type="file" accept="image/*" style="margin-top:8px;width:100%">
+        <div class="row"><button class="btn primary" onclick="addPrivateAnimal()">追加</button><button class="btn" onclick="clearPrivateAnimalsConfirm()">全削除</button></div>
+        <div class="private-animal-list" id="privateAnimalList"><div class="animal-small">まだプライベート動物はありません。</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="row"><button class="btn primary" onclick="rollAnimalGame()">動物を出す</button><button class="btn" onclick="searchAnimalData(true)">語尾一覧</button><button class="btn" onclick="showScreen('games')">戻る</button></div>
+</div></div></section>
+<section id="itsudareGame" class="screen"><div class="card"><div class="inner"><h2>😂 いつ誰ゲーム</h2><p class="muted">いつ・誰が・どこで・何をしたを大量追加。</p><div class="big-output" id="itsuPreview">深夜3時に校長先生がコンビニで踊ってた</div><div class="row"><button class="btn primary" onclick="rollStageGame('itsu','itsuPreview')">回す</button><button class="btn" onclick="showScreen('games')">戻る</button></div></div></div></section>
+<section id="ogiriGame" class="screen"><div class="card"><div class="inner"><h2>🧠 大喜利アリーナ</h2><p class="muted">コメント参加しやすい配信向けお題を追加。</p><div class="big-output" id="ogiriPreview">絶対流行らないスマホ機能とは？</div><div class="row"><button class="btn primary" onclick="rollStageGame('ogiri','ogiriPreview')">回す</button><button class="btn" onclick="showScreen('games')">戻る</button></div></div></div></section>
+<section id="bobuGame" class="screen"><div class="card"><div class="inner"><h2>📘 ボブジテン</h2><p class="muted">カタカナ禁止説明向け単語を増量。</p><div class="big-output" id="bobuPreview">Wi‑Fiをカタカナ禁止で説明せよ</div><div class="row"><button class="btn primary" onclick="rollStageGame('bob','bobuPreview')">回す</button><button class="btn" onclick="showScreen('games')">戻る</button></div></div></div></section>
 
 <section id="roulette" class="screen">
   <div class="roulette-fullscreen">
@@ -2611,6 +2897,7 @@ function fitBrushText(text){
     <select id="rouletteBetterSelect"></select>
     <button class="btn" id="addRouletteGuestBetter" type="button">ゲスト名追加</button>
   </div>
+  <div class="roulette-bet-log" id="rouletteGuestList"></div>
 
   <div class="bet-board">
     <button class="bet-cell zero" data-bet="number:0" type="button">0</button>
@@ -2790,6 +3077,12 @@ function fitBrushText(text){
             <input id="detailInputName" placeholder="名前">
             <label>あだ名</label>
             <input id="detailNickname" placeholder="例：○○ニキ / ○○ネキ / ○○先生">
+            <label>検索用よみ</label>
+            <input id="detailSearchYomi" placeholder="例：あらた / びーる / よろしくたろう">
+            <p class="muted">アプリ内検索にヒットさせるためのよみがな。記号・絵文字（★🍺+など）は自動で飛ばすので、普通の名前なら入力不要。当て字・特殊名・絵文字だけの名前だけ設定してね。</p>
+            <label>検索用タグ</label>
+            <input id="detailSearchTags" placeholder="例：酒 飲み 深夜 筋トレ">
+            <p class="muted">スペース区切りでOK。名前以外の言葉でも探したい時用。</p>
             <label>誕生日（月 / 日）</label>
             <div class="birthday-row">
               <input id="detailBirthMonth" type="number" min="1" max="12" placeholder="月">
@@ -2946,6 +3239,16 @@ function fitBrushText(text){
             <button class="btn primary" id="openCalendarFromTools">開く</button>
           </div>
         </div>
+
+<div class="tool-item" style="margin-bottom:12px;background:#111827;border-color:#06b6d4">
+  <div class="row" style="justify-content:space-between">
+    <div>
+      <div class="tool-title">⏱️ カウントアップタイマー</div>
+      <div class="muted">タイマー加算 / カウント加算を配信用の大画面で管理</div>
+    </div>
+    <button class="btn primary" onclick="showScreen('enduranceTool')" type="button">開く</button>
+  </div>
+</div>
           
 
 <div class="tool-item" style="margin-bottom:12px;background:#111022;border-color:#6d28d9">
@@ -3051,6 +3354,67 @@ function fitBrushText(text){
   <audio id="alarm_alarm_clock" src="assets/alarm_clock.mp3"></audio>
   <audio id="alarm_wall_clock" src="assets/wall_clock.mp3"></audio>
   <audio id="alarm_hato2" src="assets/hato2.mp3"></audio>
+</section>
+
+
+<section id="enduranceTool" class="screen">
+  <div class="card"><div class="inner endurance-stage">
+    <div class="row" style="justify-content:space-between;align-items:flex-start">
+      <div>
+        <h2 style="margin:0">⏱️ カウントアップタイマー</h2>
+        <p class="muted">0秒を目指すタイマーと、目標数を目指すカウンター。ボタンは自由に作成できる。</p>
+      </div>
+      <button class="btn" onclick="showScreen('tools')" type="button">道具へ戻る</button>
+    </div>
+
+    <div class="endurance-tabs">
+      <button class="btn primary" id="enduranceTimerTab" type="button">タイマー</button>
+      <button class="btn" id="enduranceCounterTab" type="button">カウンター</button>
+    </div>
+
+    <div class="endurance-display" id="enduranceDisplayBox">
+      <div class="endurance-title" id="enduranceModeLabel">タイマーモード</div>
+      <div class="endurance-main" id="enduranceMainValue">03:00</div>
+      <div class="endurance-sub" id="enduranceSubValue">0秒を目指せ</div>
+    </div>
+
+    <div class="row" style="justify-content:center">
+      <button class="btn primary" id="enduranceStartPause" type="button">開始</button>
+      <button class="btn" id="enduranceReset" type="button">リセット</button>
+      <button class="btn danger" id="enduranceClearButtons" type="button">ボタン全削除</button>
+    </div>
+
+    <div class="endurance-button-grid" id="enduranceActionButtons"></div>
+
+    <div class="endurance-config">
+      <h3 style="margin:0">基本設定</h3>
+      <div class="row">
+        <input id="enduranceTitleInput" placeholder="企画名 例：NGワード耐久">
+        <input id="enduranceTimerMin" type="number" min="0" value="3" style="max-width:90px" placeholder="分">
+        <input id="enduranceTimerSec" type="number" min="0" max="59" value="0" style="max-width:90px" placeholder="秒">
+        <select id="enduranceTimerSound" style="max-width:180px"></select>
+        <input id="enduranceCounterGoal" type="number" min="0" value="100" style="max-width:140px" placeholder="目標数（0でなし）">
+        <button class="btn primary" id="enduranceSaveBase" type="button">設定反映</button>
+      </div>
+      <p class="muted">タイマー終了音は通常タイマーと同じ音源から選択。カウンター目標は0にするとゲージなし。ボタン押下時だけルーレットの「該当者なし」と同じ音を使う。</p>
+    </div>
+
+    <div class="endurance-config">
+      <h3 style="margin:0">カスタムボタン追加</h3>
+      <div class="row">
+        <input id="enduranceButtonName" placeholder="ボタン名 例：ギフト / NGワード">
+        <input id="enduranceButtonValue" type="number" value="30" style="max-width:110px" placeholder="増減値">
+        <select id="enduranceButtonUnit" style="max-width:140px">
+          <option value="seconds">秒</option>
+          <option value="minutes">分</option>
+          <option value="count">カウント</option>
+        </select>
+        <input id="enduranceButtonColor" type="color" value="#38bdf8" style="max-width:80px">
+        <button class="btn primary" id="enduranceAddButton" type="button">ボタン追加</button>
+      </div>
+      <div id="enduranceButtonList" class="tool-list"></div>
+    </div>
+  </div></div>
 </section>
 
     <section id="settings" class="screen">
@@ -3454,19 +3818,34 @@ const defaultState={
     timers:[
       {id:"t_sample_1",name:"休憩",duration:180,remaining:180,running:false,sound:"hato1",done:false},
       {id:"t_sample_2",name:"企画残り",duration:300,remaining:300,running:false,sound:"alarm_clock",done:false}
-    ]
+    ],
+    endurance:{
+      mode:"timer",
+      title:"カウントアップタイマー",
+      timerSound:"alarm_clock",
+      timerDuration:180,
+      timerRemaining:180,
+      timerRunning:false,
+      counterGoal:100,
+      counterValue:0,
+      buttons:[
+        {id:"ed_btn_1",name:"ギフト +30秒",value:30,unit:"seconds",color:"#38bdf8"},
+        {id:"ed_btn_2",name:"NGワード +10秒",value:10,unit:"seconds",color:"#fb7185"},
+        {id:"ed_btn_3",name:"コメント +1",value:1,unit:"count",color:"#a78bfa"}
+      ]
+    }
   },
   customGames:{
-    animalAnimals:["猫","犬","ゾウ","牛","キツネ","ハト","ゴリラ","サル","馬","深夜のコンビニ店員"],
-    animalTopics:["簡単にできる料理","昔流行ったもの","身につけるもの","虫の名前","冬に使うもの","配信で起きがちなこと"],
-    ogiri:["身につけるものっぽく一番くだらないことを言って","深夜のコンビニ店員が急に言いそうな一言","猫が配信者だった時の初見挨拶","絶対に盛り上がらないイベント名"],
-    line:["分からない……何も思い出せない……。何で炊けた米が部屋中に塗りたくられてるんだ……！？","それはもう、ほぼ事件じゃん。","ちょっと待って、話の枝が折れた。","いま誰がこの空気の責任取るの？"],
-    when:["昨日","今日","朝","明日","おととい","去年","昼に","夕方に","夜に","誕生日に"],
-    who:["お母さんが","酔っ払いが","猫が","常連が","初見さんが","師匠が"],
-    where:["コンビニで","配信画面の裏で","公園で","居酒屋で","ダーツバーで","風呂場で"],
-    what:["急に歌い出した","米を炊きすぎた","名言っぽいことを言った","謎のルールを作った","コメント欄を凍らせた"],
-    bob:["アクセル","エンジン","オイル","オートマチック","ガソリン","ガソリンスタンド","カバー","ガレージ","アプローチ","ジュース","ランプ"],
-    relo:["マーボー豆腐","チャンジャ","鮭とば","たこわさ","だし巻きたまご","枝豆","焼きナス","冷やしトマト","もつ鍋","軟骨のから揚げ"]
+    animalAnimals:["猫", "犬", "ゾウ", "牛", "キツネ", "ハト", "ゴリラ", "サル", "馬", "深夜のコンビニ店員", "クアッカワラビー", "マヌルネコ", "ハダカデバネズミ", "オカピ", "ヤブイヌ", "アイアイ", "カピバラ", "ウォンバット", "コビトカバ", "ビントロング", "フェネック", "スナネコ", "カラカル", "サーバル", "ラーテル", "ミーアキャット", "アルマジロ", "センザンコウ", "バク", "ナマケモノ", "アリクイ", "カモノハシ", "ハリモグラ", "タスマニアデビル", "キーウィ", "ハシビロコウ", "ヘビクイワシ", "ライチョウ", "エミュー", "カカポ", "アホウドリ", "シロイルカ", "イッカク", "ジュゴン", "マナティー", "ラッコ", "アザラシ", "ウミウシ", "メンダコ", "ダイオウグソクムシ", "チンアナゴ", "リュウグウノツカイ", "クリオネ", "カブトガニ", "オオサンショウウオ", "ウーパールーパー", "ベルツノガエル", "フトアゴヒゲトカゲ", "ゲッコー", "カメレオン", "カマキリ", "タランチュラ", "サソリ", "モモンガ", "プレーリードッグ", "レッサーパンダ", "シマエナガ", "アカクラゲ", "デンキウナギ", "ピラルク"],
+    animalTopics:["簡単にできる料理", "昔流行ったもの", "身につけるもの", "虫の名前", "冬に使うもの", "配信で起きがちなこと", "初見挨拶", "一番似合う職業", "配信タイトル", "決め台詞", "コンビニで買いそうな物", "好きそうなラーメン", "カラオケ十八番", "絶対言わなそうな一言", "配信で炎上しない謝罪文", "LINEの返信速度", "恋愛相談された時の答え", "遅刻した時の言い訳", "スマホの待ち受け", "旅行先で最初にすること", "居酒屋で頼む一品目", "ダーツの投げ方", "筋トレの掛け声", "寝起きの第一声", "謎のこだわり", "弱点っぽいもの", "実は得意そうなこと", "絶対苦手そうなこと", "視聴者へのお願い", "誕生日プレゼント", "一日店長した時の売り文句", "バンド名", "必殺技名", "負け惜しみ", "勝った時のドヤ顔コメント", "深夜テンションの発言", "プロフィール欄", "推し活の仕方", "学校でのあだ名", "地元での立ち位置", "仕事でやらかしそうなこと", "雨の日の過ごし方", "夏祭りで買うもの", "冬に欲しがるもの", "一番似合うBGM", "サムネに書かれる煽り文", "握手会で言いそうなこと", "寝る前のルーティン", "配信の締め方", "コメント欄への圧", "謝り方", "褒められた時の返し", "謎に強そうな能力", "課金したくなるポイント", "メンタルが折れる瞬間", "一番似合う絵文字"],
+    ogiri:["身につけるものっぽく一番くだらないことを言って", "深夜のコンビニ店員が急に言いそうな一言", "猫が配信者だった時の初見挨拶", "絶対に盛り上がらないイベント名", "絶対に登録者が増えない配信タイトルとは？", "初見さんが3秒で逃げた理由とは？", "コンビニ店員が急にラスボス感を出した一言とは？", "世界一どうでもいい重大発表とは？", "絶対に弱い必殺技名とは？", "配信者が寝落ち直前に言った名言とは？", "お母さんが急にVTuberデビュー。最初の挨拶は？", "このラーメン屋、配信者向けすぎる。なぜ？", "ダーツバーで一番言っちゃダメな一言とは？", "ギター初心者が言いがちなプロっぽい一言とは？", "「これは案件じゃないです」の後に続いた怪しい一言とは？", "世界一テンションが低いコール＆レスポンスとは？", "視聴者全員が「え？」となった罰ゲームとは？", "AIが考えた最悪のデートプランとは？", "朝礼で言ったら会社がざわつく一言とは？", "絶対に流行らないSNSの新機能とは？", "美容室で言われたら不安になる一言とは？", "一番ダサい魔王の弱点とは？", "ガチで要らないスマホ通知とは？", "「今日の配信は安全です」なぜ信用できない？", "カラオケで一瞬で空気が変わった選曲とは？", "絶対にモテない自己紹介とは？", "居酒屋の新メニュー「枠主セット」中身は？", "地元のヤンキーが急に丁寧語になった理由とは？", "誰も得しないランキング第1位とは？", "「それ褒めてる？」と思った一言とは？", "ゲームのラスボスが配信慣れしていた時の一言とは？", "視聴者にしか伝わらない謎ルールとは？", "「この人、常連だな」と分かる行動とは？", "寝坊した配信者の新しい言い訳とは？", "絶対に泣けない感動シーンとは？", "強そうで弱いチーム名とは？", "配信画面に一瞬映ってはいけないものとは？", "一番雑な謝罪会見の第一声とは？", "世界一浅い人生相談の答えとは？", "絶対にバズらないハッシュタグとは？", "先生が配信者だった時の宿題とは？", "未来の自分から来たのに言うことがショボい。何て言った？", "「BAN回避しました」と言いながら危ない理由とは？", "誰も覚えられない新ルールとは？", "コメント欄が一斉に黙った一言とは？", "一番信用できない占い結果とは？", "駅員さんが急に詩人になった一言とは？", "絶対に負けたくないしょうもない勝負とは？", "配信者専用の四字熟語とは？", "一番嫌なサプライズとは？", "パスワードのヒントが怖すぎる。何？", "桃太郎が現代の配信者だったら最初に何をする？", "世界一小さい炎上理由とは？", "コメントで来たら困る質問とは？"],
+    line:["分からない……何も思い出せない……。何で炊けた米が部屋中に塗りたくられてるんだ……！？", "それはもう、ほぼ事件じゃん。", "ちょっと待って、話の枝が折れた。", "いま誰がこの空気の責任取るの？", "「今日の俺、ちょっとだけ伝説寄りじゃない？」", "「待って、今の沈黙にも著作権ある？」", "「その一言、俺のメンタルにクリティカル入ってる」", "「俺の中の小さい審査員が全員札を上げてる」", "「今のは恋じゃない。通信エラーだ」", "「安心して。まだギリギリ人間側にいる」", "「そのノリ、深夜二時なら国宝だよ」", "「ちょっと待て、ツッコミが渋滞してる」", "「この空気、誰か領収書切ってくれ」", "「俺のビジュ、今日だけログインボーナス付いてる」", "「やめろ、その優しさは効く」", "「今のコメント、心のスクショ撮った」", "「俺が悪いんじゃない。テンションが先に走った」", "「それ以上言うと、俺の中のPTAが動く」", "「大丈夫、これは下ネタじゃない。概念だ」", "「ちょっと大人の階段、手すり持って降りようか」", "「その話はカーテン閉めてからにしよう」", "「今の発言、配信的には薄目で見よう」", "「それは匂わせじゃなくて、香りの暴走」", "「危ない単語は全部ピー音に就職しました」", "「俺の理性、いま有給取ってる」", "「帰り道、あと一駅だけ遠回りしない？」", "「言い方だけイケボにしたら全部許されると思うなよ」", "「ベイベェ、今日の水道水、やけにエモいな」", "「この胸騒ぎ、たぶん通知音のせい」", "「君の既読、俺の心拍数より正確だね」", "「今の俺、だいぶ主人公の友達ポジ」", "「その角度から褒める人、初めて見た」", "「待って、今の俺ちょっと名言っぽくなかった？」", "「俺の辞書に不可能はない。説明書はある」", "「この場を借りて言います。借りた場は返します」", "「好きって言ってない。高評価って言った」", "「その誘惑、サムネなら釣られてた」", "「俺たちの関係？コメント欄と固定コメントくらいかな」", "「やばい、今の流れにBGMが追いついてない」", "「俺の中のホストが水を頼めって言ってる」", "「その笑い方、課金ボイスにしよう」", "「今だけ俺をラスボス前の村人だと思って聞いて」", "「その発想、冷蔵庫の奥から出てきた？」", "「今日の俺は優しいぞ。昨日の俺に怒られたからな」", "「そこまで言うなら、俺も小声で乗る」", "「今のセリフ、家族の前では再放送禁止ね」", "「安心して、BANの手前でちゃんと土下座してる」", "「これは事故じゃない。企画の呼吸だ」", "「コメント欄、今のは聞かなかったことにして」", "「俺の青春、だいたい充電切れだった」", "「その顔、絶対コンビニでプリン選んでる時の顔じゃん」", "「今日の俺、たぶん3割くらい湘南の風」", "「世界が俺に追いついてない。主に洗濯物が」", "「その質問、答えた瞬間に人生のログが残るやつ」"],
+    when:["昨日", "今日", "朝", "明日", "おととい", "去年", "昼に", "夕方に", "夜に", "誕生日に", "配信開始3秒後に", "深夜2時22分に", "給料日前日に", "月曜日の朝に", "雨で靴下が終わった日に", "誕生日の0時ちょうどに", "美容室のシャンプー中に", "コンビニのレジ前で", "ダーツで負けた直後に", "カラオケのサビ前に", "寝落ち寸前に", "アラーム5個目で起きた瞬間に", "初見さんが来た瞬間に", "コメントが止まった時に", "風呂上がり3分後に", "ご飯炊き忘れに気づいた時に", "スマホ残り1％で", "推しの通知が来た瞬間に", "職場で休憩に入った瞬間に", "夜中に冷蔵庫を開けた時に", "Wi-Fiが切れた瞬間に", "洗濯機が終わった音の直後に", "花火大会の帰り道で", "雪の日の朝に", "免許更新の写真撮影前に", "ライブ前の楽屋で", "配信を切ったと思った直後に", "親が部屋に入ってきた瞬間に", "宅配便が来た瞬間に", "寝癖が限界の日に"],
+    who:["お母さんが", "酔っ払いが", "猫が", "常連が", "初見さんが", "師匠が", "枠主が", "古参リスナーが", "ROM専が", "妹が", "近所のおじさんが", "コンビニ店員が", "職場の先輩が", "地元の友達が", "ギターの神様が", "ダーツのライバルが", "AIアシスタントが", "ハシビロコウが", "未来の自分が", "過去の自分が", "ラスボスが", "校長先生が", "美容師さんが", "宅配のお兄さんが", "居酒屋の店長が", "駅員さんが", "謎のイケボが", "自称プロデューサーが", "寝起きの自分が", "コメント欄の総意が", "常連メンバーが", "通りすがりの犬が", "宇宙人が"],
+    where:["コンビニで", "配信画面の裏で", "公園で", "居酒屋で", "ダーツバーで", "風呂場で", "駅のホームで", "美容室で", "布団の中で", "車の中で", "職場の休憩所で", "スーパーの惣菜前で", "カラオケで", "ライブハウスで", "公園のベンチで", "ファミレスで", "ラーメン屋で", "海沿いで", "湘南の風を浴びながら", "エレベーターの中で", "信号待ちで", "楽器部屋で", "ゲームセンターで", "病院の待合室で", "市役所で", "友達の家で", "夢の中で", "コメント欄で", "サムネの中で", "謎の会議室で", "月面で"],
+    what:["急に歌い出した", "米を炊きすぎた", "名言っぽいことを言った", "謎のルールを作った", "コメント欄を凍らせた", "急に名言っぽいことを言った", "謎の謝罪会見を始めた", "初見挨拶を噛んだ", "高評価をお願いしながら自分で照れた", "水を飲むだけで拍手された", "自分の名前を忘れた", "コメント欄に説教された", "ギターソロのつもりで鼻歌を始めた", "ダーツのフォームを語り出した", "謎のランキングを発表した", "一番いらない能力を手に入れた", "いきなり小声で勝利宣言した", "レシートを見て人生を悟った", "スマホに向かって土下座した", "しょうもない嘘をすぐ認めた", "配信タイトルを3回変えた", "謎の横文字で乗り切ろうとした", "語尾だけイケボになった", "BAN回避のために急に敬語になった", "突然カーテンに話しかけた", "冷蔵庫のプリンと和解した", "初恋みたいな顔で唐揚げを見た", "世界平和より晩ご飯を優先した", "サムネ詐欺を自白した", "謎の手拍子を求めた", "一人でコール＆レスポンスした", "負けたのに勝者インタビューを受けた", "靴下に人生相談した", "「これは企画です」と言い張った"],
+    bob:["アクセル", "エンジン", "オイル", "オートマチック", "ガソリン", "ガソリンスタンド", "カバー", "ガレージ", "アプローチ", "ジュース", "ランプ", "サブスク", "スマホ", "アプリ", "コメント", "フォロー", "チャンネル", "ログイン", "パスワード", "スクショ", "サムネ", "アイコン", "プロフィール", "ダウンロード", "アップデート", "バグ", "バックアップ", "クラウド", "リモコン", "エアコン", "イヤホン", "マイク", "ギター", "アンプ", "コード", "ライブ", "スタジオ", "ドラム", "ベース", "エフェクター", "カラオケ", "コンビニ", "スーパー", "レシート", "ポイントカード", "ラーメン", "チャーハン", "ハンバーグ", "プリン", "アイス", "コーヒー", "カレンダー", "アラーム", "タイマー", "ランキング", "ルーレット", "チンチロ", "ダーツ", "ブル", "トリプル", "ゼロワン", "ファッション", "パーカー", "スニーカー", "ジーンズ", "ベルト", "ヘアワックス", "シャンプー", "ドライヤー", "エレベーター"],
+    relo:["マーボー豆腐", "チャンジャ", "鮭とば", "たこわさ", "だし巻きたまご", "枝豆", "焼きナス", "冷やしトマト", "もつ鍋", "軟骨のから揚げ", "サラリーマン", "オーダーメイド", "ガソリンスタンド", "コンセント", "ノートパソコン", "キーホルダー", "ベビーカー", "ペットボトル", "フライドポテト", "シュークリーム", "ホットケーキ", "アイスコーヒー", "モーニングコール", "クレーム", "リフォーム", "リサイクルショップ", "バイキング", "コインランドリー", "パワハラ", "セクハラ", "ノンアル", "テイクアウト", "テーブルチャージ", "フリーダイヤル", "ワンピース", "スキンシップ", "マイブーム", "リベンジ", "レベルアップ", "スキルアップ", "サインペン", "シャープペン", "ビニール袋", "ダンボール", "ホームセンター", "ゲームセンター", "ライブハウス", "タレント", "アイドル", "グラビア", "テンション", "ハイテンション", "ローテンション", "ナイーブ", "ドンマイ", "ファイト", "サービスエリア", "バックミラー", "ウインカー", "フロントガラス", "ハンドルキーパー", "キッチンペーパー", "サランラップ", "電子レンジ", "オーブントースター", "フリーサイズ", "オーバーオール", "マンツーマン", "キャッチコピー", "イメージチェンジ", "スキンヘッド", "モーニングセット", "カンニング", "アルバイト", "パート", "サラダバー", "ドリンクバー", "ソフトクリーム", "タッチパネル", "セルフレジ", "ガードマン", "ベテラン", "デッドボール", "ナイター", "ゲームオーバー"]
   }
 };
 let state=load();
@@ -3483,6 +3862,12 @@ state.countdowns.forEach(c=>{
     state.tools = state.tools || structuredClone(defaultState.tools);
 state.tools.counters = state.tools.counters || [];
 state.tools.timers = state.tools.timers || [];
+state.tools.endurance = state.tools.endurance || structuredClone(defaultState.tools.endurance);
+state.tools.endurance.buttons = state.tools.endurance.buttons || [];
+if(typeof state.tools.endurance.timerDuration !== "number") state.tools.endurance.timerDuration = 180;
+if(typeof state.tools.endurance.timerRemaining !== "number") state.tools.endurance.timerRemaining = state.tools.endurance.timerDuration;
+if(typeof state.tools.endurance.counterGoal !== "number") state.tools.endurance.counterGoal = 100;
+if(typeof state.tools.endurance.counterValue !== "number") state.tools.endurance.counterValue = 0;
 state.chin = state.chin || structuredClone(defaultState.chin);
 state.chin.diceCount = state.chin.diceCount || 3;
 state.chin.diceNames = state.chin.diceNames || structuredClone(defaultState.chin.diceNames);
@@ -3491,7 +3876,12 @@ while(state.chin.diceNames.length<6) state.chin.diceNames.push(`サイコロ${st
 while(state.chin.customDice.length<6) state.chin.customDice.push(structuredClone(defaultState.chin.customDice[state.chin.customDice.length] || defaultState.chin.customDice[0]));
 state.chin.localMap = state.chin.localMap || {};
 state.customGames = state.customGames || structuredClone(defaultState.customGames);
-for (const k in defaultState.customGames) state.customGames[k] = state.customGames[k] || structuredClone(defaultState.customGames[k]);
+for (const k in defaultState.customGames) {
+  state.customGames[k] = state.customGames[k] || structuredClone(defaultState.customGames[k]);
+  defaultState.customGames[k].forEach(item=>{
+    if(!state.customGames[k].includes(item)) state.customGames[k].push(item);
+  });
+}
 state.listeners = state.listeners || [];
 state.calendarEvents = state.calendarEvents || [];
 state.monthlyEvents = state.monthlyEvents || [];
@@ -3510,6 +3900,8 @@ state.listeners.forEach(l=>{
   if(typeof l.bloodType!=="string") l.bloodType="";
   if(typeof l.firstVisitDate!=="string") l.firstVisitDate="";
   if(typeof l.nickname!=="string") l.nickname="";
+  if(typeof l.searchYomi!=="string") l.searchYomi="";
+  if(typeof l.searchTags!=="string") l.searchTags="";
   if(!l.favorites) l.favorites={};
   ["project","game","food","area","music","anime","habit","free1","free2","ngTopic","dislikeFood","firstGame","mainWeapon","holiday","bgm","localThing","season","animal","oshi","firstStream","oneLine","teaseLine"].forEach(k=>{ if(typeof l.favorites[k]!=="string") l.favorites[k]=""; });
   if(!Array.isArray(l.topicSeeds)) l.topicSeeds=[];
@@ -3521,14 +3913,779 @@ state.listeners.forEach(l=>{
 let selectedListener=0;
 let selectedGame="animal";
 
-const gameData={
-  animal:{label:"動物",roll:()=>`🐾 ${pick(["猫","犬","ゾウ","牛","キツネ","ハト","ゴリラ","サル","馬","深夜のコンビニ店員"])} × 「${pick(["簡単にできる料理","昔流行ったもの","身につけるもの","虫の名前","冬に使うもの","配信で起きがちなこと"])}」といえば？`},
-  ogiri:{label:"大喜利",roll:()=>`🧠 大喜利：${pick(["身につけるものっぽく一番くだらないことを言って","深夜のコンビニ店員が急に言いそうな一言","猫が配信者だった時の初見挨拶","絶対に盛り上がらないイベント名"] )}`},
-  line:{label:"セリフ",roll:()=>`🎭 セリフ：${pick(["分からない……何も思い出せない……。何で炊けた米が部屋中に塗りたくられてるんだ……！？","それはもう、ほぼ事件じゃん。","ちょっと待って、話の枝が折れた。","いま誰がこの空気の責任取るの？"])}`},
-  itsu:{label:"いつ誰",roll:()=>`🧩 ${pick(["昨日","今日","朝","明日","おととい","去年","昼に","夕方に","夜に","誕生日に"])} ${pick(["お母さんが","酔っ払いが","猫が","常連が","初見さんが","師匠が"])} ${pick(["コンビニで","配信画面の裏で","公園で","居酒屋で","ダーツバーで","風呂場で"])} ${pick(["急に歌い出した","米を炊きすぎた","名言っぽいことを言った","謎のルールを作った","コメント欄を凍らせた"])}`},
-  bob:{label:"ボブ",roll:()=>`📘 ボブジテン：${pick(["アクセル","エンジン","オイル","オートマチック","ガソリン","ガソリンスタンド","カバー","ガレージ","アプローチ","ジュース","ランプ"])} ※カタカナ禁止で説明`},
-  relo:{label:"酒場",roll:()=>`🍻 レロレロ酒場：${pick(["マーボー豆腐","チャンジャ","鮭とば","たこわさ","だし巻きたまご","枝豆","焼きナス","冷やしトマト","もつ鍋","軟骨のから揚げ"])} を噛まずに言える？`}
+
+
+const serifTemplates = {
+  all:[
+    {lv:1,t:[
+      "「ちょっと待って、今の言い方だけもう一回もらっていい？」",
+      "「今の空気、なんか名前つけたくなるな。」",
+      "「その一言で、急にこの場がドラマっぽくなったんだけど。」",
+      "「なんでそんな自然に人の心を揺らしてくるんだよ。」",
+      "「今のはズルい。普通に反応に困るやつ。」",
+      "「その笑い方、ちょっと平和すぎるだろ。」",
+    ]},
+    {lv:2,t:[
+      "「お前さ、そういうことサラッと言うから勘違いされるんだぞ。」",
+      "「今の距離感、友達って言い張るには近すぎるって。」",
+      "「その優しさ、こっちの心に無断で入ってきたぞ。」",
+      "「待て待て、今のはコメント欄より先に俺がざわついた。」",
+      "「そういう顔するなって。こっちはまだ普通の会話してるつもりなんだよ。」",
+      "「今の沈黙、なんか意味ありそうで困るんだけど。」",
+    ]},
+    {lv:3,t:[
+      "「その声のトーン、深夜に聞いたら普通に事故るって。」",
+      "「その距離でその冗談は、こっちの情緒が持たない。」",
+      "「今の空気、詳しく説明すると配信が変な方向行くからやめとく。」",
+      "「お前のその余裕、たぶん人を狂わせるタイプだぞ。」",
+      "「その一言、冗談で流すにはちょっと効きすぎた。」",
+      "「今のはダメだ。笑ってごまかしてるけど、普通に刺さってる。」",
+    ]},
+    {lv:4,t:[
+      "「それ以上は言うな。俺の中のコンプラ担当が立ち上がった。」",
+      "「今の続きは、配信じゃなくて各自の想像に任せます。」",
+      "「その空気、ピー音が靴履いて走ってくるタイプだぞ。」",
+      "「危ない危ない、今ちょっと配信の端っこが揺れた。」",
+      "「これ以上踏み込むと、コメント欄が急に水を飲み始める。」",
+    ]}
+  ],
+  confess:[
+    {lv:1,t:[
+      "「帰り道、もうちょい遠回りしない？」",
+      "「お前と話してる時間、なんか終わるの早いんだよな。」",
+      "「今日、会えて普通に嬉しかった。」",
+      "「また明日も、同じ時間に話せたらいいな。」",
+      "「お前が笑ってると、なんか安心する。」",
+      "「好きって言うには早いかもだけど、気になってるのは本当。」",
+      "「その“またね”が聞きたくて、帰るの遅くしてる。」",
+      "「たぶん俺、お前といる時だけちょっと素直になれる。」",
+    ]},
+    {lv:2,t:[
+      "「正直さ、お前から通知来ると普通にテンション上がる。」",
+      "「友達って言えば楽だけど、それだけじゃ足りなくなってきた。」",
+      "「お前のこと考えてる時間、思ってたより多いんだよ。」",
+      "「冗談っぽく言うけど、ちゃんと好きだよ。」",
+      "「その優しさ、俺だけに向けてくれたらいいのにって思った。」",
+      "「今日の帰り、隣にいるのがお前でよかった。」",
+      "「なんかさ、お前と話す前だけちょっと緊張する。」",
+      "「お前の特別枠、空いてるなら入りたい。」",
+    ]},
+    {lv:3,t:[
+      "「寝る前に思い出す顔が、お前になってるんだよ。」",
+      "「深夜に声聞きたくなる相手って、もうだいぶ特別だろ。」",
+      "「友達のままでいたい気持ちと、もう無理だろって気持ちが喧嘩してる。」",
+      "「お前の何気ない一言で、こっちは一日引きずってる。」",
+      "「好きって言ったら困る？ 困っても、たぶん言うけど。」",
+      "「その距離で笑われると、もう平気なふりできない。」",
+      "「今だけでいいから、俺のことちょっと意識して。」",
+      "「たぶんさ、お前が思ってるより、ずっと好き。」",
+    ]},
+    {lv:4,t:[
+      "「これ以上近くにいられると、好きって言葉だけじゃ足りなくなる。」",
+      "「冗談に逃げたいけど、今のは本気で言ってる。」",
+      "「今ここで言うのズルいけど、誰にも取られたくない。」",
+      "「その目で見られると、配信用の余裕が全部消える。」",
+      "「続きは言わない。言ったらたぶん空気が戻れなくなる。」",
+    ]}
+  ],
+  gal:[
+    {lv:1,t:[
+      "「え待って、今の普通にかわいくない？」",
+      "「それは優勝。異論ある人コメントで戦お？」",
+      "「今の“おつかれ”の言い方、地味に刺さるんだけど。」",
+      "「ガチで？ そういう優しさ自然に出るタイプ？」",
+      "「その笑い方、普通にずるいんだけどｗ」",
+      "「え、今の見た？ ちょっとキュン案件じゃない？」",
+    ]},
+    {lv:2,t:[
+      "「その“別に？”、絶対別にじゃないやつじゃんｗ」",
+      "「無理無理、その余裕は沼。こっち足首まで入った。」",
+      "「そういうとこ自然にやるの、ほんとズルいて。」",
+      "「その返信の速さ、期待させるからやめな？」",
+      "「今の一言、スクショして友達に相談するレベルなんだけど。」",
+      "「かわいいって言われ慣れてない顔するの、逆にかわいいから。」",
+    ]},
+    {lv:3,t:[
+      "「その声のトーン、深夜に聞いたら普通に事故るって。」",
+      "「友達の顔して心拍数だけ上げてくるのやめて？」",
+      "「その距離感なに？ 近いって言ったら負けな空気じゃん。」",
+      "「今の“来る？”はずるい。言い方に罠ある。」",
+      "「え、待って。今のは好きになる側にも責任ない？」",
+      "「その目で“何もしてない”は無理があるんだけど。」",
+    ]},
+    {lv:4,t:[
+      "「それ以上はダメ。ギャルの勘が配信の危険を察知してる。」",
+      "「今の続き、言葉にしたらコメント欄が一回静かになるやつ。」",
+      "「その空気はスタンプで誤魔化すしかないって。」",
+      "「はいストップ。今のは心のモザイク案件です。」",
+    ]}
+  ],
+  yankee:[
+    {lv:1,t:[
+      "「おい、今の笑い方なんだよ。調子狂うだろ。」",
+      "「ったく、そういうとこ嫌いじゃねぇんだよな。」",
+      "「お前さ、無防備で笑うのやめろって。」",
+      "「別に心配してねぇよ。見てただけだ。」",
+      "「その顔で“大丈夫”って言うな。全然大丈夫そうじゃねぇだろ。」",
+      "「隣歩くなら、ちゃんとついてこいよ。」",
+    ]},
+    {lv:2,t:[
+      "「勝手に隣歩いてくんな。勘違いすんだろ。」",
+      "「お前が困ってたら、そりゃ行くだろ。理由いるか？」",
+      "「その余裕、俺の前でだけにしとけよ。」",
+      "「泣きそうな顔すんな。こっちが何も言えなくなる。」",
+      "「お前だけ特別扱い？ うるせぇ、見ればわかんだろ。」",
+      "「強がんな。そういうの、こっちは見抜いてんだよ。」",
+    ]},
+    {lv:3,t:[
+      "「その距離で見上げてくんな。普通に危ねぇだろ。」",
+      "「お前のその一言で、こっちは一日引きずってんだよ。」",
+      "「他のやつに同じ顔すんな。……いや、今のは忘れろ。」",
+      "「今だけ素直に言うわ。お前のこと、けっこう大事に思ってる。」",
+      "「そういう声で名前呼ぶな。マジで調子狂う。」",
+      "「守るとか大げさなこと言わねぇけど、隣にはいる。」",
+    ]},
+    {lv:4,t:[
+      "「これ以上近づくな。俺の理性が単車で逃げる。」",
+      "「その目は反則だろ。配信じゃなかったら空気変わってたぞ。」",
+      "「今の続きは言わせんな。俺でもコンプラくらい知ってる。」",
+      "「おいストップ。今のはピー音の方から寄ってきた。」",
+    ]}
+  ],
+  ikemen:[
+    {lv:1,t:[
+      "「こっち見んなよ。……いや、見ててもいいけど。」",
+      "「その笑い方、今日だけ俺の負けでいい。」",
+      "「大丈夫。守るとかじゃない、隣に立つだけだ。」",
+      "「無理しなくていい。今は俺が聞く番だろ。」",
+      "「お前が笑うなら、今日はそれで勝ちでいい。」",
+      "「その一言、思ったより効いた。」",
+    ]},
+    {lv:2,t:[
+      "「黙って聞けよ。今だけは、俺がちゃんとカッコつける番だ。」",
+      "「近い？ 悪い、気持ちが先に寄った。」",
+      "「お前が頼るなら、俺はたぶん断れない。」",
+      "「その顔されたら、平気なふりする方が難しい。」",
+      "「今日くらいは、俺に甘えとけよ。」",
+      "「その不安、半分くらい俺に寄こせ。」",
+    ]},
+    {lv:3,t:[
+      "「その声で呼ぶなって。俺の余裕、今ちょうど在庫切れ。」",
+      "「今夜だけは、冗談に逃げないで聞いてくれ。」",
+      "「その距離は危ない。俺がカッコつけられなくなる。」",
+      "「お前の前だと、余裕ある男のふりが一番難しい。」",
+      "「今のは忘れなくていい。むしろ覚えてて。」",
+      "「俺のこと試してるなら、たぶんもう負けてる。」",
+    ]},
+    {lv:4,t:[
+      "「それ以上近づくな。配信じゃなかったら空気が変わる。」",
+      "「その目はダメだ。言葉選びが全部ピー音側に倒れる。」",
+      "「今の続きは言わない。言ったら戻れなくなる。」",
+      "「俺の余裕を壊すの、上手すぎるだろ。」",
+    ]}
+  ],
+  kawabo:[
+    {lv:1,t:[
+      "「え、今の言い方ちょっと照れるんだけど。」",
+      "「そんな急に優しくされたら、反応バグるじゃん。」",
+      "「だいじょぶ。強がってるの、ちゃんと見えてるから。」",
+      "「ねぇ、今だけはちゃんとこっち見て？」",
+      "「その一言、今日ずっと思い出すやつなんだけど。」",
+      "「無理しないで。今日はウチが味方でいるから。」",
+    ]},
+    {lv:2,t:[
+      "「そういうとこ自然にやるの、ほんとズルいって。」",
+      "「今の優しさ、勘違いしても怒らないでね？」",
+      "「ねぇ、そういう顔されると普通に困るんだけど。」",
+      "「好きとかじゃないけど……いや、ちょっと待って今のナシ。」",
+      "「その距離で笑うの禁止。こっちが負ける。」",
+      "「今日だけ甘えていい？ ちゃんと今日だけって言ったから。」",
+    ]},
+    {lv:3,t:[
+      "「その声で名前呼ばれると、平気なふりできないんだけど。」",
+      "「ねぇ、今のはズルい。普通に心臓もってかれた。」",
+      "「友達の距離じゃないって言ったら、困る？」",
+      "「その優しさ、他の子にもしてたらちょっと怒るよ？」",
+      "「今だけでいいから、ウチのことちゃんと見て。」",
+      "「冗談っぽく言うけど、ほんとは結構本気だからね。」",
+    ]},
+    {lv:4,t:[
+      "「それ以上近いと、配信用の顔できなくなるから。」",
+      "「今の続きは言えない。言ったらたぶん空気戻らない。」",
+      "「その目はだめ。ウチのコンプラ担当が泣く。」",
+      "「はいストップ。今のは心のモザイク案件です。」",
+    ]}
+  ],
+  host:[
+    {lv:1,t:[
+      "「いらっしゃいませ。今日は笑顔だけ置いて帰ってください。」",
+      "「お姫様、グラスより先にその機嫌を満たしましょう。」",
+      "「その笑顔、今日の売上より大事にしたいですね。」",
+      "「指名じゃなくてもいいです。今だけ、目を見てください。」",
+      "「乾杯の前に、その顔は反則です。」",
+    ]},
+    {lv:2,t:[
+      "「その一言、シャンパンより効きました。」",
+      "「延長ですか？ それとも俺の勘違いだけ置いていきますか？」",
+      "「帰るって言われると、急に店の照明が暗く見えます。」",
+      "「今夜は酔わせません。先に俺が酔いそうなので。」",
+      "「その目、指名料に入ってないんですけど。」",
+    ]},
+    {lv:3,t:[
+      "「今夜だけは、冗談のふりして本音を出してもいいですか？」",
+      "「帰したくないって言ったら、少しは困ってくれます？」",
+      "「その沈黙、会計より重いですよ。」",
+      "「お姫様、今の笑顔はボトルより危険です。」",
+      "「その距離で見つめるの、営業妨害です。」",
+    ]},
+    {lv:4,t:[
+      "「これ以上は店外じゃなくて配信外の話になります。」",
+      "「お姫様、その沈黙は危険です。会計が情緒になります。」",
+      "「今の空気、黒服より先にコンプラが来ます。」",
+      "「その続きは、グラスじゃなくて想像に注ぎます。」",
+    ]}
+  ],
+  cabaret:[
+    {lv:1,t:[
+      "「いらっしゃい。今日はグラスより先に、ちゃんと顔見せて？」",
+      "「その疲れた顔、ウチの席に置いていきな。」",
+      "「指名とか関係なく、今はちゃんと話聞くから。」",
+      "「乾杯する前に、その顔ちょっと反則じゃない？」",
+      "「今日は無理に笑わなくていいよ。ウチが笑わせる番だから。」",
+    ]},
+    {lv:2,t:[
+      "「その一言、シャンパンより効くんだけど。」",
+      "「延長する？ それともウチに寂しい顔させて帰る？」",
+      "「帰るって言われると、急に店の照明まで暗く見えるじゃん。」",
+      "「酔わせるつもり？ 先にウチがその目に酔いそうなんだけど。」",
+      "「その優しさ、指名料に入ってないからズルいよ。」",
+    ]},
+    {lv:3,t:[
+      "「今夜だけは、営業トークじゃなくて本音で聞いてくれる？」",
+      "「帰したくないって言ったら、ちょっとは困ってくれる？」",
+      "「その沈黙、会計より重いんだけど。」",
+      "「今の笑顔、ボトルより危険だからやめて？」",
+      "「その距離で見つめるの、普通に営業妨害なんだけど。」",
+    ]},
+    {lv:4,t:[
+      "「これ以上は店外じゃなくて配信外の空気になるからストップ。」",
+      "「その沈黙は危険。ウチのコンプラ担当が黒服呼びそう。」",
+      "「今の続きは、グラスじゃなくて想像に注ぐね。」",
+      "「その目はだめ。配信用の余裕が全部溶ける。」",
+    ]}
+  ],
+  chuni:[
+    {lv:1,t:[
+      "「貴様、今の一言で物語の扉を開けたな。」",
+      "「我が右目が告げている。これはただの雑談ではない。」",
+      "「その名を呼ぶな。封印が少し揺れる。」",
+      "「月が出たか。ならば、話は変わる。」",
+      "「運命とは、だいたい予告なくコメント欄に現れる。」",
+    ]},
+    {lv:2,t:[
+      "「封印されし感情が、今コメント欄で目覚めようとしている。」",
+      "「月が満ちた。さあ、黒歴史を解放する時間だ。」",
+      "「その微笑み、古の契約書に記されていたぞ。」",
+      "「待て、その優しさは光属性に見せかけた罠だ。」",
+      "「貴様の一言で、俺の中の第二章が始まった。」",
+    ]},
+    {lv:3,t:[
+      "「その誘惑、禁忌の書に載ってるやつだぞ。」",
+      "「待て、理性の結界が薄い。これ以上は深淵が笑う。」",
+      "「その距離は危険だ。封印が人の形を保てない。」",
+      "「今の声、闇の王でも少し照れるぞ。」",
+      "「冗談に聞こえるか？ これは呪いではなく本音だ。」",
+    ]},
+    {lv:4,t:[
+      "「これ以上踏み込めば、我らはピー音の領域へ堕ちる。」",
+      "「禁断の扉に手をかけるな。配信が闇落ちする。」",
+      "「その続きを言えば、世界線ごと年齢確認が必要になる。」",
+      "「深淵がこちらを見ている。いったんCMに逃げろ。」",
+    ]}
+  ],
+  kimo:[
+    {lv:1,t:[
+      "「ごめん、今のリアクションだけ冷凍保存していい？」",
+      "「その優しさ、俺の心に勝手に入居してきたんだけど。」",
+      "「今の笑顔、脳内で勝手にサムネ化された。」",
+      "「その一言、日記に書いたら自分で引くかもしれない。」",
+      "「待って、今の空気だけ瓶に詰めたい。」",
+    ]},
+    {lv:2,t:[
+      "「お前のその一言、脳内で勝手にリピート再生されてる。」",
+      "「今の“ん？”だけで、こっちの理性が体育座りしてる。」",
+      "「その返信、既読つける前に三回見た。」",
+      "「やばい、今の褒め方がキモくなりそうだから一回黙る。」",
+      "「その距離感、気まずいのにクセになるからやめろ。」",
+    ]},
+    {lv:3,t:[
+      "「その沈黙、何も言ってないのに情報量多すぎる。」",
+      "「今のは良くない。こっちの妄想が勝手に靴履いた。」",
+      "「その声で名前呼ばれると、情緒がログアウトする。」",
+      "「気持ち悪いこと言いそうだから、先に謝っとく。今の好き。」",
+      "「その近さ、心の防犯ブザーが小さく鳴ってる。」",
+    ]},
+    {lv:4,t:[
+      "「これはまずい。気持ち悪い方向に褒めそうだから一回水飲む。」",
+      "「今のは言語化した瞬間アウト寄りになる。察してくれ。」",
+      "「危ない。今の感想、配信に載せるには粘度が高い。」",
+      "「その空気、俺の中の変な部分が拍手し始めた。」",
+    ]}
+  ],
+  streamer:[
+    {lv:1,t:[
+      "「初見さん、今のは通常運転です。たぶん。」",
+      "「コメント欄、今の一言に名前つけてくれ。」",
+      "「今の反応、切り抜くほどじゃないけど地味に好き。」",
+      "「待って、配信者なのにこっちがコメント待ちになった。」",
+      "「この空気、誰かタイムスタンプ押しといて。」",
+    ]},
+    {lv:2,t:[
+      "「切り抜き班、今のはサムネにするな。するなら盛れ。」",
+      "「今の流れ、配信者としてはおいしいけど人間としては不安。」",
+      "「コメント止まった？ じゃあ今の勝ちでいいな。」",
+      "「今の発言、あとで自分で見返して恥ずかしくなるやつだ。」",
+      "「待て、チャット欄がニヤついてるの見えるぞ。」",
+    ]},
+    {lv:3,t:[
+      "「ちょっと待て、この空気はクリップに残すには濃すぎる。」",
+      "「今の発言、配信の端っこでコンプラが震えてる。」",
+      "「リスナー、今のは聞かなかったことにしてもろて。」",
+      "「この距離感の話を配信でやるな。俺が負ける。」",
+      "「今のコメント、読み上げたら枠の方向性変わるぞ。」",
+    ]},
+    {lv:4,t:[
+      "「ストップ。今のはコメント欄も一回水飲め。」",
+      "「この先は配信ではなく、各自の想像力に委託します。」",
+      "「運営さん、今のは雰囲気です。単なる雰囲気です。」",
+      "「危ない、今ちょっとBAN回避の反復横跳びしてた。」",
+    ]}
+  ],
+  meme:[
+    {lv:1,t:[
+      "「それもうログボじゃん。毎日ちょっと嬉しいやつ。」",
+      "「完全に伏線回収。誰も覚えてないタイプの。」",
+      "「今のは草じゃ足りない。鉢植えから始めよう。」",
+      "「それはもう概念。物じゃなくて概念。」",
+      "「一旦スクショして、未来の自分に投げよう。」",
+    ]},
+    {lv:2,t:[
+      "「ワンチャンある顔すんな。こっちの脳が勝手に会議始める。」",
+      "「今のは草じゃ足りない。森を申請する。」",
+      "「その一言、脳内で勝手にMAD化された。」",
+      "「待って、今のは名言っぽい顔した迷言だろ。」",
+      "「それ言われた側、感情のアップデート入るぞ。」",
+    ]},
+    {lv:3,t:[
+      "「その言い方、脳内で勝手にセンシティブ判定されてる。」",
+      "「待って、今のは概念が服着てギリ歩いてる。」",
+      "「その空気、令和のコンプラが一瞬こっち見た。」",
+      "「今のはネタに見せかけた本音の擬態だろ。」",
+      "「その距離感、コメント欄が勝手に考察始めるやつ。」",
+    ]},
+    {lv:4,t:[
+      "「それはもうピー音の公式アンバサダーなんよ。」",
+      "「今の流れ、アルゴリズムが目をそらしたぞ。」",
+      "「その発言、サムネにしたら黄色いマークつくぞ。」",
+      "「危ない。今のは草じゃなくて警告灯が生えた。」",
+    ]}
+  ],
+  wasei:[
+    {lv:1,t:[
+      "「そのフィーリング、かなりグッドコンディションです。」",
+      "「一旦アジェンダに載せる？ 感情の会議だけど。」",
+      "「今のリアクション、ベリーグッドなレスポンスでした。」",
+      "「その空気、ナイスコミュニケーションすぎる。」",
+      "「この流れ、わりとハッピーエンド寄りです。」",
+    ]},
+    {lv:2,t:[
+      "「君のリアクション、エビデンス無しで説得力あるのズルい。」",
+      "「その距離感、コンセンサス取れてないのに進行してます。」",
+      "「今の優しさ、ノーアポで心にアサインされました。」",
+      "「その笑顔、感情のKPIを達成してます。」",
+      "「一旦リスケしていい？ 心の準備がペンディングなんで。」",
+    ]},
+    {lv:3,t:[
+      "「感情のバッファが足りない。今のは一旦ペンディングで。」",
+      "「そのアプローチ、コンプラ的にはセーフだけど心がアウト寄り。」",
+      "「今の距離感、事前共有なしでローンチされて困ってます。」",
+      "「その一言、心のタスク管理に勝手に追加されました。」",
+      "「この空気、議事録に残すにはちょっと濃いです。」",
+    ]},
+    {lv:4,t:[
+      "「これ以上はオーソライズ不可です。各自、察しでお願いします。」",
+      "「そのスキーム、配信上はフィックスできません。」",
+      "「今の続きは、社内規定ではなく心の規定に引っかかります。」",
+      "「危ない。感情のリスクヘッジが間に合ってません。」",
+    ]}
+  ],
+  ossan:[
+    {lv:1,t:[
+      "「おいおい、今のは茶が進むやつだな。」",
+      "「昔ならそのノリ、町内会で表彰されてたぞ。」",
+      "「その一言、味噌汁くらい落ち着くな。」",
+      "「今の空気、縁側で聞きたいわ。」",
+      "「いいねぇ。そういう素直さ、嫌いじゃないよ。」",
+    ]},
+    {lv:2,t:[
+      "「その言い方、昭和なら近所のおばちゃんが二度見してる。」",
+      "「嫌いじゃないぞ。むしろ畳の上で聞きたい。」",
+      "「おじさん今の一言で、ちょっと若返ったかもしれん。」",
+      "「その距離感、居酒屋なら大将がニヤつくやつだ。」",
+      "「今のは反則だな。焼き鳥ならタレ多めだ。」",
+    ]},
+    {lv:3,t:[
+      "「ちょっと待て。その空気は居酒屋の奥座敷でやるやつだ。」",
+      "「今のは若い子のノリに見せかけた、だいぶ危ない橋だぞ。」",
+      "「その沈黙、暖簾の向こうでやるやつだな。」",
+      "「おじさんでも分かる。今のはちょっと色っぽい。」",
+      "「その一言、二軒目に持ち込むには強すぎる。」",
+    ]},
+    {lv:4,t:[
+      "「それ以上はおじさんでも咳払いで止めるぞ。」",
+      "「今の話は暖簾の向こうに置いてこい。」",
+      "「危ない危ない、急に大人の時間割になったぞ。」",
+      "「この先はお茶割りじゃ薄まらん空気だな。」",
+    ]}
+  ]
 };
+
+const serifFixedLines = [
+  {level:1,genre:["confess"],target:"common",text:"「帰り道、あと一駅だけ遠回りしない？」"},
+  {level:2,genre:["confess"],target:"common",text:"「お前の“またね”が、最近ちょっと待ち遠しい。」"},
+  {level:3,genre:["confess"],target:"common",text:"「好きって言ったら困る？ でも、言わない方がもっと困ってる。」"},
+  {level:4,genre:["confess"],target:"common",text:"「今だけでいい。俺のこと、少しだけ特別に見て。」"},
+  {level:2,genre:["gal","confess"],target:"female",text:"「ねぇ、ウチだけ特別扱いしてよ。冗談っぽく言うけどさ。」"},
+  {level:3,genre:["yankee","confess"],target:"male",text:"「お前だけは、他の奴と違ぇんだよ。……言わせんな。」"},
+  {level:3,genre:["cabaret","confess"],target:"female",text:"「ねぇ、今夜だけは営業じゃなくて本音で聞いてくれる？」"},
+  {level:3,genre:["ikemen","confess"],target:"common",text:"「お前の隣、俺が一番似合うって言ったら笑う？」"},
+  {level:4,genre:["kimo"],target:"common",text:"「今のは危ない。褒め方を間違えると、俺の人間性が疑われる。」"},
+  {level:3,genre:["streamer"],target:"common",text:"「この空気、切り抜きにされたら一週間くらい言い訳するやつだ。」"}
+];
+
+const serifTargetWords = {
+  common:["お前","君","その人","今の空気","コメント欄"],
+  male:["兄貴","お前","その男前ムーブ","そのドヤ顔","その謎の余裕"],
+  female:["お姫様","君","そのあざとさ","その“別に？”","その余裕"]
+};
+const serifVoices = {normal:"",whisper:"【囁きで】",ikemen:"【イケボで】",yankee:"【ヤンキー風で】",anime:"【アニメ主人公で】",old:"【老人風で】",robot:"【ロボ口調で】"};
+const serifGenreLabels={all:"全部混ぜ",confess:"告白・罰ゲーム",ikemen:"イケボ",kawabo:"カワボ",kimo:"キモおもろ",chuni:"中二病",gal:"ギャル",yankee:"ヤンキー",host:"ホスト",cabaret:"キャバ嬢",streamer:"配信者",meme:"ネットミーム",wasei:"和製英語地獄",ossan:"おっさん"};
+function getSerifVisibleTarget(){ return (document.getElementById("serifTarget")||{}).value || "common"; }
+function updateSerifDynamicLabels(){
+  const target=getSerifVisibleTarget();
+  const isFemale=target==="female";
+  const genreSel=document.getElementById("serifGenre");
+  const voiceSel=document.getElementById("serifVoice");
+  if(genreSel){
+    const ikemenOpt=genreSel.querySelector('option[value="ikemen"]');
+    const yankeeOpt=genreSel.querySelector('option[value="yankee"]');
+    const galOpt=genreSel.querySelector('option[value="gal"]');
+    const hostOpt=genreSel.querySelector('option[value="host"]');
+    if(ikemenOpt) ikemenOpt.textContent=isFemale?"カワボ":"イケボ";
+    if(yankeeOpt) yankeeOpt.textContent=isFemale?"ギャル":"ヤンキー";
+    if(galOpt) galOpt.textContent=isFemale?"あざとギャル":"ギャル";
+    if(hostOpt) hostOpt.textContent=isFemale?"キャバ嬢":"ホスト";
+  }
+  if(voiceSel){
+    const ikemenVoice=voiceSel.querySelector('option[value="ikemen"]');
+    const yankeeVoice=voiceSel.querySelector('option[value="yankee"]');
+    if(ikemenVoice) ikemenVoice.textContent=isFemale?"カワボ":"イケボ";
+    if(yankeeVoice) yankeeVoice.textContent=isFemale?"ギャル風":"ヤンキー";
+  }
+}
+function getSerifVoicePrefix(voice,target){
+  if(target==="female" && voice==="ikemen") return "【カワボで】";
+  if(target==="female" && voice==="yankee") return "【ギャル風で】";
+  return serifVoices[voice] || "";
+}
+function getSerifGenreLabel(genre,target){
+  if(target==="female" && genre==="ikemen") return "カワボ";
+  if(target==="female" && genre==="yankee") return "ギャル";
+  if(target==="female" && genre==="gal") return "あざとギャル";
+  if(target==="female" && genre==="host") return "キャバ嬢";
+  if(target==="female" && genre==="cabaret") return "キャバ嬢";
+  return serifGenreLabels[genre] || genre;
+}
+let serifRecentLines=[];
+function serifPick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function getSerifSettings(){
+  updateSerifDynamicLabels();
+  const rawGenre=(document.getElementById("serifGenre")||{}).value || "all";
+  let target=(document.getElementById("serifTarget")||{}).value || "common";
+  if(target==="random") target=serifPick(["common","male","female"]);
+  let genre=rawGenre;
+  if(target==="female" && rawGenre==="ikemen") genre="kawabo";
+  if(target==="female" && rawGenre==="yankee") genre="gal";
+  if(target==="female" && rawGenre==="host") genre="cabaret";
+  const level=Number((document.getElementById("serifLevel")||{}).value || 3);
+  const includeLower=((document.getElementById("serifIncludeLower")||{}).value || "yes")==="yes";
+  let voice=(document.getElementById("serifVoice")||{}).value || "random";
+  if(voice==="random") voice=serifPick(["normal","whisper","ikemen","yankee","anime","old","robot"]);
+  const guard=((document.getElementById("serifGuard")||{}).value || "normal");
+  return {genre,rawGenre,target,level,includeLower,voice,guard};
+}
+function serifLevelOk(itemLv, set){ return set.includeLower ? itemLv <= set.level : itemLv === set.level; }
+function fillSerifTemplate(tpl,set){
+  const targetWord = serifPick(serifTargetWords[set.target] || serifTargetWords.common);
+  let line = tpl.replaceAll("{target}", targetWord);
+  if(set.target==="male") line = line.replace(/君/g,"お前").replace(/お姫様/g,"兄貴").replace(/かわいい/g,"かっこいい");
+  if(set.target==="female") line = line.replace(/兄貴/g,"お姫様").replace(/そのドヤ顔/g,"その余裕");
+  if(set.guard==="strong"){
+    line = line.replace(/BAN/g,"配信").replace(/ピー音/g,"カット音").replace(/センシティブ/g,"大人向け").replace(/アウト寄り/g,"攻め気味").replace(/色っぽい/g,"雰囲気ある");
+  }
+  return line;
+}
+function rememberSerifLine(text){
+  serifRecentLines.unshift(text);
+  serifRecentLines=[...new Set(serifRecentLines)].slice(0,24);
+}
+function avoidRecent(candidates){
+  const fresh=candidates.filter(x=>!serifRecentLines.includes(x));
+  return fresh.length?fresh:candidates;
+}
+function generateSerifLine(set){
+  let genrePool = set.genre==="all" ? Object.keys(serifTemplates).filter(x=>x!=="all") : [set.genre];
+  genrePool=genrePool.filter(x=>serifTemplates[x]);
+  if(!genrePool.length) genrePool=["all"];
+  const g = serifPick(genrePool);
+  const packs = (serifTemplates[g] || serifTemplates.all).filter(pack=>serifLevelOk(pack.lv,set));
+  const fallback = (serifTemplates.all || []).filter(pack=>serifLevelOk(pack.lv,set));
+  const usable = packs.length ? packs : fallback;
+  const candidates = usable.flatMap(pack=>pack.t).map(t=>fillSerifTemplate(t,set));
+  return serifPick(avoidRecent(candidates));
+}
+function rollSerifGame(){
+  const set=getSerifSettings();
+  const fixed=serifFixedLines.filter(x=>serifLevelOk(x.level,set) && (set.genre==="all" || x.genre.includes(set.genre)) && (x.target==="common" || x.target===set.target));
+  const fixedTexts=fixed.map(x=>x.text);
+  let text = (fixedTexts.length && Math.random()<0.28) ? serifPick(avoidRecent(fixedTexts)) : generateSerifLine(set);
+  rememberSerifLine(text);
+  const prefix = getSerifVoicePrefix(set.voice,set.target);
+  const out = prefix ? `${prefix}\n${text}` : text;
+  const prev=document.getElementById("serifPreview");
+  if(prev) prev.textContent=out;
+  const meta=document.getElementById("serifMeta");
+  const targetLabel={common:"共通",male:"男向け",female:"女向け",random:"ランダム"}[set.target]||set.target;
+  if(meta) meta.textContent=`Lv${set.level}${set.includeLower?"以下":"のみ"} / ${targetLabel} / ${getSerifGenreLabel(set.rawGenre||set.genre,set.target)} / BANガード:${set.guard==="strong"?"強":"標準"}`;
+}
+(function initSerifDynamicLabelEvents(){
+  const target=document.getElementById("serifTarget");
+  if(target) target.addEventListener("change", updateSerifDynamicLabels);
+  updateSerifDynamicLabels();
+})();
+
+
+const PRIVATE_ANIMAL_KEY = "streamStaff.privateAnimals.v1";
+function safeHtml(v){return String(v??"").replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));}
+function loadPrivateAnimals(){
+  try{ const arr=JSON.parse(localStorage.getItem(PRIVATE_ANIMAL_KEY)||"[]"); return Array.isArray(arr)?arr:[]; }catch(e){ return []; }
+}
+function savePrivateAnimals(arr){ localStorage.setItem(PRIVATE_ANIMAL_KEY, JSON.stringify(arr||[])); }
+let privateAnimalData = loadPrivateAnimals();
+
+const animalImageQuery = {
+  "猫":"cat", "犬":"dog", "キツネ":"fox", "うさぎ":"rabbit", "パンダ":"giant-panda", "ゴリラ":"gorilla", "ペンギン":"penguin", "ライオン":"lion", "牛":"cow", "鳥":"bird", "カエル":"frog", "ブタ":"pig", "サル":"monkey", "馬":"horse", "ハムスター":"hamster", "オオカミ":"wolf", "カピバラ":"capybara", "レッサーパンダ":"red-panda", "シマエナガ":"long-tailed-tit", "フェネック":"fennec-fox", "スナネコ":"sand-cat", "ラッコ":"sea-otter", "ナマケモノ":"sloth", "ハシビロコウ":"shoebill", "マヌルネコ":"pallas-cat", "ウォンバット":"wombat", "ミーアキャット":"meerkat", "アライグマ":"raccoon", "カワウソ":"otter", "シャチ":"orca", "オカピ":"okapi", "クアッカワラビー":"quokka", "ハダカデバネズミ":"naked-mole-rat", "アイアイ":"aye-aye", "ヤブイヌ":"bush-dog", "ビントロング":"binturong", "コビトカバ":"pygmy-hippo", "センザンコウ":"pangolin", "カモノハシ":"platypus", "ハリモグラ":"echidna", "タスマニアデビル":"tasmanian-devil", "カカポ":"kakapo", "メンダコ":"octopus", "ダイオウグソクムシ":"isopod", "チンアナゴ":"garden-eel", "クリオネ":"sea-angel", "ウーパールーパー":"axolotl", "ラーテル":"honey-badger", "テンレック":"tenrec", "ピラルク":"arapaima", "深夜のコンビニ店員":"convenience-store-worker"
+};
+function hashCode(str){let h=0; for(let i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i); h|=0;} return Math.abs(h);}
+function defaultAnimalImageUrl(name){
+  const q=animalImageQuery[name] || String(name||'animal').toLowerCase();
+  // 内蔵サムネは使わず、初期状態からURL画像を持たせる方式。
+  // lockで同じ動物はなるべく同じ画像になるように固定。
+  return `https://loremflickr.com/640/640/${encodeURIComponent(q)},animal?lock=${(hashCode(name||q)%997)+1}`;
+}
+function animalImageUrl(a){
+  if(a && a.imageData) return a.imageData;      // 手元画像を登録した場合
+  if(a && a.imageUrl) return a.imageUrl;        // URL登録方式
+  if(a && a.image) return a.image;              // 旧データ互換
+  return defaultAnimalImageUrl(a?.name||'animal');
+}
+const builtInAnimalData = [
+  {name:"猫",emoji:"🐱",diff:"easy",suffix:"にゃ",hint:"自由気まま。人の作業を邪魔しがち。",tags:["かわいい","気まぐれ","身近"]},
+  {name:"犬",emoji:"🐶",diff:"easy",suffix:"ワン",hint:"忠実で元気。散歩という言葉に弱い。",tags:["元気","忠犬","身近"]},
+  {name:"キツネ",emoji:"🦊",diff:"easy",suffix:"コン",hint:"賢くて少しあざとい。油揚げイメージ。",tags:["ずる賢い","あざとい"]},
+  {name:"うさぎ",emoji:"🐰",diff:"easy",suffix:"ぴょん",hint:"寂しがりっぽく見える。跳ねてごまかせる。",tags:["かわいい","寂しがり"]},
+  {name:"パンダ",emoji:"🐼",diff:"easy",suffix:"パン",hint:"笹と寝転び。かわいいの暴力。",tags:["のんびり","笹"]},
+  {name:"ゴリラ",emoji:"🦍",diff:"easy",suffix:"ウホ",hint:"強い・優しい・胸を叩く。",tags:["筋肉","兄貴","圧"]},
+  {name:"ペンギン",emoji:"🐧",diff:"easy",suffix:"ペン",hint:"よちよち歩き。集団行動が得意。",tags:["かわいい","寒い"]},
+  {name:"ライオン",emoji:"🦁",diff:"easy",suffix:"ガオ",hint:"王者感。寝てる時間も長い。",tags:["王者","威厳"]},
+  {name:"牛",emoji:"🐮",diff:"easy",suffix:"モ〜",hint:"のんびり。牧場とミルク。",tags:["のんびり","牧場"]},
+  {name:"鳥",emoji:"🐤",diff:"easy",suffix:"ピヨ",hint:"軽いノリで飛べる。歌もいける。",tags:["自由","歌"]},
+  {name:"カエル",emoji:"🐸",diff:"easy",suffix:"ケロ",hint:"雨の日とジャンプ。湿度に強い。",tags:["雨","ジャンプ"]},
+  {name:"ブタ",emoji:"🐷",diff:"easy",suffix:"ブー",hint:"食べる・寝る・正直。",tags:["食いしん坊","正直"]},
+  {name:"サル",emoji:"🐵",diff:"easy",suffix:"ウキ",hint:"いたずら好き。テンション高め。",tags:["いたずら","陽キャ"]},
+  {name:"馬",emoji:"🐴",diff:"easy",suffix:"ヒヒン",hint:"走るのが得意。爽やかに逃げられる。",tags:["速い","爽やか"]},
+  {name:"ハムスター",emoji:"🐹",diff:"easy",suffix:"チュ",hint:"ほっぺに溜める。回し車で忙しい。",tags:["小さい","かわいい"]},
+  {name:"オオカミ",emoji:"🐺",diff:"normal",suffix:"ガル",hint:"群れと孤高の両方でいける。夜が似合う。",tags:["クール","夜"]},
+  {name:"カピバラ",emoji:"🦫",diff:"normal",suffix:"バラ",hint:"温泉とのんびり。怒らなそう。",tags:["温泉","平和"]},
+  {name:"レッサーパンダ",emoji:"🐾",diff:"normal",suffix:"パンダ",hint:"立つと強い。見た目で勝てる。",tags:["かわいい","威嚇"]},
+  {name:"シマエナガ",emoji:"🐦",diff:"normal",suffix:"チュン",hint:"雪の妖精っぽい丸い鳥。",tags:["かわいい","白い"]},
+  {name:"フェネック",emoji:"🦊",diff:"normal",suffix:"フェネ",hint:"大きな耳が特徴。砂漠のかわいい枠。",tags:["耳","かわいい"]},
+  {name:"スナネコ",emoji:"🐱",diff:"normal",suffix:"にゃ",hint:"砂漠の天使。小さくて強気。",tags:["砂漠","かわいい"]},
+  {name:"ラッコ",emoji:"🦦",diff:"normal",suffix:"ラコ",hint:"貝を割る。手をつないで寝る。",tags:["海","かわいい"]},
+  {name:"ナマケモノ",emoji:"🦥",diff:"normal",suffix:"のん",hint:"とにかくゆっくり。急かされるのが苦手。",tags:["遅い","省エネ"]},
+  {name:"ハシビロコウ",emoji:"🦤",diff:"normal",suffix:"ビロ",hint:"動かない鳥。目力がすごい。",tags:["無言","圧"]},
+  {name:"マヌルネコ",emoji:"🐱",diff:"normal",suffix:"マヌ",hint:"もふもふで表情が渋い。",tags:["もふもふ","渋い"]},
+  {name:"ウォンバット",emoji:"🐻",diff:"normal",suffix:"バット",hint:"ずんぐり。お尻が硬いことで有名。",tags:["丸い","防御"]},
+  {name:"ミーアキャット",emoji:"🐾",diff:"normal",suffix:"ミャ",hint:"立って見張る。家族感が強い。",tags:["見張り","集団"]},
+  {name:"アライグマ",emoji:"🦝",diff:"normal",suffix:"ラス",hint:"手先が器用。洗ってるイメージ。",tags:["器用","いたずら"]},
+  {name:"カワウソ",emoji:"🦦",diff:"normal",suffix:"うそ",hint:"遊び好き。手を使うのがかわいい。",tags:["水辺","遊び"]},
+  {name:"シャチ",emoji:"🐋",diff:"normal",suffix:"シャチ",hint:"海のギャング。賢くて強い。",tags:["強い","海"]},
+  {name:"オカピ",emoji:"🦓",diff:"hard",suffix:"オカ",hint:"シマウマっぽい脚だけどキリンの仲間。",tags:["珍獣","しましま"]},
+  {name:"クアッカワラビー",emoji:"🦘",diff:"hard",suffix:"ッカ",hint:"笑ってるように見える幸せそうな動物。",tags:["笑顔","珍獣"]},
+  {name:"ハダカデバネズミ",emoji:"🐭",diff:"hard",suffix:"デバ",hint:"裸っぽい見た目の地中生活者。クセが強い。",tags:["地中","クセ強"]},
+  {name:"アイアイ",emoji:"🐒",diff:"hard",suffix:"アイ",hint:"細長い指で木を探る夜行性の霊長類。",tags:["夜行性","指"]},
+  {name:"ヤブイヌ",emoji:"🐕",diff:"hard",suffix:"ヤブ",hint:"ずんぐりした野生の犬。群れで動く。",tags:["群れ","野生"]},
+  {name:"ビントロング",emoji:"🐾",diff:"hard",suffix:"ビン",hint:"ポップコーンみたいな匂いと言われる動物。",tags:["匂い","珍獣"]},
+  {name:"コビトカバ",emoji:"🦛",diff:"hard",suffix:"カバ",hint:"小さいカバ。かわいいけどカバ。",tags:["小型","水辺"]},
+  {name:"センザンコウ",emoji:"🐾",diff:"hard",suffix:"ザン",hint:"うろこで丸まる。防御力高め。",tags:["うろこ","防御"]},
+  {name:"カモノハシ",emoji:"🦆",diff:"hard",suffix:"カモ",hint:"くちばし・卵・毒爪。属性盛りすぎ。",tags:["謎","水辺"]},
+  {name:"ハリモグラ",emoji:"🦔",diff:"hard",suffix:"チク",hint:"針がある卵を産む哺乳類。",tags:["針","珍獣"]},
+  {name:"タスマニアデビル",emoji:"😈",diff:"hard",suffix:"デビ",hint:"名前が強い。鳴き声も迫力。",tags:["名前強い","野生"]},
+  {name:"カカポ",emoji:"🦜",diff:"hard",suffix:"カポ",hint:"飛べないオウム。丸くてかわいい。",tags:["鳥","飛べない"]},
+  {name:"メンダコ",emoji:"🐙",diff:"hard",suffix:"メン",hint:"深海のゆるいタコ。見た目が癒し。",tags:["深海","ゆるい"]},
+  {name:"ダイオウグソクムシ",emoji:"🪲",diff:"hard",suffix:"グソ",hint:"深海の巨大ダンゴムシみたいなやつ。",tags:["深海","装甲"]},
+  {name:"チンアナゴ",emoji:"🐍",diff:"hard",suffix:"チン",hint:"砂からにょきっと出る海の人気者。",tags:["水族館","にょき"]},
+  {name:"クリオネ",emoji:"🪽",diff:"hard",suffix:"クリ",hint:"流氷の天使。食事シーンは別物。",tags:["透明","天使"]},
+  {name:"ウーパールーパー",emoji:"🦎",diff:"hard",suffix:"パー",hint:"ゆるい顔の両生類。再生能力の印象。",tags:["ゆる顔","水槽"]},
+  {name:"ラーテル",emoji:"🦡",diff:"hard",suffix:"テル",hint:"怖いもの知らずでめちゃくちゃ強気。",tags:["強気","無敵感"]},
+  {name:"テンレック",emoji:"🦔",diff:"hard",suffix:"チク",hint:"ハリネズミっぽいけど別の謎かわ生物。",tags:["謎","夜行性"]},
+  {name:"ピラルク",emoji:"🐟",diff:"hard",suffix:"ルク",hint:"巨大な淡水魚。古代魚っぽい迫力。",tags:["巨大","魚"]},
+  {name:"深夜のコンビニ店員",emoji:"🏪",diff:"chaos",suffix:"です",hint:"動物ではない。だが配信では動物扱いでよい。",tags:["人類","カオス"]}
+].map(a=>({...a, imageUrl: defaultAnimalImageUrl(a.name), source:"builtIn"}));
+function getAllAnimalData(){ return [...builtInAnimalData, ...privateAnimalData.map(a=>({...a, source:"private"}))]; }
+function getAnimalSourceMode(){ return document.getElementById('animalSourceMode')?.value || 'all'; }
+function getSourceAnimalData(){
+  const m=getAnimalSourceMode();
+  if(m==='builtIn') return builtInAnimalData;
+  if(m==='private') return privateAnimalData.map(a=>({...a, source:'private'}));
+  return getAllAnimalData();
+}
+const animalData = getAllAnimalData;
+const animalQuestions = {
+  self:["最近ハマってることは？","休日は何してる？","朝起きて最初にすることは？","好きな食べ物は？","苦手なことは？","テンションが上がる瞬間は？","今一番ほしいものは？","自分のチャームポイントは？","最近ちょっとムカついたことは？","寝る前のルーティンは？"],
+  stream:["初見さんに一言どうぞ","コメントが止まった時どうする？","配信で滑った時どうする？","高評価をお願いしてください","今日の配信タイトルをつけるなら？","常連さんに甘えてください","BAN回避しながら謝ってください","枠を締める一言をどうぞ","リスナーにお願いするとしたら？","急にスパチャが来た時の反応は？"],
+  love:["好きなタイプは？","告白するなら何て言う？","デートに誘うなら？","嫉妬した時どうする？","好きな人から返信が来ない時どうする？","キュンとする瞬間は？","フラれた時の一言は？","好きバレした時どうごまかす？","初デートで行きたい場所は？","相手を褒めるなら？"],
+  daily:["寝坊した時どうする？","コンビニでつい買うものは？","雨の日の過ごし方は？","お腹が空いた時の第一声は？","怒られた時どうする？","宝くじが当たったら？","カラオケで歌うなら？","仕事でミスした時の言い訳は？","旅行先で最初にすることは？","一番落ち着く場所は？"],
+  chaos:["世界征服するなら最初に何する？","魔王に会ったら何て言う？","急に人間になったら何する？","自分の必殺技名は？","ラスボス前に一言どうぞ","コメント欄をざわつかせる一言は？","謎の会見を開いてください","人生最大の秘密を匂わせてください","宇宙人に自己紹介してください","この世で一番許せないものは？"]
+};
+const animalExamples = {
+  simple:["自分のことを答えて語尾だけ足せばOK。例：テレビゲームにゃ〜","困ったら短く答えるだけでOK。例：寝ることワン！"],
+  role:["動物っぽい理由を少し混ぜる。例：暖かい場所で寝ることにゃ","性格を乗せると強い。例：散歩って聞いたら全部忘れるワン"],
+  gachi:["習性や見た目まで寄せる。例：人間の作業場に乗って邪魔するにゃ","知らなければ想像で押し切る。例：たぶん夜にこっそり動くチク…"],
+  nohint:["ヒントなし。名前の響きだけで想像して答える地獄モードｗ"]
+};
+function animalDiffRank(d){return {easy:1,normal:2,hard:3,chaos:4}[d]||2;}
+function getAnimalPool(){
+  const d=document.getElementById('animalDifficulty')?.value||'normal';
+  const base=getSourceAnimalData();
+  if(d==='easy') return base.filter(a=>a.diff==='easy');
+  if(d==='normal') return base.filter(a=>animalDiffRank(a.diff)<=2);
+  if(d==='hard') return base.filter(a=>a.diff==='hard');
+  return base;
+}
+function getAnimalQuestion(){
+  const cat=document.getElementById('animalQuestionCategory')?.value||'random';
+  const keys=Object.keys(animalQuestions);
+  const k=cat==='random'?pick(keys):cat;
+  return pick(animalQuestions[k]||animalQuestions.self);
+}
+function renderAnimalCard(a,q){
+  const mode=document.getElementById('animalImageMode')?.value||'real';
+  const play=document.getElementById('animalPlayMode')?.value||'role';
+  const v=document.getElementById('animalVisual');
+  if(v){
+    v.classList.toggle('silhouette',mode==='silhouette');
+    v.classList.toggle('name-only',mode==='name');
+    if(mode==='name'){
+      v.textContent='？';
+    }else if(mode==='emoji'){
+      v.innerHTML=`<span class="animal-fallback">${a.emoji||'🐾'}</span>`;
+    }else{
+      const fallback=(a.emoji||'🐾').replace(/</g,'');
+      v.innerHTML=`<img src="${animalImageUrl(a)}" alt="${a.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.innerHTML='<span class=&quot;animal-fallback&quot;>${fallback}</span>'">`;
+    }
+  }
+  const photoNote=document.getElementById('animalPhotoNote');
+  if(photoNote) photoNote.textContent=(mode==='real'||mode==='silhouette')?'URL画像表示ON：読み込み失敗時だけ絵文字に退避':(mode==='emoji'?'絵文字表示中：画像を使わない時向け':'名前のみ：想像力だけで勝負ｗ');
+  const n=document.getElementById('animalName'); if(n) n.textContent=a.name;
+  const tags=document.getElementById('animalTags'); if(tags) tags.innerHTML=[a.diff,`語尾：${a.suffix}`,(a.source==='private'?'プライベート':'内蔵'),...(a.tags||[])].map(x=>`<span>${safeHtml(x)}</span>`).join('');
+  const hint=document.getElementById('animalHint'); if(hint) hint.textContent=(play==='nohint'||mode==='name')?'ヒント：非表示。名前だけで想像して答えろｗ':`ヒント：${a.hint}`;
+  const ques=document.getElementById('animalQuestion'); if(ques) ques.textContent=q;
+  const guide=document.getElementById('animalGuide'); if(guide) guide.textContent=pick(animalExamples[play]||animalExamples.role)+` / 推奨語尾：${a.suffix}`;
+}
+function rollAnimalGame(){
+  const pool=getAnimalPool();
+  const all=getAllAnimalData(); const a=pick(pool.length?pool:all);
+  renderAnimalCard(a,getAnimalQuestion());
+}
+function searchAnimalData(showAll=false){
+  const box=document.getElementById('animalSearch');
+  const out=document.getElementById('animalSearchResults');
+  if(!out) return;
+  const q=(box?.value||'').trim().toLowerCase();
+  let arr=getSourceAnimalData();
+  if(!showAll && q){
+    arr=arr.filter(a=>[a.name,a.suffix,a.hint,a.source==='private'?'プライベート':'内蔵',...(a.tags||[])].join(' ').toLowerCase().includes(q));
+  }
+  if(!showAll && !q){out.innerHTML='<div class="animal-small">動物名・語尾・特徴で検索してね。例：にゃ / コン / かわいい / 深海 / プライベート</div>';return;}
+  window.__animalSearchCache = arr.slice(0,80);
+  out.innerHTML=window.__animalSearchCache.map((a,i)=>{ const img=animalImageUrl(a); const fb=safeHtml(a.emoji||'🐾'); return `<div class="animal-result" onclick="renderAnimalCard(window.__animalSearchCache[${i}], getAnimalQuestion())"><div class="animal-result-main"><img class="animal-thumb" src="${safeHtml(img)}" alt="${safeHtml(a.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML='<span class=&quot;animal-thumb-fallback&quot;>${fb}</span>'"><div><b>${safeHtml(a.name)}</b> <span class="animal-source-badge">${a.source==='private'?'プライベート':'内蔵'}</span><div class="animal-small">${safeHtml(a.hint)}</div></div></div><div class="animal-small">${safeHtml(a.suffix)}</div></div>`; }).join('') || '<div class="animal-small">見つからなかった。別の語尾や特徴で検索してみてｗ</div>';
+}
+function fileToDataUrl(file){
+  return new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file); });
+}
+async function addPrivateAnimal(){
+  const name=(document.getElementById('privateAnimalName')?.value||'').trim();
+  if(!name){ alert('名前を入れてね'); return; }
+  const suffix=(document.getElementById('privateAnimalSuffix')?.value||'').trim() || 'です';
+  const diff=document.getElementById('privateAnimalDiff')?.value || 'normal';
+  const hint=(document.getElementById('privateAnimalHint')?.value||'').trim() || 'プライベート追加。自由に想像してOK。';
+  const tags=(document.getElementById('privateAnimalTags')?.value||'').split(',').map(x=>x.trim()).filter(Boolean);
+  const imageUrl=(document.getElementById('privateAnimalImageUrl')?.value||'').trim();
+  const file=document.getElementById('privateAnimalImage')?.files?.[0];
+  let imageData='';
+  if(file){
+    if(file.size>2.5*1024*1024 && !confirm('画像が大きめです。保存できない場合があります。このまま追加する？')) return;
+    try{ imageData=await fileToDataUrl(file); }catch(e){ alert('画像の読み込みに失敗したよ'); return; }
+  }
+  privateAnimalData.push({id:Date.now()+''+Math.random().toString(16).slice(2), name, emoji:'🐾', diff, suffix, hint, tags, imageUrl, imageData, source:'private'});
+  try{ savePrivateAnimals(privateAnimalData); }catch(e){ alert('保存容量が足りない可能性があります。画像を小さくして再追加してね。'); privateAnimalData.pop(); return; }
+  ['privateAnimalName','privateAnimalSuffix','privateAnimalHint','privateAnimalTags','privateAnimalImageUrl','privateAnimalImage'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  renderPrivateAnimalList();
+  searchAnimalData(true);
+}
+function deletePrivateAnimal(id){
+  privateAnimalData=privateAnimalData.filter(a=>a.id!==id);
+  savePrivateAnimals(privateAnimalData);
+  renderPrivateAnimalList();
+  searchAnimalData(true);
+}
+function clearPrivateAnimalsConfirm(){
+  if(!privateAnimalData.length){ alert('まだプライベート動物はないよ'); return; }
+  if(confirm('プライベート動物を全部削除する？')){ privateAnimalData=[]; savePrivateAnimals(privateAnimalData); renderPrivateAnimalList(); searchAnimalData(true); }
+}
+function renderPrivateAnimalList(){
+  const out=document.getElementById('privateAnimalList'); if(!out) return;
+  if(!privateAnimalData.length){ out.innerHTML='<div class="animal-small">まだプライベート動物はありません。</div>'; return; }
+  out.innerHTML=privateAnimalData.map(a=>`<div class="private-animal-item"><div><b>${safeHtml(a.name)}</b><div class="animal-small">語尾：${safeHtml(a.suffix)} / ${safeHtml(a.diff)} / ${(a.imageUrl||a.imageData||a.image)?'画像あり':'画像なし'} / ${safeHtml((a.tags||[]).join('・'))}</div></div><button class="btn" onclick="deletePrivateAnimal('${a.id}')">削除</button></div>`).join('');
+}
+setTimeout(()=>{ renderPrivateAnimalList(); if(document.getElementById('animalVisual')) renderAnimalCard(builtInAnimalData[0], '最近ハマってることは？'); },0);
+
+const gameData={
+  animal:{label:"動物",roll:()=>{ rollAnimalGame(); return `🐾 動物なりきり大喜利を表示したよ`; }},
+  ogiri:{label:"大喜利",roll:()=>`🧠 大喜利：${pick(state.customGames.ogiri)}`},
+  line:{label:"セリフ",roll:()=>`🎭 セリフ：${pick(state.customGames.line)}`},
+  itsu:{label:"いつ誰",roll:()=>`🧩 ${pick(state.customGames.when)} ${pick(state.customGames.who)} ${pick(state.customGames.where)} ${pick(state.customGames.what)}`},
+  bob:{label:"ボブ",roll:()=>`📘 ボブジテン：${pick(state.customGames.bob)} ※カタカナ禁止で説明`},
+  relo:{label:"酒場",roll:()=>`🍻 レロレロ酒場：${pick(state.customGames.relo)} を噛まずに言える？`}
+};
+function rollStageGame(key, targetId){
+  if(key==='line' && targetId==='serifPreview'){ rollSerifGame(); return; }
+  const el=document.getElementById(targetId);
+  if(!el || !gameData[key]) return;
+  el.textContent = gameData[key].roll();
+}
+
 const trunks=[
   "最近あった地味にムカついた話",
   "昔はダサいと思ってたけど今はアリなもの",
@@ -3625,6 +4782,7 @@ function showScreen(id){
   if(id==="settings") renderSettings();
   if(id==="calendar") renderCalendar();
   if(id==="tools") renderTools();
+  if(id==="enduranceTool") renderEnduranceTool();
   if(id==="chinchiro"){ renderChinMode(); startChinBgm(); }
 }
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>showScreen(b.dataset.screen)));
@@ -3666,12 +4824,21 @@ saveQuickMemo.onclick=()=>{const v=quickMemo.value.trim();if(!v)return;state.log
 function renderGames(){
   setupToolCollapse();
   renderRoulette();
-  gameTabs.innerHTML=Object.entries(gameData).map(([k,g])=>`<button data-game="${k}" class="${k===selectedGame?"active":""}">${g.label}</button>`).join("");
-  gameTabs.querySelectorAll("button").forEach(b=>b.onclick=()=>{selectedGame=b.dataset.game;renderGames()});
-  gameHistory.innerHTML=state.gameHistory.map(h=>`<div>${escapeHtml(h)}</div>`).join("")||`<div>まだ履歴なし</div>`;
+  // v94: ゲーム一覧は「開く」ボタンだけに整理。旧クイックガチャUIが残っている場合のみ動かす。
+  if(typeof gameTabs!=="undefined" && gameTabs){
+    gameTabs.innerHTML=Object.entries(gameData).map(([k,g])=>`<button data-game="${k}" class="${k===selectedGame?"active":""}">${g.label}</button>`).join("");
+    gameTabs.querySelectorAll("button").forEach(b=>b.onclick=()=>{selectedGame=b.dataset.game;renderGames()});
+  }
+  if(typeof gameHistory!=="undefined" && gameHistory){
+    gameHistory.innerHTML=state.gameHistory.map(h=>`<div>${escapeHtml(h)}</div>`).join("")||`<div>まだ履歴なし</div>`;
+  }
 }
-rollGame.onclick=()=>{const r=gameData[selectedGame].roll();gameResult.textContent=r;state.gameHistory.unshift(r);state.gameHistory=state.gameHistory.slice(0,20);save();renderGames()}
-saveGameLog.onclick=()=>{const r=gameResult.textContent.trim();state.logs.unshift({date:new Date().toLocaleString("ja-JP"),title:"ゲーム結果",text:r});save();renderHome()}
+if(typeof rollGame!=="undefined" && rollGame){
+  rollGame.onclick=()=>{const r=gameData[selectedGame].roll();gameResult.textContent=r;state.gameHistory.unshift(r);state.gameHistory=state.gameHistory.slice(0,20);save();renderGames()}
+}
+if(typeof saveGameLog!=="undefined" && saveGameLog){
+  saveGameLog.onclick=()=>{const r=gameResult.textContent.trim();state.logs.unshift({date:new Date().toLocaleString("ja-JP"),title:"ゲーム結果",text:r});save();renderHome()}
+}
 
 
 function getLogboDays(listener){
@@ -3984,6 +5151,8 @@ function renderListenerDetail(){
   detailName.textContent=`${l.name} の詳細設定`;
   detailInputName.value=l.name || "";
   detailNickname.value=l.nickname || "";
+  if(window.detailSearchYomi) detailSearchYomi.value=l.searchYomi || "";
+  if(window.detailSearchTags) detailSearchTags.value=l.searchTags || "";
   const bd=splitBirthday(l.birthday || "");
   detailBirthMonth.value=bd.month ? Number(bd.month) : "";
   detailBirthDay.value=bd.day ? Number(bd.day) : "";
@@ -4034,6 +5203,8 @@ if(window.saveListenerDetail) saveListenerDetail.onclick=()=>{
   const newName=detailInputName.value.trim() || oldName;
   l.name=newName;
   l.nickname=detailNickname.value.trim();
+  l.searchYomi=(window.detailSearchYomi ? detailSearchYomi.value.trim() : (l.searchYomi || ""));
+  l.searchTags=(window.detailSearchTags ? detailSearchTags.value.trim() : (l.searchTags || ""));
   l.birthday=formatBirthday(detailBirthMonth.value, detailBirthDay.value);
   l.birthYear=detailBirthYear.value.trim();
   l.bloodType=detailBlood.value;
@@ -5265,6 +6436,124 @@ if(window.addTimer) addTimer.onclick=()=>{
   save();renderTools();
 }
 
+
+let enduranceTick = null;
+function enduranceState(){
+  state.tools = state.tools || {};
+  state.tools.endurance = state.tools.endurance || structuredClone(defaultState.tools.endurance);
+  const e = state.tools.endurance;
+  e.buttons = e.buttons || [];
+  if(!e.mode) e.mode = "timer";
+  if(typeof e.timerDuration !== "number") e.timerDuration = 180;
+  if(typeof e.timerRemaining !== "number") e.timerRemaining = e.timerDuration;
+  if(typeof e.counterGoal !== "number") e.counterGoal = 100;
+  if(typeof e.counterValue !== "number") e.counterValue = 0;
+  if(typeof e.timerSound !== "string") e.timerSound = "alarm_clock";
+  return e;
+}
+function fmtEnduranceTime(sec){
+  sec = Math.max(0, Math.floor(Number(sec)||0));
+  const m = Math.floor(sec/60);
+  const s = sec%60;
+  return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+}
+function playEnduranceButtonSe(){
+  if(typeof playAudio === "function") playAudio("seRouletteResult", true);
+}
+function renderEnduranceTool(){
+  const e = enduranceState();
+  const timerMode = e.mode !== "counter";
+  if(window.enduranceTimerTab){
+    enduranceTimerTab.classList.toggle("primary", timerMode);
+    enduranceTimerTab.classList.toggle("active", timerMode);
+  }
+  if(window.enduranceCounterTab){
+    enduranceCounterTab.classList.toggle("primary", !timerMode);
+    enduranceCounterTab.classList.toggle("active", !timerMode);
+  }
+  const goal = Number(e.counterGoal)||0;
+  const current = Number(e.counterValue)||0;
+  const hasGoal = !timerMode && goal > 0;
+  const progress = hasGoal ? Math.min(100, Math.max(0, current / goal * 100)) : 0;
+  if(window.enduranceModeLabel) enduranceModeLabel.textContent = timerMode ? "タイマーモード" : "カウンターモード";
+  if(window.enduranceMainValue) enduranceMainValue.textContent = timerMode ? fmtEnduranceTime(e.timerRemaining) : String(current);
+  if(window.enduranceSubValue) enduranceSubValue.textContent = timerMode ? `初期 ${fmtEnduranceTime(e.timerDuration)} / 0秒を目指せ` : (hasGoal ? `目標 ${goal} / ${Math.floor(progress)}% / 残り ${Math.max(0,goal-current)}` : "目標なし / 特殊カウンターとして使用中");
+  if(window.enduranceDisplayBox){
+    enduranceDisplayBox.classList.toggle("warning", timerMode && e.timerRemaining <= 30 && e.timerRemaining > 0 && e.timerRunning);
+    enduranceDisplayBox.classList.toggle("goal-ring", hasGoal);
+    enduranceDisplayBox.classList.toggle("goal-complete", hasGoal && progress >= 100);
+    enduranceDisplayBox.style.setProperty("--endurance-progress", progress + "%");
+  }
+  if(window.enduranceStartPause) enduranceStartPause.textContent = timerMode ? (e.timerRunning ? "停止" : "開始") : "カウンターはボタンで加算";
+  if(window.enduranceStartPause) enduranceStartPause.disabled = !timerMode;
+  if(window.enduranceTitleInput) enduranceTitleInput.value = e.title || "";
+  if(window.enduranceTimerMin) enduranceTimerMin.value = Math.floor((e.timerDuration||0)/60);
+  if(window.enduranceTimerSec) enduranceTimerSec.value = (e.timerDuration||0)%60;
+  if(window.enduranceTimerSound){
+    enduranceTimerSound.innerHTML = timerSounds.map(snd=>`<option value="${snd.id}" ${e.timerSound===snd.id?"selected":""}>終了音：${snd.label}</option>`).join("");
+    enduranceTimerSound.value = e.timerSound || "alarm_clock";
+  }
+  if(window.enduranceCounterGoal) enduranceCounterGoal.value = e.counterGoal || 0;
+
+  if(window.enduranceActionButtons){
+    const visible = (e.buttons||[]).filter(b => timerMode ? b.unit !== "count" : b.unit === "count");
+    enduranceActionButtons.innerHTML = visible.map(b=>{
+      const label = b.unit === "minutes" ? `${b.value}分` : b.unit === "seconds" ? `${b.value}秒` : `${b.value}`;
+      return `<button class="btn endurance-hit-btn" data-endurance-hit="${escapeAttr(b.id)}" style="background:${escapeAttr(b.color||"#38bdf8")};border-color:transparent;color:#020617" type="button">${escapeHtml(b.name)}<br><span>${Number(b.value)>=0?"+":""}${escapeHtml(label)}</span></button>`;
+    }).join("") || `<div class="tool-item muted">このモード用のボタンなし</div>`;
+    enduranceActionButtons.querySelectorAll("[data-endurance-hit]").forEach(btn=>btn.onclick=()=>hitEnduranceButton(btn.dataset.enduranceHit));
+  }
+  if(window.enduranceButtonList){
+    enduranceButtonList.innerHTML = (e.buttons||[]).map((b,i)=>`
+      <div class="endurance-action-card">
+        <div class="row" style="justify-content:space-between">
+          <b>${escapeHtml(b.name)}</b>
+          <button class="btn danger mini-btn" data-endurance-del="${i}" type="button">削除</button>
+        </div>
+        <div class="muted">${escapeHtml(b.unit)} / ${Number(b.value)>=0?"+":""}${escapeHtml(b.value)} / ${escapeHtml(b.color||"")}</div>
+      </div>
+    `).join("") || `<div class="tool-item muted">カスタムボタンなし</div>`;
+    enduranceButtonList.querySelectorAll("[data-endurance-del]").forEach(btn=>btn.onclick=()=>{
+      const i = Number(btn.dataset.enduranceDel);
+      e.buttons.splice(i,1); save(); renderEnduranceTool();
+    });
+  }
+}
+function hitEnduranceButton(id){
+  const e = enduranceState();
+  const b = (e.buttons||[]).find(x=>String(x.id)===String(id));
+  if(!b) return;
+  const v = Number(b.value)||0;
+  if(b.unit === "count"){
+    e.counterValue = Math.max(0,(e.counterValue||0)+v);
+  }else{
+    const add = b.unit === "minutes" ? v*60 : v;
+    e.timerRemaining = Math.max(0,(e.timerRemaining||0)+add);
+  }
+  playEnduranceButtonSe();
+  save(); renderEnduranceTool();
+}
+function ensureEnduranceTick(){
+  if(enduranceTick) return;
+  enduranceTick=setInterval(()=>{
+    const e=enduranceState();
+    if(e.timerRunning){
+      e.timerRemaining=Math.max(0,(e.timerRemaining||0)-1);
+      if(e.timerRemaining<=0){ e.timerRunning=false; if(typeof playAlarm==="function") playAlarm(e.timerSound||"alarm_clock"); }
+      save();
+      if(document.getElementById("enduranceTool")?.classList.contains("active")) renderEnduranceTool();
+    }
+  },1000);
+}
+if(window.enduranceTimerTab) enduranceTimerTab.onclick=()=>{const e=enduranceState(); e.mode="timer"; save(); renderEnduranceTool();};
+if(window.enduranceCounterTab) enduranceCounterTab.onclick=()=>{const e=enduranceState(); e.mode="counter"; save(); renderEnduranceTool();};
+if(window.enduranceStartPause) enduranceStartPause.onclick=()=>{const e=enduranceState(); if(e.timerRemaining<=0) e.timerRemaining=e.timerDuration; e.timerRunning=!e.timerRunning; save(); renderEnduranceTool(); ensureEnduranceTick();};
+if(window.enduranceReset) enduranceReset.onclick=()=>{const e=enduranceState(); if(e.mode==="counter"){e.counterValue=0;}else{e.timerRunning=false; e.timerRemaining=e.timerDuration;} save(); renderEnduranceTool();};
+if(window.enduranceSaveBase) enduranceSaveBase.onclick=()=>{const e=enduranceState(); e.title=(enduranceTitleInput.value||"カウントアップタイマー").trim(); const dur=Math.max(1,(Number(enduranceTimerMin.value)||0)*60 + Math.min(59,Number(enduranceTimerSec.value)||0)); e.timerDuration=dur; e.timerSound=(window.enduranceTimerSound?.value)||e.timerSound||"alarm_clock"; if(!e.timerRunning) e.timerRemaining=dur; e.counterGoal=Math.max(0,Number(enduranceCounterGoal.value)||0); save(); renderEnduranceTool();};
+if(window.enduranceAddButton) enduranceAddButton.onclick=()=>{const e=enduranceState(); const name=(enduranceButtonName.value||"追加ボタン").trim(); const value=Number(enduranceButtonValue.value)||0; const unit=enduranceButtonUnit.value||"seconds"; const color=enduranceButtonColor.value||"#38bdf8"; e.buttons.push({id:uid("ed"),name,value,unit,color}); enduranceButtonName.value=""; save(); renderEnduranceTool();};
+if(window.enduranceClearButtons) enduranceClearButtons.onclick=()=>{const e=enduranceState(); if(confirm("耐久カウンターのカスタムボタンを全部消す？")){e.buttons=[]; save(); renderEnduranceTool();}};
+ensureEnduranceTick();
+
 function encodeSaveData(obj){
   const json=JSON.stringify(obj);
   const bytes=new TextEncoder().encode(json);
@@ -5348,6 +6637,8 @@ state.tools = state.tools || structuredClone(defaultState.tools);
   if(typeof l.bloodType!=="string") l.bloodType="";
   if(typeof l.firstVisitDate!=="string") l.firstVisitDate="";
   if(typeof l.nickname!=="string") l.nickname="";
+  if(typeof l.searchYomi!=="string") l.searchYomi="";
+  if(typeof l.searchTags!=="string") l.searchTags="";
   if(!l.favorites) l.favorites={};
   ["project","game","food","area","music","anime","habit","free1","free2","ngTopic","dislikeFood","firstGame","mainWeapon","holiday","bgm","localThing","season","animal","oshi","firstStream","oneLine","teaseLine"].forEach(k=>{ if(typeof l.favorites[k]!=="string") l.favorites[k]=""; });
   if(!Array.isArray(l.topicSeeds)) l.topicSeeds=[]; });
@@ -5736,11 +7027,156 @@ const firebaseConfig = { ... }
     window.__rouletteShowScreenPatched = true;
   }
 
+  function kanaSortNames(list){
+    return (list || []).slice().sort(function(a,b){
+      return String(a || "").localeCompare(String(b || ""), "ja", {numeric:true, sensitivity:"base"});
+    });
+  }
+
+  function activeListenerNames(){
+    return Array.isArray(state.listeners)
+      ? state.listeners.map(function(l){ return l && l.name; }).filter(Boolean)
+      : [];
+  }
+
+  function syncRouletteGuestsWithRegulars(){
+    ensureRouletteState();
+    const active = new Set(activeListenerNames());
+    const hostName = state.hostProfile && state.hostProfile.name ? state.hostProfile.name : "";
+
+    // 常連メモに存在しないゲストは、ルーレット側の候補・ベットから自動的に消す。
+    state.roulette.guestBetters = Array.from(new Set(state.roulette.guestBetters || [])).filter(function(name){
+      return active.has(name);
+    });
+
+    const validBetters = new Set((hostName ? [hostName] : []).concat(activeListenerNames()));
+    state.roulette.bets = (state.roulette.bets || []).filter(function(b){
+      return b && validBetters.has(b.name);
+    });
+  }
+
   function getBetters(){
     ensureRouletteState();
-    const host = state.hostProfile && state.hostProfile.name ? [state.hostProfile.name] : [];
-    const listeners = Array.isArray(state.listeners) ? state.listeners.map(function(l){ return l.name; }).filter(Boolean) : [];
-    return Array.from(new Set(host.concat(listeners).concat(state.roulette.guestBetters || [])));
+    syncRouletteGuestsWithRegulars();
+    const hostName = state.hostProfile && state.hostProfile.name ? state.hostProfile.name : "";
+    const listeners = kanaSortNames(Array.from(new Set(activeListenerNames())).filter(function(name){ return name && name !== hostName; }));
+    return hostName ? [hostName].concat(listeners) : listeners;
+  }
+
+  function normalizeRouletteSearchText(value){
+    const kanjiKanaHints = {
+      "亜":"あ", "阿":"あ", "愛":"あい", "藍":"あい", "青":"あお", "葵":"あおい",
+      "伊":"い", "井":"い", "衣":"い", "宇":"う", "江":"え", "英":"えい", "大":"おお",
+      "加":"か", "香":"か", "花":"か", "華":"か", "神":"かみ", "木":"き", "菊":"きく",
+      "久":"く", "黒":"くろ", "小":"こ", "五":"ご", "佐":"さ", "咲":"さ", "桜":"さくら",
+      "白":"しろ", "鈴":"すず", "瀬":"せ", "高":"たか", "田":"た", "千":"ち", "月":"つき",
+      "中":"なか", "七":"なな", "西":"にし", "野":"の", "橋":"はし", "原":"はら",
+      "東":"ひがし", "藤":"ふじ", "北":"ほく", "星":"ほし", "松":"まつ", "美":"み",
+      "南":"みなみ", "宮":"みや", "村":"むら", "本":"もと", "山":"やま", "雪":"ゆき",
+      "吉":"よし", "良":"りょう", "林":"りん", "和":"わ"
+    };
+    let raw = String(value || "").normalize("NFKC").toLowerCase();
+    raw = raw.replace(/[ァ-ン]/g, function(ch){ return String.fromCharCode(ch.charCodeAt(0) - 0x60); });
+    raw = raw.replace(/\s+/g, "");
+    // SNS名の記号/絵文字/装飾は検索用には飛ばす。
+    try{
+      raw = raw.replace(/[^\p{L}\p{N}ー々〆〤]/gu, "");
+    }catch(e){
+      raw = raw.replace(/[^0-9a-zぁ-んァ-ン一-龯ー々〆〤]/g, "");
+    }
+    let hinted = "";
+    for(let i=0;i<raw.length;i++){
+      const ch = raw[i];
+      hinted += (kanjiKanaHints[ch] || ch);
+    }
+    return hinted;
+  }
+
+  function listenerByNameForSearch(name){
+    return Array.isArray(state.listeners)
+      ? state.listeners.find(function(l){ return l && l.name === name; })
+      : null;
+  }
+
+  function rouletteGuestSearchTokens(name){
+    const parts = [name];
+    if(isHostBetter(name)){
+      const h = state.hostProfile || {};
+      parts.push(h.memo || "");
+      parts.push(h.favoriteThings || "");
+      parts.push(h.hobbies || "");
+      parts.push(h.frequentTopics || "");
+      parts.push(h.streamGenres || "");
+      parts.push(h.ngWords || "");
+      parts.push("枠主 わくぬし 主 配信者");
+    }else{
+      const l = listenerByNameForSearch(name);
+      if(l){
+        parts.push(l.nickname || "");
+        parts.push(l.searchYomi || "");
+        parts.push(l.searchTags || "");
+        if(l.favorites) parts.push(Object.values(l.favorites).join(" "));
+      }
+    }
+    return parts.join(" ").split(/[\s,、，/／・|｜]+/).map(normalizeRouletteSearchText).filter(Boolean);
+  }
+
+  function rouletteGuestMatchesSearch(name, query){
+    const q = normalizeRouletteSearchText(query);
+    if(!q) return true;
+    const tokens = rouletteGuestSearchTokens(name);
+    // 1文字検索は「先頭一致」のみにする。
+    // これで「あ」→アラタ/亜... は出るが、「か」→ミホ のような誤爆を防ぐ。
+    if(q.length <= 1){
+      return tokens.some(function(t){ return t.indexOf(q) === 0; });
+    }
+    return tokens.some(function(t){ return t.indexOf(q) === 0 || t.indexOf(q) >= 0; });
+  }
+
+  function rouletteLastBetSortedNames(names){
+    const base = kanaSortNames(names);
+    const rank = new Map();
+    (state.roulette.bets || []).forEach(function(b, i){ if(b && b.name) rank.set(b.name, i); });
+    return base.sort(function(a,b){
+      const ar = rank.has(a) ? rank.get(a) : -1;
+      const br = rank.has(b) ? rank.get(b) : -1;
+      if(ar !== br) return br - ar;
+      return String(a || "").localeCompare(String(b || ""), "ja", {numeric:true, sensitivity:"base"});
+    });
+  }
+
+  function addListenerFromRouletteGuest(name){
+    ensureRouletteState();
+    const clean = String(name || "").trim();
+    if(!clean) return;
+    state.listeners = Array.isArray(state.listeners) ? state.listeners : [];
+    const exists = state.listeners.some(function(l){ return l && l.name === clean; });
+    if(!exists){
+      const today = (typeof ymd === "function") ? ymd(new Date()) : new Date().toISOString().slice(0,10);
+      state.listeners.push({
+        name:clean,
+        days:[],
+        logboByMonth:{},
+        memo:"ルーレットのゲスト追加から自動登録",
+        penalty:0,
+        registeredDate:today,
+        birthday:"",
+        searchYomi:"",
+        searchTags:"",
+        rouletteGuest:true
+      });
+    }
+  }
+
+  function removeRouletteGuestEverywhere(name){
+    ensureRouletteState();
+    const clean = String(name || "").trim();
+    if(!clean) return;
+    state.roulette.guestBetters = (state.roulette.guestBetters || []).filter(function(n){ return n !== clean; });
+    state.roulette.bets = (state.roulette.bets || []).filter(function(b){ return b.name !== clean; });
+    if(Array.isArray(state.listeners)){
+      state.listeners = state.listeners.filter(function(l){ return !(l && l.name === clean && l.rouletteGuest === true); });
+    }
   }
 
   function isHostBetter(name){
@@ -5872,11 +7308,36 @@ const firebaseConfig = { ... }
     return false;
   }
 
+  function renderRouletteGuestPickerOnly(){
+    const picker = document.getElementById("rouletteGuestPicker");
+    const select = document.getElementById("rouletteBetterSelect");
+    if(!picker) return;
+    syncRouletteGuestsWithRegulars();
+    const q = String(window.__rouletteGuestSearch || "").trim();
+    const sortMode = window.__rouletteGuestSort || "kana";
+    const hostName = state.hostProfile && state.hostProfile.name ? state.hostProfile.name : "";
+    const hostShown = hostName && rouletteGuestMatchesSearch(hostName, q) ? [hostName] : [];
+    let listeners = activeListenerNames().filter(function(name){ return name && name !== hostName; });
+    listeners = Array.from(new Set(listeners));
+    listeners = sortMode === "last" ? rouletteLastBetSortedNames(listeners) : kanaSortNames(listeners);
+    const shownListeners = listeners.filter(function(name){ return rouletteGuestMatchesSearch(name, q); });
+    const hostHtml = hostShown.length ? hostShown.map(function(name){
+      const selected = select && select.value === name;
+      return '<div class="roulette-host-sticky"><button class="roulette-tag host-chip ' + (selected ? 'selected ' : '') + '" data-select-roulette-better="' + esc(name) + '" type="button" style="display:inline-block;margin:2px 4px 2px 0;cursor:pointer">' + esc('★ ' + name + '（枠主）') + '</button></div>';
+    }).join('') : '';
+    const listenerHtml = shownListeners.length ? '<div class="roulette-listener-flow">' + shownListeners.map(function(name){
+      const selected = select && select.value === name;
+      return '<button class="roulette-tag ' + (selected ? 'selected ' : '') + '" data-select-roulette-better="' + esc(name) + '" type="button" style="display:inline-block;margin:2px 4px 2px 0;cursor:pointer">' + esc(name) + '</button>';
+    }).join('') + '</div>' : '';
+    picker.innerHTML = (hostHtml || listenerHtml) ? (hostHtml + listenerHtml) : '<span class="muted">該当なし</span>';
+  }
+
   function renderBetBoard(){
     ensureRouletteState();
     const grid = document.getElementById("rouletteNumberBetGrid");
     const select = document.getElementById("rouletteBetterSelect");
     const list = document.getElementById("rouletteBetList");
+    const guestList = document.getElementById("rouletteGuestList");
 
     if(grid && !grid.dataset.ready){
       grid.innerHTML = Array.from({length:36}, function(_,i){
@@ -5897,6 +7358,7 @@ const firebaseConfig = { ... }
           }).join("")
         : '<option value="">登録者なし</option>';
       if(current) select.value = current;
+      if(window.__rouletteSelectedBetter) select.value = window.__rouletteSelectedBetter;
     }
 
     document.querySelectorAll("[data-bet]").forEach(function(cell){
@@ -5930,7 +7392,69 @@ const firebaseConfig = { ... }
         return '<div class="roulette-bet-row"><span><b>' + esc(b.name) + '</b> → ' + esc(betLabel(b.bet)) + ' <span class="roulette-tag">' + betOdds(b.bet) + '</span></span><button class="btn danger mini-btn" data-del-bet="' + i + '" type="button">削除</button></div>';
       }).join("") || '<div class="muted">まだベットなし</div>';
     }
-  }
+
+    if(guestList){
+      syncRouletteGuestsWithRegulars();
+      const sortMode = window.__rouletteGuestSort || "kana";
+      const allBetters = getBetters();
+
+      // 重要：日本語IME中に検索inputを含むHTMLを描き直すと、
+      // 「か」が「kあ」になる。なので検索欄は初回だけ作り、以後は一覧部分だけ更新する。
+      if(guestList.dataset.imeSafeReady && allBetters.length && !document.getElementById("rouletteGuestPicker")){
+        delete guestList.dataset.imeSafeReady;
+      }
+      if(!guestList.dataset.imeSafeReady){
+        guestList.innerHTML = allBetters.length
+          ? '<div class="roulette-guest-tools" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">'
+            + '<input id="rouletteGuestSearch" placeholder="あ / ア / 亜 でも探せる" style="flex:1;min-width:180px" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">'
+            + '<select id="rouletteGuestSort" style="min-width:140px">'
+            + '<option value="kana">50音順</option>'
+            + '<option value="last">最終ベット順</option>'
+            + '</select>'
+            + '<span class="muted">枠主は常に一番上 / 常連メモ連動</span>'
+            + '</div>'
+            + '<div class="muted">追加済み：</div>'
+            + '<div id="rouletteGuestPicker" class="roulette-guest-picker" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>'
+          : '<div class="muted">ゲスト追加すると常連メモと選択肢に自動追加。常連から削除した人はここにも残らないよ</div>';
+        guestList.dataset.imeSafeReady = "1";
+
+        const guestSearch = document.getElementById("rouletteGuestSearch");
+        if(guestSearch){
+          guestSearch.value = window.__rouletteGuestSearch || "";
+          guestSearch.addEventListener("compositionstart", function(){
+            window.__rouletteGuestSearchComposing = true;
+          });
+          guestSearch.addEventListener("compositionend", function(){
+            window.__rouletteGuestSearchComposing = false;
+            window.__rouletteGuestSearch = this.value;
+            renderRouletteGuestPickerOnly();
+          });
+          guestSearch.addEventListener("input", function(e){
+            window.__rouletteGuestSearch = this.value;
+            if(window.__rouletteGuestSearchComposing || (e && e.isComposing)) return;
+            renderRouletteGuestPickerOnly();
+          });
+          guestSearch.addEventListener("change", function(){
+            window.__rouletteGuestSearch = this.value;
+            renderRouletteGuestPickerOnly();
+          });
+        }
+
+        const guestSort = document.getElementById("rouletteGuestSort");
+        if(guestSort){
+          guestSort.value = sortMode;
+          guestSort.addEventListener("change", function(){
+            window.__rouletteGuestSort = this.value || "kana";
+            renderRouletteGuestPickerOnly();
+          });
+        }
+      }else{
+        const guestSort = document.getElementById("rouletteGuestSort");
+        if(guestSort && guestSort.value !== sortMode) guestSort.value = sortMode;
+      }
+
+      renderRouletteGuestPickerOnly();
+    }  }
 
   function highlightWinningBets(result){
     document.querySelectorAll("[data-bet]").forEach(function(cell){
@@ -6318,8 +7842,11 @@ const firebaseConfig = { ... }
     if(t.id === "rouletteCasinoMode"){
       ensureRouletteState();
       state.roulette.mode = "casino";
+      const resultEl = document.getElementById("rouletteResult");
+      if(resultEl){ resultEl.classList.remove("show"); resultEl.textContent = "READY"; }
       safeSave();
       window.renderRoulette();
+      renderWheel();
       renderZoom("CASINO", "BET PLEASE", false);
       return;
     }
@@ -6340,11 +7867,37 @@ const firebaseConfig = { ... }
 
     if(t.id === "addRouletteGuestBetter"){
       ensureRouletteState();
-      const name = prompt("ベットに置く名前");
+      const rawName = prompt("ベットに置く名前");
+      const name = rawName ? rawName.trim() : "";
       if(!name) return;
-      state.roulette.guestBetters.push(name);
+      state.roulette.guestBetters = state.roulette.guestBetters || [];
+      if(!state.roulette.guestBetters.includes(name)) state.roulette.guestBetters.push(name);
+      addListenerFromRouletteGuest(name);
       safeSave();
+      if(typeof renderMemo === "function") renderMemo();
       window.renderRoulette();
+      return;
+    }
+
+    if(t.dataset && t.dataset.delRouletteGuest !== undefined){
+      ensureRouletteState();
+      const name = t.dataset.delRouletteGuest;
+      if(!confirm(name + " をゲスト/常連メモから削除する？")) return;
+      removeRouletteGuestEverywhere(name);
+      safeSave();
+      if(typeof renderMemo === "function") renderMemo();
+      window.renderRoulette();
+      return;
+    }
+
+    if(t.dataset && t.dataset.selectRouletteBetter !== undefined){
+      const select = document.getElementById("rouletteBetterSelect");
+      const name = t.dataset.selectRouletteBetter;
+      if(select){
+        select.value = name;
+        window.__rouletteSelectedBetter = name;
+      }
+      renderBetBoard();
       return;
     }
 
@@ -6376,6 +7929,17 @@ const firebaseConfig = { ... }
         return;
       }
 
+      if((state.roulette.bets || []).some(function(b){ return b.bet === bet; })){
+        playAudio("seRoulettePolice", true);
+        alert("この種類にはもうベット済み！1種類につき1ベットまでだよｗ");
+        return;
+      }
+
+      const alreadyBet = (state.roulette.bets || []).some(function(b){ return b && b.name === name && b.bet === bet; });
+      if(alreadyBet){
+        alert("同じ人は同じ種類に1ベットまでだよｗ");
+        return;
+      }
       state.roulette.bets.push({ name:name, bet:bet });
       safeSave();
       window.renderRoulette();
@@ -6851,6 +8415,197 @@ const firebaseConfig = { ... }
     </div>
   </div>
 </div>
+
+
+<script>
+/* v96 roulette hard guard
+   古いルーレット処理が同じボタンを後から拾って、
+   カジノモード中にカスタム項目で回る問題を止める。 */
+(function(){
+  const rouletteStopIds = new Set([
+    "spinRoulette",
+    "addRouletteItem",
+    "shuffleRoulette",
+    "clearRouletteHistory",
+    "clearRouletteBets",
+    "addRouletteGuestBetter",
+    "rouletteCustomMode",
+    "rouletteCasinoMode",
+    "backRouletteToGames",
+    "openRouletteFromGames"
+  ]);
+
+  document.addEventListener("click", function(e){
+    const t = e.target;
+    if(!t) return;
+    const target = t.closest ? t.closest("button,[data-bet],[data-del-bet],[data-del-roulette],[data-del-roulette-guest]") : t;
+    if(!target) return;
+
+    const isRouletteControl =
+      rouletteStopIds.has(target.id) ||
+      (target.dataset && (
+        target.dataset.bet !== undefined ||
+        target.dataset.delBet !== undefined ||
+        target.dataset.delRoulette !== undefined ||
+        target.dataset.delRouletteGuest !== undefined
+      ));
+
+    if(isRouletteControl){
+      e.stopImmediatePropagation();
+    }
+  }, true);
+})();
+</script>
+
+
+<script>
+/* v97 regular memo compact cards + roulette guest sync final */
+(function(){
+  function html(s){ return (typeof escapeHtml === "function") ? escapeHtml(s) : String(s ?? "").replace(/[&<>"]/g, function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];}); }
+  function attr(s){ return html(s).replace(/'/g,"&#39;"); }
+  function todayYmd(){ return (typeof ymd === "function") ? ymd(new Date()) : new Date().toISOString().slice(0,10); }
+  function regularSearchNormalize(value){
+    if(typeof normalizeRouletteSearchText === "function") return normalizeRouletteSearchText(value);
+    let raw=String(value||"").normalize("NFKC").toLowerCase();
+    raw=raw.replace(/[ァ-ン]/g,function(ch){return String.fromCharCode(ch.charCodeAt(0)-0x60);});
+    try{ raw=raw.replace(/[^\p{L}\p{N}ー々〆〤]/gu,""); }catch(e){ raw=raw.replace(/[^0-9a-zぁ-んァ-ン一-龯ー々〆〤]/g,""); }
+    return raw;
+  }
+  function listenerSearchHaystack(l){
+    return [l.name,l.nickname,l.searchYomi,l.searchTags,l.memo,(l.topicSeeds||[]).join(' '), JSON.stringify(l.favorites||{})].map(regularSearchNormalize).join(' ');
+  }
+  function listenerSortKey(l){ return String((l && (l.searchYomi || l.kana || l.name)) || ""); }
+  function ensureRegularToolbar(){
+    const grid=document.getElementById("memoGrid");
+    if(!grid || document.getElementById("regularMemoToolbar")) return;
+    const bar=document.createElement("div");
+    bar.id="regularMemoToolbar";
+    bar.className="regular-toolbar";
+    bar.innerHTML=''
+      + '<input id="regularMemoSearch" placeholder="常連検索" style="flex:1;min-width:180px">'
+      + '<select id="regularMemoSort">'
+      + '<option value="kana">50音順</option>'
+      + '<option value="recent">最近追加</option>'
+      + '<option value="birthday">誕生日近い順</option>'
+      + '</select>';
+    grid.parentNode.insertBefore(bar, grid);
+    regularMemoSearch.addEventListener("input", function(){ window.__regularMemoSearch=this.value; const pos=this.selectionStart||this.value.length; renderMemo(); const next=document.getElementById("regularMemoSearch"); if(next){ next.focus(); try{next.setSelectionRange(pos,pos);}catch(e){} } });
+    regularMemoSort.addEventListener("change", function(){ window.__regularMemoSort=this.value; renderMemo(); });
+  }
+  function daysUntilBirthday(l){
+    if(!l || !l.birthday) return 99999;
+    const parts=String(l.birthday).split('/');
+    if(parts.length<2) return 99999;
+    const now=new Date();
+    const m=Number(parts[0]); let d=Number(parts[1]);
+    if(!m || !d) return 99999;
+    function lastDay(y,mi){ return new Date(y,mi,0).getDate(); }
+    let y=now.getFullYear();
+    if(m===2 && d===29){
+      const leap=(y%4===0 && y%100!==0)||y%400===0;
+      if(!leap) d=28;
+    }else d=Math.min(d,lastDay(y,m));
+    let target=new Date(y,m-1,d);
+    const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    if(target<today){
+      y++;
+      d=Number(parts[1]);
+      if(m===2 && d===29){
+        const leap=(y%4===0 && y%100!==0)||y%400===0;
+        if(!leap) d=28;
+      }else d=Math.min(d,lastDay(y,m));
+      target=new Date(y,m-1,d);
+    }
+    return Math.round((target-today)/86400000);
+  }
+  function primarySeed(l){
+    const seeds=(l && l.topicSeeds && l.topicSeeds.length) ? l.topicSeeds : (typeof generateTopicSeeds === "function" ? generateTopicSeeds(l) : []);
+    return seeds && seeds.length ? seeds[0] : "好きな物・趣味を入れると話題の種が出るよ";
+  }
+  function nearestPlan(l){
+    if(!l) return "予定なし";
+    const now=todayYmd();
+    const evs=(state.calendarEvents||[]).filter(function(ev){ return ev.listener===l.name && ev.date>=now; })
+      .sort(function(a,b){ return String(a.date).localeCompare(String(b.date)); });
+    if(evs.length){
+      const ev=evs[0];
+      return ev.date + "：" + (ev.type || "予定") + (ev.item ? " / " + ev.item : "");
+    }
+    const bd=daysUntilBirthday(l);
+    if(bd!==99999){
+      if(bd===0) return "今日：誕生日";
+      if(bd<=30) return bd + "日後：誕生日";
+    }
+    return "予定なし";
+  }
+  function getSortedListeners(){
+    const search=regularSearchNormalize(String(window.__regularMemoSearch || "").trim());
+    const sort=window.__regularMemoSort || "kana";
+    let arr=(state.listeners||[]).map(function(l,i){ return {l:l,i:i}; });
+    if(search){
+      arr=arr.filter(function(x){ return listenerSearchHaystack(x.l||{}).includes(search); });
+    }
+    if(sort==="recent") arr.sort(function(a,b){ return String(b.l.registeredDate||"").localeCompare(String(a.l.registeredDate||"")); });
+    else if(sort==="birthday") arr.sort(function(a,b){ return daysUntilBirthday(a.l)-daysUntilBirthday(b.l); });
+    else arr.sort(function(a,b){ return listenerSortKey(a.l).localeCompare(listenerSortKey(b.l),'ja'); });
+    return arr;
+  }
+  window.renderMemo=function(){
+    const grid=document.getElementById("memoGrid");
+    if(!grid) return;
+    ensureRegularToolbar();
+    grid.classList.add("regular-one-list");
+    const items=getSortedListeners();
+    grid.innerHTML=items.map(function(x){
+      const l=x.l, i=x.i;
+      const seed=primarySeed(l);
+      const plan=nearestPlan(l);
+      return ''
+      + '<div class="card regular-compact-card"><div class="inner">'
+      + '<div class="regular-compact-head">'
+      + '<div><div class="regular-compact-name">' + html(l.name || '名前なし') + '</div>'
+      + (l.nickname ? '<div class="muted">@' + html(l.nickname) + '</div>' : '') + '</div>'
+      + '<div class="row"><button class="btn mini-btn" data-toggle-regular="'+i+'">開く</button>'
+      + '<button class="btn danger mini-btn" data-delete-memo-listener="'+i+'">削除</button></div>'
+      + '</div>'
+      + '<div class="regular-topic-blue">🩵 ' + html(seed) + '</div>'
+      + '<div class="regular-next-plan">📅 ' + html(plan) + '</div>'
+      + '<div class="regular-detail-fold" data-regular-fold="'+i+'">'
+      + '<p class="muted">ログボ ' + html((typeof currentLogboCount==="function" ? currentLogboCount(l) : 0)) + '日 / ' + html(state.logboMonth || '') + '</p>'
+      + (l.birthday ? '<p class="muted">🎂 誕生日 ' + html(l.birthday) + '</p>' : '')
+      + (typeof isLeapBirthday==="function" && isLeapBirthday(l.birthday) ? '<div class="leap-note">🎂 うるう日生まれ：平年は2/28扱いで表示します。</div>' : '')
+      + '<p class="muted">年齢 ' + html(typeof displayAge==="function" ? displayAge(l) : '-') + ' / 初来枠から ' + html(typeof dateDiffText==="function" ? dateDiffText(l.firstVisitDate || l.registeredDate) : '-') + '</p>'
+      + (typeof renderSeedList==="function" ? renderSeedList(l,i) : '')
+      + '<div class="penalty-box"><div class="row" style="justify-content:space-between"><div><div class="muted">ペナルティー</div><div class="penalty-count">' + html(l.penalty || 0) + '</div></div>'
+      + '<div class="row"><button class="btn danger mini-btn" data-penalty-minus="'+i+'">−</button><button class="btn danger mini-btn" data-penalty-plus="'+i+'">＋</button><button class="btn mini-btn" data-penalty-reset="'+i+'">リセット</button><button class="btn mini-btn" data-penalty-detail="'+i+'">内容を開く</button></div></div>'
+      + '<div class="penalty-details" data-penalty-detail-box="'+i+'">' + (typeof penaltyDetailList==="function" ? penaltyDetailList(l.name) : '') + '</div></div>'
+      + '<h3>達成依頼 / 達成品</h3>' + (typeof achievedList==="function" ? achievedList(l) : '')
+      + '<h3>カレンダー同期メモ</h3>' + (typeof calendarMemoList==="function" ? calendarMemoList(l.name) : '')
+      + '<label>検索用よみ</label><input data-search-yomi="'+i+'" value="' + attr(l.searchYomi || '') + '" placeholder="例：あらた / びーる / よろしくたろう">'
+      + '<p class="muted">アプリ内検索用。記号・絵文字（★🍺+など）は自動で飛ばすから普通の名前は入力不要。当て字・特殊名・絵文字だけの名前だけ設定。</p>'
+      + '<label>検索用タグ</label><input data-search-tags="'+i+'" value="' + attr(l.searchTags || '') + '" placeholder="例：酒 飲み 深夜 筋トレ">'
+      + '<p class="muted">スペース区切り。名前以外でも探したい時用。</p>'
+      + '<label>常連メモ</label><textarea data-memo="'+i+'">' + html(l.memo || '') + '</textarea>'
+      + '<div class="row" style="margin-top:8px"><button class="btn primary mini-btn" data-open-detail="'+i+'">詳細設定</button><button class="btn mini-btn" data-refresh-seeds="'+i+'">話題更新</button></div>'
+      + '</div></div></div>';
+    }).join('') || '<div class="card"><div class="inner muted">常連なし</div></div>';
+
+    grid.querySelectorAll('[data-toggle-regular]').forEach(function(btn){ btn.onclick=function(){ const box=grid.querySelector('[data-regular-fold="'+btn.dataset.toggleRegular+'"]'); if(box){ box.classList.toggle('open'); btn.textContent=box.classList.contains('open')?'閉じる':'開く'; } }; });
+    grid.querySelectorAll('textarea[data-memo]').forEach(function(t){ t.onchange=function(){ state.listeners[Number(t.dataset.memo)].memo=t.value; save(); }; });
+    grid.querySelectorAll('input[data-search-yomi]').forEach(function(inp){ inp.onchange=function(){ state.listeners[Number(inp.dataset.searchYomi)].searchYomi=inp.value.trim(); save(); }; });
+    grid.querySelectorAll('input[data-search-tags]').forEach(function(inp){ inp.onchange=function(){ state.listeners[Number(inp.dataset.searchTags)].searchTags=inp.value.trim(); save(); }; });
+    grid.querySelectorAll('[data-refresh-seeds]').forEach(function(btn){ btn.onclick=function(){ refreshTopicSeeds(Number(btn.dataset.refreshSeeds)); }; });
+    grid.querySelectorAll('[data-open-detail]').forEach(function(btn){ btn.onclick=function(){ openListenerDetail(Number(btn.dataset.openDetail)); }; });
+    grid.querySelectorAll('[data-delete-memo-listener]').forEach(function(btn){ btn.onclick=function(){ deleteListener(Number(btn.dataset.deleteMemoListener)); }; });
+    if(typeof bindPenaltyButtons==="function") bindPenaltyButtons(grid);
+  };
+  if(document.readyState!=="loading"){
+    try{ renderMemo(); }catch(e){ console.warn(e); }
+  }else{
+    document.addEventListener("DOMContentLoaded", function(){ try{ renderMemo(); }catch(e){ console.warn(e); } });
+  }
+})();
+</script>
 
 </body>
 </html>

@@ -103,7 +103,34 @@
     ensureRouletteState();
     const host = state.hostProfile && state.hostProfile.name ? [state.hostProfile.name] : [];
     const listeners = Array.isArray(state.listeners) ? state.listeners.map(function(l){ return l.name; }).filter(Boolean) : [];
-    return Array.from(new Set(host.concat(listeners).concat(state.roulette.guestBetters || [])));
+    return Array.from(new Set(host.concat(listeners).concat(state.roulette.guestBetters || []))).filter(Boolean);
+  }
+
+  function addListenerFromRouletteGuest(name){
+    ensureRouletteState();
+    const clean = String(name || "").trim();
+    if(!clean) return;
+    state.listeners = Array.isArray(state.listeners) ? state.listeners : [];
+    const exists = state.listeners.some(function(l){ return l && String(l.name).trim() === clean; });
+    if(!exists){
+      const today = (typeof ymd === "function") ? ymd(new Date()) : new Date().toISOString().slice(0,10);
+      state.listeners.push({
+        name: clean,
+        days: [],
+        logboByMonth: {},
+        memo: "",
+        penalty: 0,
+        registeredDate: today,
+        birthday: "",
+        rouletteGuest: true,
+        topicSeeds: ["ルーレット参加から登録。次に来たら今日の参加ネタを拾える"]
+      });
+      if(Array.isArray(state.calendarEvents)){
+        const already = state.calendarEvents.some(function(ev){ return ev.listener === clean && ev.type === "登録日" && ev.date === today; });
+        if(!already) state.calendarEvents.push({id: (typeof uid === "function" ? uid("cal") : "cal_"+Date.now()), date: today, listener: clean, type: "登録日", item: "ルーレット参加から自動登録"});
+      }
+    }
+    state.roulette.guestBetters = Array.from(new Set((state.roulette.guestBetters || []).concat([clean])));
   }
 
   function isHostBetter(name){
@@ -705,8 +732,11 @@
       ensureRouletteState();
       const name = prompt("ベットに置く名前");
       if(!name) return;
-      state.roulette.guestBetters.push(name);
+      addListenerFromRouletteGuest(name);
       safeSave();
+      if(typeof renderMemo === "function") renderMemo();
+      if(typeof renderBonus === "function") renderBonus();
+      if(typeof renderCalendar === "function") renderCalendar();
       window.renderRoulette();
       return;
     }
@@ -739,6 +769,11 @@
         return;
       }
 
+      const alreadyBet = (state.roulette.bets || []).some(function(b){ return b && b.name === name && b.bet === bet; });
+      if(alreadyBet){
+        alert("同じ人は同じ種類に1ベットまでだよｗ");
+        return;
+      }
       state.roulette.bets.push({ name:name, bet:bet });
       safeSave();
       window.renderRoulette();
